@@ -61,7 +61,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                co.edu.uniquindio.poo.proyectofiinal2025_2/co.edu.uniquindio.poo.proyectofiinal2025_2.HelloApplication
+                                co.edu.uniquindio.poo.proyectofiinal2025_2.MainApp
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
