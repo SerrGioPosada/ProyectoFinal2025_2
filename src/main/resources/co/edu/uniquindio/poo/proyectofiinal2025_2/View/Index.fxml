@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.IndexController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="700.0" stylesheets="@../Style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.IndexController">
    <children>
       <BorderPane layoutX="73.0" layoutY="78.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
@@ -72,29 +72,35 @@
          <left>
             <AnchorPane fx:id="slider" prefHeight="362.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" BorderPane.alignment="CENTER">
                <children>
-                  <VBox layoutX="65.0" layoutY="50.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="53.0">
+                  <VBox layoutX="65.0" layoutY="131.0" prefHeight="204.0" prefWidth="176.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="131.0">
                      <children>
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" text="Button" textFill="WHITE">
+                        <Separator prefHeight="11.0" prefWidth="176.0" />
+                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" styleClass="my-button" text="INICIAR SESIÓN" textFill="WHITE">
                            <font>
                               <Font name="System Bold" size="15.0" />
                            </font></Button>
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" text="Button" textFill="WHITE">
+                        <Separator prefHeight="11.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" />
+                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" styleClass="my-button" text="Button" textFill="WHITE">
                            <font>
                               <Font name="System Bold" size="15.0" />
                            </font>
                         </Button>
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" text="Button" textFill="WHITE">
+                        <Separator prefHeight="11.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" />
+                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" styleClass="my-button" text="Button" textFill="WHITE">
                            <font>
                               <Font name="System Bold" size="15.0" />
                            </font>
                         </Button>
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" text="Button" textFill="WHITE">
+                        <Separator prefHeight="11.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" />
+                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" styleClass="my-button" text="Button" textFill="WHITE">
                            <font>
                               <Font name="System Bold" size="15.0" />
                            </font>
                         </Button>
+                        <Separator prefHeight="11.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" />
                      </children>
                   </VBox>
+                  <ImageView fx:id="userImage" fitHeight="101.0" fitWidth="109.0" layoutX="32.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="217.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="35.0" AnchorPane.topAnchor="17.0" />
                </children>
             </AnchorPane>
          </left>
