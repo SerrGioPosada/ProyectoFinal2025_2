@@ -8,102 +8,131 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="700.0" stylesheets="@../Style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.IndexController">
+<!--
+    View: Index.fxml
+    Description: Main application window.
+    Contains the top header, sidebar (slider menu), and central content area.
+    Controller: IndexController
+-->
+
+<AnchorPane prefHeight="400.0" prefWidth="700.0"
+            stylesheets="@../Style.css"
+            xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.IndexController">
+
    <children>
-      <BorderPane layoutX="73.0" layoutY="78.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <BorderPane AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+
+         <!-- ===================== -->
+         <!-- TOP HEADER            -->
+         <!-- ===================== -->
          <top>
-            <AnchorPane prefHeight="65.0" prefWidth="200.0" style="-fx-background-color: WHITE;" BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="65.0" style="-fx-background-color: WHITE;" BorderPane.alignment="CENTER">
                <children>
-                  <Pane layoutX="277.0" layoutY="9.0" prefHeight="25.0" prefWidth="200.0" style="-fx-background-color: #032d4d;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+                  <!-- Blue bar at the very top -->
+                  <Pane prefHeight="25.0" style="-fx-background-color: #032d4d;"
+                        AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                      <children>
-                        <ImageView fx:id="exit" fitHeight="18.0" fitWidth="17.0" layoutX="677.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true">
+                        <!-- Exit button (close app) -->
+                        <ImageView fx:id="exit" fitHeight="18.0" fitWidth="17.0"
+                                   layoutX="677.0" layoutY="4.0"
+                                   pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../Images/boton-exit.png" />
                            </image>
                         </ImageView>
-                     </children></Pane>
-                  <HBox layoutX="222.0" layoutY="1.0" prefHeight="43.0" prefWidth="525.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="175.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                     </children>
+                  </Pane>
+
+                  <!-- Navigation buttons bar -->
+                  <HBox prefHeight="43.0" prefWidth="525.0"
+                        AnchorPane.topAnchor="25.0" AnchorPane.bottomAnchor="0.0"
+                        AnchorPane.leftAnchor="175.0" AnchorPane.rightAnchor="0.0">
                      <children>
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: WHITE;" text="Button">
-                           <HBox.margin>
-                              <Insets top="3.0" />
-                           </HBox.margin></Button>
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: WHITE;" text="Button">
-                           <HBox.margin>
-                              <Insets top="3.0" />
-                           </HBox.margin></Button>
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: WHITE;" text="Button">
-                           <HBox.margin>
-                              <Insets top="3.0" />
-                           </HBox.margin></Button>
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: WHITE;" text="Button">
-                           <HBox.margin>
-                              <Insets top="3.0" />
-                           </HBox.margin></Button>
+                        <Button text="Button" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: WHITE;">
+                           <HBox.margin><Insets top="3.0" /></HBox.margin>
+                        </Button>
+                        <Button text="Button" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: WHITE;">
+                           <HBox.margin><Insets top="3.0" /></HBox.margin>
+                        </Button>
+                        <Button text="Button" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: WHITE;">
+                           <HBox.margin><Insets top="3.0" /></HBox.margin>
+                        </Button>
+                        <Button text="Button" prefHeight="38.0" prefWidth="136.0" style="-fx-background-color: WHITE;">
+                           <HBox.margin><Insets top="3.0" /></HBox.margin>
+                        </Button>
                      </children>
                   </HBox>
-                  <Label fx:id="menuBack" layoutX="10.0" layoutY="34.0" prefHeight="21.0" prefWidth="72.0" text="MENÚ" textFill="#b2b2b2" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="618.0" AnchorPane.topAnchor="34.0">
-                     <font>
-                        <Font name="System Bold" size="14.0" />
-                     </font>
+
+                  <!-- Menu toggle buttons (hamburger menu) -->
+                  <Label fx:id="menuBack" text="MENÚ" textFill="#b2b2b2"
+                         layoutX="10.0" layoutY="34.0"
+                         AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="34.0">
+                     <font><Font name="System Bold" size="14.0" /></font>
                      <graphic>
                         <ImageView fitHeight="16.0" fitWidth="20.0">
-                           <image>
-                              <Image url="@../Images/Menu2.png" />
-                           </image>
+                           <image><Image url="@../Images/Menu2.png" /></image>
                         </ImageView>
                      </graphic>
                   </Label>
-                  <Label fx:id="menu" layoutX="11.0" layoutY="34.0" prefHeight="21.0" prefWidth="72.0" text="MENÚ" textFill="#b2b2b2" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="618.0" AnchorPane.topAnchor="34.0">
+
+                  <Label fx:id="menu" text="MENÚ" textFill="#b2b2b2"
+                         layoutX="11.0" layoutY="34.0"
+                         AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="34.0">
+                     <font><Font name="System Bold" size="14.0" /></font>
                      <graphic>
                         <ImageView fitHeight="16.0" fitWidth="20.0">
-                           <image>
-                              <Image url="@../Images/Menu2.png" />
-                           </image>
+                           <image><Image url="@../Images/Menu2.png" /></image>
                         </ImageView>
                      </graphic>
-                     <font>
-                        <Font name="System Bold" size="14.0" />
-                     </font>
                   </Label>
                </children>
             </AnchorPane>
          </top>
+
+         <!-- ===================== -->
+         <!-- LEFT SLIDER (SIDEBAR) -->
+         <!-- ===================== -->
          <left>
-            <AnchorPane fx:id="slider" prefHeight="362.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" BorderPane.alignment="CENTER">
+            <AnchorPane fx:id="slider" prefWidth="176.0" style="-fx-background-color: #0A4969;" BorderPane.alignment="CENTER">
                <children>
-                  <VBox layoutX="65.0" layoutY="131.0" prefHeight="204.0" prefWidth="176.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="131.0">
+                  <VBox prefHeight="204.0" AnchorPane.topAnchor="131.0" AnchorPane.bottomAnchor="0.0"
+                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                      <children>
-                        <Separator prefHeight="11.0" prefWidth="176.0" />
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" styleClass="my-button" text="INICIAR SESIÓN" textFill="WHITE">
-                           <font>
-                              <Font name="System Bold" size="15.0" />
-                           </font></Button>
-                        <Separator prefHeight="11.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" />
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" styleClass="my-button" text="Button" textFill="WHITE">
-                           <font>
-                              <Font name="System Bold" size="15.0" />
-                           </font>
+                        <Separator />
+                        <Button text="INICIAR SESIÓN" textFill="WHITE" styleClass="my-button" prefHeight="38.0">
+                           <font><Font name="System Bold" size="15.0" /></font>
                         </Button>
-                        <Separator prefHeight="11.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" />
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" styleClass="my-button" text="Button" textFill="WHITE">
-                           <font>
-                              <Font name="System Bold" size="15.0" />
-                           </font>
+                        <Separator style="-fx-background-color: #0A4969;" />
+
+                        <Button text="Button" textFill="WHITE" styleClass="my-button" prefHeight="38.0">
+                           <font><Font name="System Bold" size="15.0" /></font>
                         </Button>
-                        <Separator prefHeight="11.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" />
-                        <Button mnemonicParsing="false" prefHeight="38.0" prefWidth="176.0" styleClass="my-button" text="Button" textFill="WHITE">
-                           <font>
-                              <Font name="System Bold" size="15.0" />
-                           </font>
+                        <Separator style="-fx-background-color: #0A4969;" />
+
+                        <Button text="Button" textFill="WHITE" styleClass="my-button" prefHeight="38.0">
+                           <font><Font name="System Bold" size="15.0" /></font>
                         </Button>
-                        <Separator prefHeight="11.0" prefWidth="176.0" style="-fx-background-color: #0A4969;" />
+                        <Separator style="-fx-background-color: #0A4969;" />
+
+                        <Button text="Button" textFill="WHITE" styleClass="my-button" prefHeight="38.0">
+                           <font><Font name="System Bold" size="15.0" /></font>
+                        </Button>
+                        <Separator style="-fx-background-color: #0A4969;" />
                      </children>
                   </VBox>
-                  <ImageView fx:id="userImage" fitHeight="101.0" fitWidth="109.0" layoutX="32.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="217.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="35.0" AnchorPane.topAnchor="17.0" />
+
+                  <!-- User profile picture -->
+                  <ImageView fx:id="userImage" fitHeight="101.0" fitWidth="109.0"
+                             layoutX="32.0" layoutY="17.0"
+                             pickOnBounds="true" preserveRatio="true" />
                </children>
             </AnchorPane>
          </left>
+
       </BorderPane>
    </children>
 </AnchorPane>
