@@ -15,6 +15,8 @@ public class MainApp extends Application {
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Mi Proyecto Final 2025-2");
         stage.setScene(scene);
+        stage.setMinWidth(710);
+        stage.setMinHeight(400);
         stage.show();
     }
 
@@ -22,4 +24,5 @@ public class MainApp extends Application {
         launch();
     }
 }
+
 

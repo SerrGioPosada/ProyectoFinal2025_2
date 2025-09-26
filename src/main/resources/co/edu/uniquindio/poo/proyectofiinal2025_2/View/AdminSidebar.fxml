@@ -18,22 +18,22 @@
                     <children>
                         <Separator visible="false" />
 
-                        <Button prefHeight="38.0" styleClass="my-button" text="Dashboard" textFill="WHITE">
+                        <Button fx:id="btnDashboard" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Dashboard" textFill="WHITE">
                             <font><Font name="System Bold" size="15.0" /></font>
                         </Button>
 
                         <Separator visible="false" />
-                        <Button prefHeight="38.0" styleClass="my-button" text="Manage Users" textFill="WHITE" />
+                        <Button fx:id="btnManageUsers" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Manage Users" textFill="WHITE" />
                         <Separator visible="false" />
-                        <Button prefHeight="38.0" styleClass="my-button" text="Manage Shipments" textFill="WHITE" />
+                        <Button fx:id="btnManageShipments" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Manage Shipments" textFill="WHITE" />
                         <Separator visible="false" />
-                        <Button prefHeight="38.0" styleClass="my-button" text="Reports" textFill="WHITE" />
+                        <Button fx:id="btnReports" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Reports" textFill="WHITE" />
                         <Separator visible="false" />
                     </children>
                 </VBox>
 
                 <!-- Admin profile picture -->
-                <ImageView fx:id="userImage" fitHeight="101.0" fitWidth="109.0" layoutX="32.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true" />
+                <ImageView fx:id="imgUserImage" fitHeight="101.0" fitWidth="109.0" layoutX="32.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true" />
             </children>
         </AnchorPane>
     </children>

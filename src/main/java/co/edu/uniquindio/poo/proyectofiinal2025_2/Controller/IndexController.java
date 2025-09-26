@@ -21,10 +21,10 @@ public class IndexController implements Initializable {
     private ImageView exit;
 
     @FXML
-    private Label menu;
+    private Label lblMenu;
 
     @FXML
-    private Label menuBack;
+    private Label lblMenuBack;
 
     /**
      * Root node of the included sidebar (UserSidebar.fxml or AdminSidebar.fxml).
@@ -40,8 +40,8 @@ public class IndexController implements Initializable {
         // Exit button closes the application
         exit.setOnMouseClicked(event -> System.exit(0));
 
-        // Hide menuBack initially (assuming menu visible at start)
-        menuBack.setVisible(false);
+        // Hide lblMenuBack initially (assuming lblMenu visible at start)
+        lblMenuBack.setVisible(false);
 
         // If the sidebar was included, position it hidden to the left
         if (userSidebar != null) {
@@ -49,16 +49,16 @@ public class IndexController implements Initializable {
         }
 
         // Open sidebar
-        menu.setOnMouseClicked(event -> {
-            menu.setVisible(false);
-            menuBack.setVisible(true);
+        lblMenu.setOnMouseClicked(event -> {
+            lblMenu.setVisible(false);
+            lblMenuBack.setVisible(true);
             openSidebar();
         });
 
         // Close sidebar
-        menuBack.setOnMouseClicked(event -> {
-            menu.setVisible(true);
-            menuBack.setVisible(false);
+        lblMenuBack.setOnMouseClicked(event -> {
+            lblMenu.setVisible(true);
+            lblMenuBack.setVisible(false);
             closeSidebar();
         });
     }

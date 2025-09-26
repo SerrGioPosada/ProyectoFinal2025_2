@@ -25,7 +25,7 @@ import java.util.ResourceBundle;
 public abstract class BaseSidebarController implements Initializable {
 
     @FXML
-    protected ImageView userImage;
+    protected ImageView imgUserImage;
 
     @FXML
     protected AnchorPane slider;
@@ -35,38 +35,38 @@ public abstract class BaseSidebarController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // === Profile Image Setup ===
-        String path = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png";
+        String path = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-UserImage.png";
         URL imgUrl = getClass().getResource(path);
 
         if (imgUrl != null) {
-            userImage.setImage(new Image(imgUrl.toExternalForm()));
+            imgUserImage.setImage(new Image(imgUrl.toExternalForm()));
         }
 
-        userImage.setFitWidth(100);
-        userImage.setFitHeight(100);
-        userImage.setPreserveRatio(true);
+        imgUserImage.setFitWidth(100);
+        imgUserImage.setFitHeight(100);
+        imgUserImage.setPreserveRatio(true);
 
         // Circular clipping mask
         Circle clip = new Circle(50, 50, 50);
-        userImage.setClip(clip);
+        imgUserImage.setClip(clip);
 
         // Hover animation
-        userImage.setOnMouseEntered(e -> {
-            ScaleTransition st = new ScaleTransition(Duration.millis(200), userImage);
+        imgUserImage.setOnMouseEntered(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(200), imgUserImage);
             st.setToX(1.1);
             st.setToY(1.1);
             st.play();
         });
 
-        userImage.setOnMouseExited(e -> {
-            ScaleTransition st = new ScaleTransition(Duration.millis(200), userImage);
+        imgUserImage.setOnMouseExited(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(200), imgUserImage);
             st.setToX(1.0);
             st.setToY(1.0);
             st.play();
         });
 
         // On click: show profile information
-        userImage.setOnMouseClicked(e -> {
+        imgUserImage.setOnMouseClicked(e -> {
             User currentUser = userRepository.getCurrentUser();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Profile");

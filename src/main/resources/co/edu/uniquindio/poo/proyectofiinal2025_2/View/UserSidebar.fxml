@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
@@ -18,22 +19,28 @@
                     <children>
                         <Separator visible="false" />
 
-                        <Button prefHeight="38.0" styleClass="my-button" text="INICIAR SESIÓN" textFill="WHITE" />
+                        <Button fx:id="btnLogin" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="INICIAR SESIÓN" textFill="WHITE">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin></Button>
                         <Separator visible="false" />
 
-                        <Button prefHeight="38.0" styleClass="my-button" text="New Shipment" textFill="WHITE" />
+                        <Button fx:id="btnSignup" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="REGISTRARSE" textFill="WHITE" />
                         <Separator visible="false" />
 
-                        <Button prefHeight="38.0" styleClass="my-button" text="My Orders" textFill="WHITE" />
+                        <Button fx:id="btnOrders" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Ordenes" textFill="WHITE" />
                         <Separator visible="false" />
 
-                        <Button prefHeight="38.0" styleClass="my-button" text="Profile" textFill="WHITE" />
+                        <Button fx:id="btnProfile" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Perfil" textFill="WHITE" />
                         <Separator visible="false" />
+                  <Button fx:id="btnNewShipment" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Nuevo Envio" textFill="WHITE" />
+                  <Separator visible="false" />
+                  <Button fx:id="btnLogout" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Cerrar Sesión" textFill="WHITE" />
                     </children>
                 </VBox>
 
                 <!-- User profile picture -->
-                <ImageView fx:id="userImage" fitHeight="101.0" fitWidth="109.0" layoutX="32.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true" />
+                <ImageView fx:id="imgUserImage" fitHeight="101.0" fitWidth="109.0" layoutX="32.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true" />
             </children>
         </AnchorPane>
     </children>

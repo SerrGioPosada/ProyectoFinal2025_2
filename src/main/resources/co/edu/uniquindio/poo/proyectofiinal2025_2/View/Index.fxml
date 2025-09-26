@@ -9,25 +9,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.fxml.FXMLLoader?>
 
-<!--
-    View: Index.fxml
-    Description: Main application window.
-    Contains the top header, sidebar (included via fx:include), and central content area.
-    Controller: IndexController
--->
-
-<AnchorPane prefHeight="400.0" prefWidth="700.0"
-            stylesheets="@../Style.css"
-            xmlns="http://javafx.com/javafx/8"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.IndexController">
+<AnchorPane minHeight="400.0" minWidth="700.0" prefHeight="400.0" prefWidth="700.0" stylesheets="@../Style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.IndexController">
 
    <children>
-      <BorderPane fx:id="rootPane"
-                  AnchorPane.bottomAnchor="0.0"
-                  AnchorPane.leftAnchor="0.0"
-                  AnchorPane.rightAnchor="0.0"
-                  AnchorPane.topAnchor="0.0">
+      <BorderPane fx:id="rootPane" layoutX="-5.0" layoutY="2.0" AnchorPane.bottomAnchor="-2.0" AnchorPane.leftAnchor="-5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="2.0">
 
          <!-- TOP HEADER -->
          <top>
@@ -35,49 +20,43 @@
                <children>
 
                   <!-- Blue bar at the very top -->
-                  <Pane prefHeight="25.0" style="-fx-background-color: #032d4d;"
-                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane layoutX="-2.0" layoutY="-3.0" prefHeight="25.0" prefWidth="707.0" style="-fx-background-color: #032d4d;" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="-5.0" AnchorPane.topAnchor="-3.0">
+
                      <children>
                         <!-- Exit button (close app) -->
-                        <ImageView fx:id="exit" fitHeight="18.0" fitWidth="17.0"
-                                   layoutX="677.0" layoutY="4.0"
-                                   pickOnBounds="true" preserveRatio="true">
+                        <ImageView fx:id="exit" fitHeight="18.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="4.0">
                            <image>
                               <Image url="@../Images/boton-exit.png" />
                            </image>
                         </ImageView>
                      </children>
-                  </Pane>
+                  </AnchorPane>
 
-                  <!-- Navigation buttons bar (restored) -->
-                  <HBox prefHeight="43.0" prefWidth="525.0"
-                        AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="175.0"
-                        AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                  <!-- Navigation buttons bar (responsive) -->
+                  <HBox prefHeight="43.0" spacing="0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="175.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+
                      <children>
-                        <Button prefHeight="38.0" prefWidth="136.0"
-                                style="-fx-background-color: WHITE;" text="Button 1">
-                           <HBox.margin><Insets top="3.0" /></HBox.margin>
-                        </Button>
-                        <Button prefHeight="38.0" prefWidth="136.0"
-                                style="-fx-background-color: WHITE;" text="Button 2">
-                           <HBox.margin><Insets top="3.0" /></HBox.margin>
-                        </Button>
-                        <Button prefHeight="38.0" prefWidth="136.0"
-                                style="-fx-background-color: WHITE;" text="Button 3">
-                           <HBox.margin><Insets top="3.0" /></HBox.margin>
-                        </Button>
-                        <Button prefHeight="38.0" prefWidth="136.0"
-                                style="-fx-background-color: WHITE;" text="Button 4">
-                           <HBox.margin><Insets top="3.0" /></HBox.margin>
-                        </Button>
+                        <Separator maxHeight="Infinity" orientation="VERTICAL" prefWidth="1.0" />
+
+                        <Button maxHeight="Infinity" maxWidth="Infinity" style="-fx-background-color: WHITE;" text="Button 1" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+
+                        <Separator maxHeight="Infinity" orientation="VERTICAL" prefWidth="1.0" />
+
+                        <Button maxHeight="Infinity" maxWidth="Infinity" style="-fx-background-color: WHITE;" text="Button 2" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+
+                        <Separator maxHeight="Infinity" orientation="VERTICAL" prefWidth="1.0" />
+
+                        <Button maxHeight="Infinity" maxWidth="Infinity" style="-fx-background-color: WHITE;" text="Button 3" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+
+                        <Separator maxHeight="Infinity" orientation="VERTICAL" prefWidth="1.0" />
+
+                        <Button maxHeight="Infinity" maxWidth="Infinity" style="-fx-background-color: WHITE;" text="Button 4" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
                      </children>
                   </HBox>
 
+
                   <!-- Menu toggle buttons (hamburger menu) -->
-                  <Label fx:id="menuBack" layoutX="10.0" layoutY="34.0"
-                         style="-fx-background-color: WHITE;" styleClass="button"
-                         text="MENÚ" textFill="#b2b2b2"
-                         AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="34.0">
+                  <Label fx:id="lblMenuBack" layoutX="9.0" layoutY="31.0" style="-fx-background-color: WHITE;" styleClass="button" text="MENÚ" textFill="#b2b2b2" AnchorPane.leftAnchor="9.0" AnchorPane.topAnchor="31.0">
                      <font><Font name="System Bold" size="14.0" /></font>
                      <graphic>
                         <ImageView fitHeight="16.0" fitWidth="20.0">
@@ -86,10 +65,7 @@
                      </graphic>
                   </Label>
 
-                  <Label fx:id="menu" layoutX="11.0" layoutY="34.0"
-                         style="-fx-background-color: WHITE;" styleClass="button"
-                         text="MENÚ" textFill="#b2b2b2"
-                         AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="34.0">
+                  <Label fx:id="lblMenu" layoutX="9.0" layoutY="31.0" style="-fx-background-color: WHITE;" styleClass="button" text="MENÚ" textFill="#b2b2b2" AnchorPane.leftAnchor="9.0" AnchorPane.topAnchor="31.0">
                      <font><Font name="System Bold" size="14.0" /></font>
                      <graphic>
                         <ImageView fitHeight="16.0" fitWidth="20.0">
@@ -103,10 +79,7 @@
 
          <!-- LEFT SIDEBAR -->
          <left>
-            <!-- include as a node (fx:id userSidebar).  This fx:id refers to the included root node, not the controller. -->
-            <fx:include source="UserSidebar.fxml" fx:id="userSidebar" />
-            <!-- If you want Admin instead, swap the include source and fx:id-->
-            <!-- <fx:include source="AdminSidebar.fxml" fx:id="userSidebar" /> -->
+            <fx:include fx:id="userSidebar" source="UserSidebar.fxml" />
          </left>
 
       </BorderPane>
