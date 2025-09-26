@@ -9,10 +9,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.fxml.FXMLLoader?>
 
-<AnchorPane minHeight="400.0" minWidth="700.0" prefHeight="400.0" prefWidth="700.0" stylesheets="@../Style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.IndexController">
+<AnchorPane minHeight="400.0" minWidth="700.0" prefHeight="400.0" prefWidth="700.0" style="-fx-background-color: #032d4d;" stylesheets="@../Style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.IndexController">
 
    <children>
-      <BorderPane fx:id="rootPane" layoutX="-5.0" layoutY="2.0" AnchorPane.bottomAnchor="-2.0" AnchorPane.leftAnchor="-5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="2.0">
+      <BorderPane fx:id="rootPane" layoutX="-5.0" layoutY="2.0" prefHeight="400.0" prefWidth="700.0" style="-fx-background-color: WHITE;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
          <!-- TOP HEADER -->
          <top>
@@ -20,11 +20,11 @@
                <children>
 
                   <!-- Blue bar at the very top -->
-                  <AnchorPane layoutX="-2.0" layoutY="-3.0" prefHeight="25.0" prefWidth="707.0" style="-fx-background-color: #032d4d;" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="-5.0" AnchorPane.topAnchor="-3.0">
+                  <AnchorPane layoutX="-2.0" layoutY="-3.0" prefHeight="25.0" prefWidth="703.0" style="-fx-background-color: #032d4d;" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-3.0">
 
                      <children>
                         <!-- Exit button (close app) -->
-                        <ImageView fx:id="exit" fitHeight="18.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="4.0">
+                        <ImageView fx:id="exit" fitHeight="16.0" fitWidth="15.0" layoutX="681.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
                            <image>
                               <Image url="@../Images/boton-exit.png" />
                            </image>
@@ -36,7 +36,10 @@
                   <HBox prefHeight="43.0" spacing="0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="175.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
 
                      <children>
-                        <Separator maxHeight="Infinity" orientation="VERTICAL" prefWidth="1.0" />
+                        <Separator maxHeight="Infinity" orientation="VERTICAL" prefWidth="1.0">
+                           <HBox.margin>
+                              <Insets left="-1.5" />
+                           </HBox.margin></Separator>
 
                         <Button maxHeight="Infinity" maxWidth="Infinity" style="-fx-background-color: WHITE;" text="Button 1" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
 
@@ -51,6 +54,11 @@
                         <Separator maxHeight="Infinity" orientation="VERTICAL" prefWidth="1.0" />
 
                         <Button maxHeight="Infinity" maxWidth="Infinity" style="-fx-background-color: WHITE;" text="Button 4" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+                        <Separator maxHeight="Infinity" orientation="VERTICAL" prefWidth="1.0">
+                           <HBox.margin>
+                              <Insets right="-3.0" />
+                           </HBox.margin>
+                        </Separator>
                      </children>
                   </HBox>
 
