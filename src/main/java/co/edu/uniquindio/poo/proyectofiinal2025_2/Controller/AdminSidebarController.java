@@ -4,11 +4,13 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Controller for the User Sidebar (UserSidebar.fxml).
- * Inherits profile image + sidebar animation from BaseSidebarController.
- * Contains only user-specific button logic.
+ * Controller for the Admin Sidebar (AdminSidebar.fxml).
+ * <p>
+ * Inherits profile image + sidebar animation logic from BaseSidebarController.
+ * Only contains admin-specific button logic.
+ * </p>
  */
-public class UserSidebarController extends BaseSidebarController {
+public class AdminSidebarController extends BaseSidebarController {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

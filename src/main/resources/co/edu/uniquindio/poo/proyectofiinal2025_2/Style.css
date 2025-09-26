@@ -2,10 +2,9 @@
 .my-button {
     -fx-background-color: #0A4969;
     -fx-text-fill: white;
-    -fx-background-radius: 8;
-    -fx-cursor: hand;
-}
+    -fx-background-radius: 3;
 
+}
 
 .my-button:hover {
     -fx-background-color: white;
@@ -18,3 +17,8 @@
     -fx-scale-x: 1.1;
     -fx-scale-y: 1.1;
 }
+
+.button{
+    -fx-cursor: hand;
+}
+
