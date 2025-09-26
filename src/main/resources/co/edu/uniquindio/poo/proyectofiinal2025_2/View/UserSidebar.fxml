@@ -7,40 +7,49 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefWidth="176" style="-fx-background-color: #0A4969;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.UserSidebarController">
+<AnchorPane prefWidth="176"
+            styleClass="sidebar"
+            stylesheets="@../Style.css"
+            xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.UserSidebarController">
 
     <children>
         <!-- Este será el verdadero "slider" -->
-        <AnchorPane fx:id="slider" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane fx:id="slider"
+                    AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0">
 
             <children>
-                <VBox alignment="TOP_CENTER" prefHeight="204.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="131.0">
+                <VBox alignment="TOP_CENTER"
+                      prefHeight="204.0"
+                      AnchorPane.bottomAnchor="0.0"
+                      AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0"
+                      AnchorPane.topAnchor="131.0"
+                      spacing="5">
 
                     <children>
-                        <Separator visible="false" />
-
-                        <Button fx:id="btnLogin" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="INICIAR SESIÓN" textFill="WHITE">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin></Button>
-                        <Separator visible="false" />
-
-                        <Button fx:id="btnSignup" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="REGISTRARSE" textFill="WHITE" />
-                        <Separator visible="false" />
-
-                        <Button fx:id="btnOrders" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Ordenes" textFill="WHITE" />
-                        <Separator visible="false" />
-
-                        <Button fx:id="btnProfile" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Perfil" textFill="WHITE" />
-                        <Separator visible="false" />
-                  <Button fx:id="btnNewShipment" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Nuevo Envio" textFill="WHITE" />
-                  <Separator visible="false" />
-                  <Button fx:id="btnLogout" prefHeight="38.0" prefWidth="170.0" styleClass="my-button" text="Cerrar Sesión" textFill="WHITE" />
+                        <Button fx:id="btnLogin" text="INICIAR SESIÓN" styleClass="sidebar-button"/>
+                        <Button fx:id="btnSignup" text="REGISTRARSE" styleClass="sidebar-button"/>
+                        <Button fx:id="btnOrders" text="Órdenes" styleClass="sidebar-button"/>
+                        <Button fx:id="btnProfile" text="Perfil" styleClass="sidebar-button"/>
+                        <Button fx:id="btnNewShipment" text="Nuevo Envío" styleClass="sidebar-button"/>
+                        <Button fx:id="btnLogout" text="Cerrar Sesión" styleClass="sidebar-button"/>
                     </children>
                 </VBox>
 
                 <!-- User profile picture -->
-                <ImageView fx:id="imgUserImage" fitHeight="101.0" fitWidth="109.0" layoutX="32.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true" />
+                <ImageView fx:id="imgUserImage"
+                           fitHeight="101.0"
+                           fitWidth="109.0"
+                           layoutX="32.0"
+                           layoutY="17.0"
+                           pickOnBounds="true"
+                           preserveRatio="true"
+                           styleClass="profile-image"/>
             </children>
         </AnchorPane>
     </children>

@@ -19,9 +19,9 @@ import java.util.ResourceBundle;
 
 /**
  * Base controller for sidebars (Admin and User).
- * Contains the common logic for:
- * - Handling the user's profile image.
- * - Sidebar open/close animations.
+ * Handles:
+ *  - Profile image (circular + hover animation).
+ *  - Sidebar open/close animations.
  */
 public abstract class BaseSidebarController implements Initializable {
 
@@ -31,28 +31,24 @@ public abstract class BaseSidebarController implements Initializable {
     @FXML
     protected AnchorPane slider;
 
-    // Use UserService instead of repository
+    // Service injection
     protected final UserService userService = new UserService(UserRepository.getInstance());
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // === Profile Image Setup ===
-        String path = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png"; // cuidado con el nombre
+        String path = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png";
         URL imgUrl = getClass().getResource(path);
 
         if (imgUrl != null) {
             imgUserImage.setImage(new Image(imgUrl.toExternalForm()));
         }
 
-        imgUserImage.setFitWidth(100);
-        imgUserImage.setFitHeight(100);
-        imgUserImage.setPreserveRatio(true);
-
-        // Circular clipping mask
+        // Circular clipping mask (esto no puede ir en CSS)
         Circle clip = new Circle(50, 50, 50);
         imgUserImage.setClip(clip);
 
-        // Hover animation
+        // Hover animation (no se puede hacer en CSS)
         imgUserImage.setOnMouseEntered(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), imgUserImage);
             st.setToX(1.1);
@@ -67,22 +63,22 @@ public abstract class BaseSidebarController implements Initializable {
             st.play();
         });
 
-        // On click: show profile information
+        // On click: show profile info
         imgUserImage.setOnMouseClicked(e -> {
             User currentUser = userService.getCurrentUser();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Profile");
+            alert.setTitle("Perfil");
             alert.setHeaderText(null);
 
             if (currentUser != null) {
-                alert.setContentText("Name: " + currentUser.getName() + "\nEmail: " + currentUser.getEmail());
+                alert.setContentText("Nombre: " + currentUser.getName() + "\nEmail: " + currentUser.getEmail());
                 ImageView imageView = new ImageView(currentUser.getProfileImage());
                 imageView.setFitWidth(80);
                 imageView.setFitHeight(80);
                 imageView.setPreserveRatio(true);
                 alert.setGraphic(imageView);
             } else if (imgUrl != null) {
-                alert.setContentText("Please register to see user data");
+                alert.setContentText("Por favor regístrate para ver los datos.");
                 ImageView imageView = new ImageView(new Image(imgUrl.toExternalForm()));
                 imageView.setFitWidth(80);
                 imageView.setFitHeight(80);
