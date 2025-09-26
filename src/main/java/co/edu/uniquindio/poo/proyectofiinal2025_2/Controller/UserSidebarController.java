@@ -1,6 +1,8 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
@@ -40,12 +42,15 @@ public class UserSidebarController extends BaseSidebarController {
     @FXML
     private Button btnOrders;
 
+    // Service to manage users
+    private final UserService userService = new UserService(UserRepository.getInstance());
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle);
 
-        // Get current user from repository
-        User currentUser = userRepository.getCurrentUser();
+        // Get current user from service
+        User currentUser = userService.getCurrentUser();
 
         if (currentUser == null) {
             // No user logged in → show Login and Signup buttons
@@ -69,7 +74,6 @@ public class UserSidebarController extends BaseSidebarController {
             setButtonVisibility(btnLogout, true);
         }
     }
-
 
     /**
      * Utility method to control both visibility and layout management of buttons.

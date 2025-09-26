@@ -2,6 +2,7 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
@@ -30,12 +31,13 @@ public abstract class BaseSidebarController implements Initializable {
     @FXML
     protected AnchorPane slider;
 
-    protected final UserRepository userRepository = UserRepository.getInstance();
+    // Use UserService instead of repository
+    protected final UserService userService = new UserService(UserRepository.getInstance());
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // === Profile Image Setup ===
-        String path = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-UserImage.png";
+        String path = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png"; // cuidado con el nombre
         URL imgUrl = getClass().getResource(path);
 
         if (imgUrl != null) {
@@ -67,20 +69,20 @@ public abstract class BaseSidebarController implements Initializable {
 
         // On click: show profile information
         imgUserImage.setOnMouseClicked(e -> {
-            User currentUser = userRepository.getCurrentUser();
+            User currentUser = userService.getCurrentUser();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Profile");
             alert.setHeaderText(null);
 
             if (currentUser != null) {
-                alert.setContentText("Name: " + currentUser.getNombre() + "\nEmail: " + currentUser.getCorreo());
+                alert.setContentText("Name: " + currentUser.getName() + "\nEmail: " + currentUser.getEmail());
                 ImageView imageView = new ImageView(currentUser.getProfileImage());
                 imageView.setFitWidth(80);
                 imageView.setFitHeight(80);
                 imageView.setPreserveRatio(true);
                 alert.setGraphic(imageView);
             } else if (imgUrl != null) {
-                alert.setContentText("Por favor registrarse para ver los datos del usuario");
+                alert.setContentText("Please register to see user data");
                 ImageView imageView = new ImageView(new Image(imgUrl.toExternalForm()));
                 imageView.setFitWidth(80);
                 imageView.setFitHeight(80);
@@ -93,7 +95,6 @@ public abstract class BaseSidebarController implements Initializable {
 
         // === Sidebar Setup ===
         if (slider != null) {
-            // Start hidden (moved out of screen)
             slider.setTranslateX(-slider.getPrefWidth());
         }
     }

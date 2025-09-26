@@ -1,17 +1,15 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
-import javafx.scene.image.Image;
-
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Repository that manages users in the system.
+ * Repository that manages the persistence of users in memory.
  * <p>
  * Implements the Singleton pattern to ensure a single instance
- * across the application. Stores all registered users and the
- * currently logged-in user.
+ * across the application. It is responsible only for storing and
+ * retrieving users, not business logic.
  * </p>
  */
 public class UserRepository {
@@ -27,26 +25,10 @@ public class UserRepository {
     private final List<User> users;
 
     /**
-     * Reference to the currently logged-in user.
-     */
-    private User currentUser;
-
-    /**
-     * Private constructor initializes the repository with a test admin user.
+     * Private constructor initializes the repository.
      */
     private UserRepository() {
-        users = new LinkedList<>();
-
-        // Default test user (Admin)
-        users.add(new User(
-                "Admin",             // First name
-                "System",                 // Last name
-                "admin@email.com",        // Email
-                "1234",                   // Password
-                new Image(getClass().getResource(
-                        "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png"
-                ).toExternalForm())
-        ));
+        this.users = new LinkedList<>();
     }
 
     /**
@@ -62,7 +44,7 @@ public class UserRepository {
     }
 
     // ======================
-    // User management
+    // User persistence
     // ======================
 
     /**
@@ -83,40 +65,18 @@ public class UserRepository {
         return users;
     }
 
-    // ======================
-    // Authentication
-    // ======================
-
     /**
-     * Attempts to log in with the given credentials.
+     * Finds a user by email.
      *
-     * @param email    user email
-     * @param password user password
-     * @return true if credentials are valid and user is logged in
+     * @param email email to search
+     * @return user if found, otherwise null
      */
-    public boolean login(String email, String password) {
+    public User findByEmail(String email) {
         for (User user : users) {
-            if (user.getCorreo().equals(email) && user.getPassword().equals(password)) {
-                currentUser = user;
-                return true;
+            if (user.getEmail().equalsIgnoreCase(email)) {
+                return user;
             }
         }
-        return false;
-    }
-
-    /**
-     * Logs out the current user.
-     */
-    public void logout() {
-        currentUser = null;
-    }
-
-    /**
-     * Gets the currently logged-in user.
-     *
-     * @return current user, or null if no user is logged in
-     */
-    public User getCurrentUser() {
-        return currentUser;
+        return null;
     }
 }

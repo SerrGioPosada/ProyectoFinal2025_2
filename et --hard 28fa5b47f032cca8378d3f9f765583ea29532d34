@@ -1,0 +1,147 @@
+[33mcommit 28fa5b47f032cca8378d3f9f765583ea29532d34[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev_Sergio[m[33m, [m[1;31morigin/dev_Sergio[m[33m)[m
+Author: serrrrrgio <sergio.posadag@uqvirtual.edu.co>
+Date:   Fri Sep 26 01:20:00 2025 -0500
+
+    feat(ui): actualizar escena principal Index.fxml
+    
+    - Se realizaron cambios en la escena Index.fxml para mejorar la barra superior
+      y la organización de los botones de navegación.
+    - Se ajustaron los estilos de la ventana, incluyendo color de fondo y tamaño mínimo.
+
+[33mcommit 5c3a267839e734bad5c23a3fa740b1e887497ad5[m
+Author: serrrrrgio <sergio.posadag@uqvirtual.edu.co>
+Date:   Fri Sep 26 00:51:59 2025 -0500
+
+    refactor: ajustes en ventanas principales y convenciones de nombres
+    
+    - Se modificaron las vistas FXML para mejorar la distribución y
+      comportamiento de los botones en la barra superior:
+      · Los botones ahora se expanden automáticamente con el tamaño
+        de la ventana gracias a HBox.hgrow.
+      · Se ajustaron los separadores verticales (Separators) para ocupar
+        toda la altura disponible.
+      · Corrección en la posición del botón de salida (exit) para que
+        permanezca alineado a la derecha sin solaparse con el contenedor.
+    
+    - Se estableció un tamaño mínimo y preferido de la ventana
+      (400x700) en Index.fxml para evitar que se reduzca demasiado.
+    
+    - En MainApp.java se agregó stage.setMinWidth(700) y
+      stage.setMinHeight(400) para reforzar las restricciones de tamaño
+      mínimo de la ventana.
+    
+    - Convenciones de nombres:
+      · Se renombraron los identificadores FXML para seguir el estándar:
+        lbl* (Label), img* (ImageView), btn* (Button).
+      · Ejemplos: exit → imgExit, Menu → lblMenu, Login → btnLogin, etc.
+    
+    - Los botones de navegación de la barra superior fueron renombrados
+      a nombres más claros según su propósito en lugar de “Button 1”,
+      “Button 2”, etc.
+
+[33mcommit ae37d2373b4a4d741e8f632d3d8154c67eb105e4[m
+Author: serrrrrgio <sergio.posadag@uqvirtual.edu.co>
+Date:   Thu Sep 25 23:41:33 2025 -0500
+
+    refactor: separar lógica común de sidebars y crear controladores específicos
+    
+    - Se creó BaseSidebarController con la lógica común:
+      • Manejo de la imagen de perfil (default + hover + click con alerta).
+      • Animaciones de abrir y cerrar el sidebar (slide con TranslateTransition).
+      • Referencia compartida al slider (AnchorPane).
+    
+    - Se modificaron los controladores:
+      • UserSidebarController y AdminSidebarController ahora heredan de BaseSidebarController.
+      • Cada uno sobreescribe initialize() únicamente para añadir la lógica de sus botones específicos.
+      • Se eliminó código duplicado de animaciones e imagen de usuario en ambos.
+    
+    - Se ajustaron los FXML (UserSidebar.fxml y AdminSidebar.fxml):
+      • Se mapeó correctamente el fx:id="slider" al AnchorPane raíz de cada sidebar.
+      • Se mantuvo fx:id="userImage" para la imagen de usuario en ambos sidebars.
+    
+    - Se actualizó IndexController:
+      • Maneja la apertura/cierre del menú y delega a UserSidebarController o AdminSidebarController según cuál esté cargado en el fx:include.
+      • Ya no contiene lógica duplicada de sidebar.
+    
+    Con estos cambios la arquitectura queda más clara:
+       - BaseSidebarController: lógica común.
+       - UserSidebarController/AdminSidebarController: lógica específica.
+       - IndexController: maneja la vista principal y coordina los sidebars.
+
+[33mcommit 21825ca17dbd1b65f735968f390e4285c421ce47[m
+Author: serrrrrgio <sergio.posadag@uqvirtual.edu.co>
+Date:   Thu Sep 25 03:00:30 2025 -0500
+
+    docs: se añadieron comentarios con Javadoc y comentarios organizativos en las clases IndexController, User y UserRepository
+
+[33mcommit 1390c7e9ee04425c421705de78d05abc334be3b0[m
+Author: serrrrrgio <sergio.posadag@uqvirtual.edu.co>
+Date:   Thu Sep 25 02:39:24 2025 -0500
+
+    chore: agregar estructura inicial del proyecto
+    
+    - Se añadieron los siguientes repositorios:
+      - OrderRepository
+
+[33mcommit 37274d231e9bf7e5afd6ee932359cebcc8ba6d0e[m
+Author: serrrrrgio <sergio.posadag@uqvirtual.edu.co>
+Date:   Thu Sep 25 02:38:26 2025 -0500
+
+    chore: agregar estructura inicial del proyecto
+    
+    - Se añadieron los siguientes controladores junto con sus vistas:
+      - AdminDashboardController + AdminDashboard.fxml
+      - AdminSidebarController + AdminSidebar.fxml
+      - IndexController + Index.fxml
+      - LoginController + Login.fxml
+      - ManageUsersController + ManageUsers.fxml
+      - NewOrderController + NewOrder.fxml
+      - ReportsController + Reports.fxml
+      - SignupController + Signup.fxml
+      - UserDashboardController + UserDashboard.fxml
+      - UserOrdersController + UserOrders.fxml
+      - UserProfileController + UserProfile.fxml
+      - UserSidebarController + UserSidebar.fxml
+    
+    - Se creó la carpeta `DTOs` (vacía por ahora).
+    
+    - Se añadieron las siguientes clases al modelo:
+      - Admin
+      - Location
+      - Order
+      - Shipment
+      - User
+      - Vehicle
+    
+    - Se añadieron los siguientes repositorios:
+      - UserRepository
+      - ShipmentRepository
+      - VehicleRepository
+      - OrderRepository
+    
+    - Se implementó la lógica inicial de usuario y su repositorio (gestión de usuario actual).
+    - Se añadió imagen y alerta en el Index para el perfil de usuario.
+    - Se implementó animación de hover sobre la imagen (efecto zoom suave).
+    - Se modificó el archivo `Style.css` para estilos de botones y vistas iniciales.
+
+[33mcommit 490cf7e238f77fdec1e546906edccbd2212d601a[m
+Author: serrrrrgio <sergio.posadag@uqvirtual.edu.co>
+Date:   Tue Sep 23 23:36:43 2025 -0500
+
+    se modifica la ventana Index
+    se modifica el controller de index con la logica del slider
+    se crea el mainApp
+    se apunta el pom al MainApp
+    correccion de referencias
+
+[33mcommit 22ffc71ba0c4b593dd61201b7c16a20bce7e8bc4[m
+Author: serrrrrgio <sergio.posadag@uqvirtual.edu.co>
+Date:   Mon Sep 22 21:30:42 2025 -0500
+
+    Se organizan las carpetas y se crea el archivo de index.fxml y su controlador
+
+[33mcommit b42e883807b088cd10f734551ffc3ce08fa054be[m[33m ([m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m
+Author: serrrrrgio <sergio.posadag@uqvirtual.edu.co>
+Date:   Mon Sep 22 19:52:19 2025 -0500
+
+    Se crea el Proyecto
