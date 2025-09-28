@@ -1,0 +1,53 @@
+package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
+
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PermissionLevel;
+
+/**
+ * <p>Represents an administrator in the system, extending the {@link AuthenticablePerson} class.</p>
+ * <p>An administrator has system management privileges defined by an employee ID and a
+ * specific permission level.</p>
+ */
+public class Admin extends AuthenticablePerson {
+
+    private String employeeId;
+    private PermissionLevel permissionLevel;
+
+    /**
+     * Constructs a new Admin with the specified details.
+     *
+     * @param id              The unique identifier for the admin.
+     * @param name            The admin's first name.
+     * @param lastName        The admin's last name.
+     * @param email           The admin's email address.
+     * @param phone           The admin's phone number.
+     * @param password        The admin's password for login (will be hashed).
+     * @param employeeId      The unique employee identifier.
+     * @param permissionLevel The level of permissions assigned to the admin.
+     */
+    public Admin(String id, String name, String lastName, String email, String phone, String password,
+                 String employeeId, PermissionLevel permissionLevel) {
+        super(id, name, lastName, email, phone, password);
+        this.employeeId = employeeId;
+        this.permissionLevel = permissionLevel;
+    }
+
+    // =================================
+    // Getters and Setters
+    // =================================
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
+
+    public PermissionLevel getPermissionLevel() {
+        return permissionLevel;
+    }
+
+    public void setPermissionLevel(PermissionLevel permissionLevel) {
+        this.permissionLevel = permissionLevel;
+    }
+}
