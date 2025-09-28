@@ -12,6 +12,11 @@ target/
 *.iml
 *.ipr
 
+# Ignorar archivos del IDE y herramientas
+.idea/
+*.iml
+copilot.*.xml
+
 ### Eclipse ###
 .apt_generated
 .classpath

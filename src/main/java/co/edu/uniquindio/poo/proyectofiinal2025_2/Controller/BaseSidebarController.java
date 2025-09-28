@@ -1,8 +1,8 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Person;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.AuthenticationService;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
@@ -31,8 +31,8 @@ public abstract class BaseSidebarController implements Initializable {
     @FXML
     protected AnchorPane slider;
 
-    // Service injection
-    protected final UserService userService = new UserService(UserRepository.getInstance());
+    // Use the central authentication service
+    protected final AuthenticationService authService = AuthenticationService.getInstance();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -40,15 +40,16 @@ public abstract class BaseSidebarController implements Initializable {
         String path = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png";
         URL imgUrl = getClass().getResource(path);
 
+        // Set a default image initially
         if (imgUrl != null) {
             imgUserImage.setImage(new Image(imgUrl.toExternalForm()));
         }
 
-        // Circular clipping mask (esto no puede ir en CSS)
+        // Apply a circular clipping mask
         Circle clip = new Circle(50, 50, 50);
         imgUserImage.setClip(clip);
 
-        // Hover animation (no se puede hacer en CSS)
+        // Apply a hover animation
         imgUserImage.setOnMouseEntered(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), imgUserImage);
             st.setToX(1.1);
@@ -63,27 +64,44 @@ public abstract class BaseSidebarController implements Initializable {
             st.play();
         });
 
-        // On click: show profile info
+        // On click: show profile info from the authenticated person
         imgUserImage.setOnMouseClicked(e -> {
-            User currentUser = userService.getCurrentUser();
+            Person currentPerson = authService.getCurrentPerson();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Perfil");
+            alert.setTitle("Profile Information");
             alert.setHeaderText(null);
 
-            if (currentUser != null) {
-                alert.setContentText("Nombre: " + currentUser.getName() + "\nEmail: " + currentUser.getEmail());
-                ImageView imageView = new ImageView(currentUser.getProfileImage());
+            if (currentPerson != null) {
+                alert.setContentText("Name: " + currentPerson.getName() + "\nEmail: " + currentPerson.getEmail());
+                ImageView imageView = new ImageView();
                 imageView.setFitWidth(80);
                 imageView.setFitHeight(80);
                 imageView.setPreserveRatio(true);
+
+                // A User has a profile image, an Admin does not
+                if (currentPerson instanceof User) {
+                    User currentUser = (User) currentPerson;
+                    if (currentUser.getProfileImage() != null) {
+                        imageView.setImage(currentUser.getProfileImage());
+                    } else if (imgUrl != null) {
+                        imageView.setImage(new Image(imgUrl.toExternalForm())); // Fallback to default
+                    }
+                } else if (imgUrl != null) {
+                    // For Admins or other types, use the default image
+                    imageView.setImage(new Image(imgUrl.toExternalForm()));
+                }
                 alert.setGraphic(imageView);
-            } else if (imgUrl != null) {
-                alert.setContentText("Por favor regístrate para ver los datos.");
-                ImageView imageView = new ImageView(new Image(imgUrl.toExternalForm()));
-                imageView.setFitWidth(80);
-                imageView.setFitHeight(80);
-                imageView.setPreserveRatio(true);
-                alert.setGraphic(imageView);
+
+            } else {
+                // Case where no one is logged in
+                alert.setContentText("Please log in to view your profile.");
+                if (imgUrl != null) {
+                    ImageView imageView = new ImageView(new Image(imgUrl.toExternalForm()));
+                    imageView.setFitWidth(80);
+                    imageView.setFitHeight(80);
+                    imageView.setPreserveRatio(true);
+                    alert.setGraphic(imageView);
+                }
             }
 
             alert.showAndWait();
@@ -95,7 +113,7 @@ public abstract class BaseSidebarController implements Initializable {
         }
     }
 
-    /** Opens the sidebar with sliding animation */
+    /** Opens the sidebar with a sliding animation */
     public void openSidebar() {
         if (slider != null) {
             TranslateTransition slide = new TranslateTransition(Duration.seconds(0.4), slider);
@@ -104,7 +122,7 @@ public abstract class BaseSidebarController implements Initializable {
         }
     }
 
-    /** Closes the sidebar with sliding animation */
+    /** Closes the sidebar with a sliding animation */
     public void closeSidebar() {
         if (slider != null) {
             TranslateTransition slide = new TranslateTransition(Duration.seconds(0.4), slider);

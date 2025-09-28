@@ -101,9 +101,8 @@
             </AnchorPane>
          </top>
 
-         <!-- LEFT SIDEBAR -->
+         <!-- LEFT SIDEBAR (will be loaded programmatically) -->
          <left>
-            <fx:include fx:id="userSidebar" source="UserSidebar.fxml" />
          </left>
 
       </BorderPane>
