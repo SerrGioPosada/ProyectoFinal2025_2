@@ -5,40 +5,44 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.ShipmentStatus;
 import java.time.LocalDateTime;
 
 /**
- * Represents a shipment generated from an order.
- * Each shipment has an origin, destination, vehicle, and status.
+ * Represents a shipment, which is a component of the Order aggregate.
+ * <p>A Shipment is created after an order is paid. It has its own lifecycle
+ * and is linked back to the order via an {@code orderId}.</p>
  */
 public class Shipment {
 
-    private String id;                     // Unique shipment identifier
-    private Order order;                   // The order that generated this shipment
-    private Address origin;                // Origin address
-    private Address destination;           // Destination address
-    private Vehicle vehicle;               // Vehicle assigned to the shipment
-    private ShipmentStatus status;         // Current status
-    private LocalDateTime estimatedDate;   // Estimated delivery date
-    private LocalDateTime deliveredDate;   // Actual delivery date (if delivered)
+    private String id;
+    private String orderId; // Link back to the Order aggregate root
+    private Address origin;
+    private Address destination;
+    private Vehicle vehicle; // Can be null initially
+    private LocalDateTime createdAt;
+    private LocalDateTime estimatedDate;
+    private LocalDateTime deliveredDate;
+    private ShipmentStatus status;
 
     /**
      * Constructs a new Shipment.
      *
-     * @param id            unique shipment id
-     * @param order         related order
-     * @param origin        origin address
-     * @param destination   destination address
-     * @param vehicle       vehicle assigned
-     * @param status        current shipment status
-     * @param estimatedDate estimated delivery date
+     * @param id                The unique identifier for the shipment.
+     * @param orderId           The ID of the order that this shipment fulfills.
+     * @param origin            The origin address.
+     * @param destination       The destination address.
+     * @param vehicle           The vehicle assigned (can be null).
+     * @param createdAt         The timestamp when the shipment was created.
+     * @param estimatedDate     The estimated delivery date.
+     * @param status            The initial status of the shipment.
      */
-    public Shipment(String id, Order order, Address origin, Address destination,
-                    Vehicle vehicle, ShipmentStatus status, LocalDateTime estimatedDate) {
+    public Shipment(String id, String orderId, Address origin, Address destination, Vehicle vehicle,
+                    LocalDateTime createdAt, LocalDateTime estimatedDate, ShipmentStatus status) {
         this.id = id;
-        this.order = order;
+        this.orderId = orderId;
         this.origin = origin;
         this.destination = destination;
         this.vehicle = vehicle;
-        this.status = status;
+        this.createdAt = createdAt;
         this.estimatedDate = estimatedDate;
+        this.status = status;
     }
 
     // ======================
@@ -49,8 +53,8 @@ public class Shipment {
         return id;
     }
 
-    public Order getOrder() {
-        return order;
+    public String getOrderId() {
+        return orderId;
     }
 
     public Address getOrigin() {
@@ -65,8 +69,8 @@ public class Shipment {
         return vehicle;
     }
 
-    public ShipmentStatus getStatus() {
-        return status;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public LocalDateTime getEstimatedDate() {
@@ -77,32 +81,16 @@ public class Shipment {
         return deliveredDate;
     }
 
+    public ShipmentStatus getStatus() {
+        return status;
+    }
+
     // ======================
-    // Setters
+    // Setters for State Changes
     // ======================
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
-    public void setOrigin(Address origin) {
-        this.origin = origin;
-    }
-
-    public void setDestination(Address destination) {
-        this.destination = destination;
-    }
 
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
-    }
-
-    public void setStatus(ShipmentStatus status) {
-        this.status = status;
     }
 
     public void setEstimatedDate(LocalDateTime estimatedDate) {
@@ -113,21 +101,7 @@ public class Shipment {
         this.deliveredDate = deliveredDate;
     }
 
-    // ======================
-    // ToString
-    // ======================
-
-    @Override
-    public String toString() {
-        return "Shipment{" +
-                "id='" + id + '\'' +
-                ", order=" + (order != null ? order.getId() : "null") +
-                ", origin=" + origin +
-                ", destination=" + destination +
-                ", vehicle=" + (vehicle != null ? vehicle.getPlate() : "null") +
-                ", status=" + status +
-                ", estimatedDate=" + estimatedDate +
-                ", deliveredDate=" + deliveredDate +
-                '}';
+    public void setStatus(ShipmentStatus status) {
+        this.status = status;
     }
 }

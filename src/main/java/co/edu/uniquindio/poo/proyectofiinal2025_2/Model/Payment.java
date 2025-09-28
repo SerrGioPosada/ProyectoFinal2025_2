@@ -1,30 +1,36 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PaymentStatus;
 import java.time.LocalDateTime;
 
 /**
- * Represents a payment transaction for an order.
+ * Represents a payment transaction, which is directly associated with an invoice.
  * <p>
- * A payment contains information about the amount, date,
- * status, and the method used.
- * </p>
+ * A payment contains information about the amount, date, status, the method used,
+ * and a reference to the specific invoice it is paying for.</p>
  */
 public class Payment {
 
+    private String id;
+    private String invoiceId;
     private double amount;
     private LocalDateTime date;
-    private String status; // e.g., "PENDING", "COMPLETED", "FAILED"
+    private PaymentStatus status;
     private PaymentMethod paymentMethod;
 
     /**
      * Constructs a new Payment with the provided data.
      *
-     * @param amount        total amount paid
-     * @param date          date and time of the payment
-     * @param status        current status of the payment
-     * @param paymentMethod payment method used in the transaction
+     * @param id            The unique identifier for this payment transaction.
+     * @param invoiceId     The ID of the invoice this payment is for.
+     * @param amount        The total amount paid.
+     * @param date          The date and time of the payment.
+     * @param status        The current status of the payment.
+     * @param paymentMethod The payment method used in the transaction.
      */
-    public Payment(double amount, LocalDateTime date, String status, PaymentMethod paymentMethod) {
+    public Payment(String id, String invoiceId, double amount, LocalDateTime date, PaymentStatus status, PaymentMethod paymentMethod) {
+        this.id = id;
+        this.invoiceId = invoiceId;
         this.amount = amount;
         this.date = date;
         this.status = status;
@@ -35,6 +41,14 @@ public class Payment {
     // Getters
     // ======================
 
+    public String getId() {
+        return id;
+    }
+
+    public String getInvoiceId() {
+        return invoiceId;
+    }
+
     public double getAmount() {
         return amount;
     }
@@ -43,7 +57,7 @@ public class Payment {
         return date;
     }
 
-    public String getStatus() {
+    public PaymentStatus getStatus() {
         return status;
     }
 
@@ -55,6 +69,14 @@ public class Payment {
     // Setters
     // ======================
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setInvoiceId(String invoiceId) {
+        this.invoiceId = invoiceId;
+    }
+
     public void setAmount(double amount) {
         this.amount = amount;
     }
@@ -63,7 +85,7 @@ public class Payment {
         this.date = date;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(PaymentStatus status) {
         this.status = status;
     }
 
@@ -78,10 +100,10 @@ public class Payment {
     @Override
     public String toString() {
         return "Payment{" +
-                "amount=" + amount +
-                ", date=" + date +
-                ", status='" + status + '\'' +
-                ", paymentMethod=" + (paymentMethod != null ? paymentMethod.getType() : "null") +
+                "id='" + id + '\'' +
+                ", invoiceId='" + invoiceId + '\'' +
+                ", amount=" + amount +
+                ", status=" + status +
                 '}';
     }
 }
