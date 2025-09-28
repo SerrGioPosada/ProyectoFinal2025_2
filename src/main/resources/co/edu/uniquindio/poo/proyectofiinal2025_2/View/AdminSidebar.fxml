@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefWidth="176"
+            styleClass="sidebar"
+            stylesheets="@../Style.css"
+            xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.AdminSidebarController">
+
+    <children>
+        <!-- Sidebar panel -->
+        <AnchorPane fx:id="slider"
+                    AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0">
+
+            <children>
+                <VBox alignment="TOP_CENTER"
+                      prefHeight="204.0"
+                      spacing="5"
+                      AnchorPane.bottomAnchor="0.0"
+                      AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0"
+                      AnchorPane.topAnchor="131.0">
+
+                    <children>
+                        <Button fx:id="btnDashboard" text="Dashboard" styleClass="sidebar-button"/>
+                        <Button fx:id="btnManageUsers" text="Manage Users" styleClass="sidebar-button"/>
+                        <Button fx:id="btnManageShipments" text="Manage Shipments" styleClass="sidebar-button"/>
+                        <Button fx:id="btnReports" text="Reports" styleClass="sidebar-button"/>
+                    </children>
+                </VBox>
+
+                <!-- Admin profile picture -->
+                <ImageView fx:id="imgUserImage"
+                           fitHeight="101.0"
+                           fitWidth="109.0"
+                           layoutX="32.0"
+                           layoutY="17.0"
+                           pickOnBounds="true"
+                           preserveRatio="true"
+                           styleClass="profile-image"/>
+            </children>
+        </AnchorPane>
+    </children>
+</AnchorPane>

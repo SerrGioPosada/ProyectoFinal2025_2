@@ -1,0 +1,101 @@
+/* ======================
+   ROOT STYLES
+   ====================== */
+.root-pane {
+    -fx-background-color: #032d4d;
+}
+
+.main-pane {
+    -fx-background-color: white;
+}
+
+/* ======================
+   HEADER
+   ====================== */
+.header-pane {
+    -fx-background-color: white;
+}
+
+.top-bar {
+    -fx-background-color: #032d4d;
+}
+
+.exit-button:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+/* ======================
+   NAVIGATION BAR
+   ====================== */
+.nav-bar {
+    -fx-background-color: white;
+}
+
+.nav-button {
+    -fx-background-color: white;
+    -fx-text-fill: #032d4d;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+
+    /* Ajuste automático al tamaño del HBox */
+    -fx-max-width: Infinity;
+    -fx-max-height: Infinity;
+}
+
+.nav-button:hover {
+    -fx-background-color: #0A4969;
+    -fx-text-fill: white;
+}
+
+/* Separators between nav buttons */
+.nav-separator {
+    -fx-background-color: #b2b2b2;
+    -fx-pref-width: 1;
+    -fx-padding: 0;
+}
+
+/* ======================
+   MENU LABEL
+   ====================== */
+.menu-label {
+    -fx-background-color: white;
+    -fx-text-fill: #b2b2b2;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+/* ======================
+   SIDEBAR
+   ====================== */
+.sidebar {
+    -fx-background-color: #0A4969;
+}
+
+/* Sidebar buttons */
+.sidebar-button {
+    -fx-background-color: #0A4969;
+    -fx-text-fill: white;
+    -fx-background-radius: 3;
+    -fx-pref-width: 170;
+    -fx-pref-height: 38;
+    -fx-cursor: hand;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #08344C;
+    -fx-border-width: 2;
+}
+
+/* ======================
+   PROFILE IMAGE
+   ====================== */
+.profile-image {
+    -fx-fit-width: 100;
+    -fx-fit-height: 100;
+    -fx-preserve-ratio: true;
+
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0.3, 0, 2);
+}
