@@ -41,3 +41,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+.idea/copilot.data.migration.agent.xml
+.idea/copilot.data.migration.agent.xml
+/.idea
+.idea/copilot.data.migration.ask.xml
