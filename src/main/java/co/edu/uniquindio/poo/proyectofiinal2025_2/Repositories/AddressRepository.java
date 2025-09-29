@@ -34,5 +34,5 @@ public class AddressRepository {
         return new ArrayList<>(addresses);
     }
 
-    // In a real application, you would have findById, update, and delete methods.
+
 }

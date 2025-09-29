@@ -37,5 +37,5 @@ public class PaymentRepository {
         return new ArrayList<>(payments);
     }
 
-    // Update and delete methods would be implemented based on specific business needs.
+    // Update and delete methods would be implemented.
 }

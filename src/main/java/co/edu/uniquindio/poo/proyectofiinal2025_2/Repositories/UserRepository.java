@@ -14,14 +14,8 @@ import java.util.List;
  */
 public class UserRepository {
 
-    /**
-     * Singleton instance of the repository.
-     */
-    private static UserRepository instance;
 
-    /**
-     * List of all registered users.
-     */
+    private static UserRepository instance;
     private final List<User> users;
 
     /**

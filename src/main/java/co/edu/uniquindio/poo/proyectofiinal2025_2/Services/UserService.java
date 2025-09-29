@@ -45,5 +45,9 @@ public class UserService {
         return true;
     }
 
+    public User signup(){
+        return null;
+    }
+
     // Other user-specific business logic methods will go here.
 }
