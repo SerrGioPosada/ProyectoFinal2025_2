@@ -1,4 +1,5 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.dto.PersonCreationData;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
@@ -26,24 +27,40 @@ public class UserService {
     // User management
     // ======================
 
+
     /**
-     * Registers a new user, hashing their password for secure storage.
+     * Orchestrates the registration of a new user from raw creation data.
+     * <p>
+     * This method handles the entire registration process:
+     * 1. Validates that the email is not already in use.
+     * 2. Calls the PersonFactory to create a new User object.
+     * 3. Hashes the user's password for secure storage.
+     * 4. Persists the new user to the repository.
+     * </p>
      *
-     * @param user The user object containing plain text password to register.
+     * @param data The PersonCreationData DTO containing the user's raw information.
      * @return true if registration is successful, false if the email already exists.
-     */
-    public boolean registerUser(User user) {
-        if (userRepository.findByEmail(user.getEmail()) != null) {
-            return false; // Email already registered
+
+    public boolean registerUser(PersonCreationData data) {
+        // 1. Validar que el email no exista antes de crear nada.
+        if (userRepository.findByEmail(data.getEmail()).isPresent()) {
+            return false; // Email ya registrado.
         }
 
-        // Security: Hash the plain text password before saving the user.
-        String hashedPassword = PasswordUtility.hashPassword(user.getPassword());
-        user.setPassword(hashedPassword);
+        // 2. Llamar a la fábrica para crear el objeto User.
+        User newUser = (User) personFactory.createPerson(PersonType.USER, data);
 
-        userRepository.addUser(user);
+        // 3. Hashear la contraseña del objeto recién creado.
+        String hashedPassword = PasswordUtility.hashPassword(newUser.getPassword());
+        newUser.setPassword(hashedPassword);
+
+        // 4. Guardar el usuario final en el repositorio.
+        userRepository.addUser(newUser);
+
         return true;
     }
+
+ */
 
     public User signup(){
         return null;

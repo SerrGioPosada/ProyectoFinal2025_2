@@ -5,6 +5,7 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.AvailabilityStatus
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Shipment;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.dto.PersonCreationData;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,23 +30,37 @@ public class DeliveryPersonService {
     }
 
     /**
-     * Registers a new delivery person, hashing their password for secure storage.
+     * Orchestrates the registration of a new delivery person from raw creation data.
+     * <p>
+     * This method handles the entire registration process:
+     * 1. Validates that the email is not already in use.
+     * 2. Calls the PersonFactory to create a new DeliveryPerson object.
+     * 3. Hashes the delivery person's password for secure storage.
+     * 4. Persists the new delivery person to the repository.
+     * </p>
      *
-     * @param person The delivery person object containing plain text password to register.
+     * @param data The PersonCreationData DTO containing the delivery person's raw information.
      * @return true if registration is successful, false if the email already exists.
-     */
-    public boolean registerDeliveryPerson(DeliveryPerson person) {
-        if (deliveryPersonRepository.findDeliveryPersonByEmail(person.getEmail()).isPresent()) {
-            return false; // Email already registered
+
+    public boolean registerDeliveryPerson(PersonCreationData data) {
+        // 1. Validar que el email no exista.
+        if (deliveryPersonRepository.findDeliveryPersonByEmail(data.getEmail()).isPresent()) {
+            return false; // Email ya registrado.
         }
 
-        // Security: Hash the plain text password before saving the delivery person.
-        String hashedPassword = PasswordUtility.hashPassword(person.getPassword());
-        person.setPassword(hashedPassword);
+        // 2. Llamar a la fábrica para crear el objeto DeliveryPerson.
+        DeliveryPerson newDeliveryPerson = (DeliveryPerson) personFactory.createPerson(PersonType.DELIVERY_PERSON, data);
 
-        deliveryPersonRepository.addDeliveryPerson(person);
+        // 3. Hashear la contraseña del objeto recién creado.
+        String hashedPassword = PasswordUtility.hashPassword(newDeliveryPerson.getPassword());
+        newDeliveryPerson.setPassword(hashedPassword);
+
+        // 4. Guardar el repartidor final en el repositorio.
+        deliveryPersonRepository.addDeliveryPerson(newDeliveryPerson);
+
         return true;
     }
+*/
 
     /**
      * Updates the availability status of a specific delivery person.

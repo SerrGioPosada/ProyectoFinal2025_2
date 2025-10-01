@@ -3,6 +3,7 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Admin;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.AdminRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.dto.PersonCreationData;
 
 /**
  * <p>Provides business logic services related to administrators.</p>
@@ -23,23 +24,37 @@ public class AdminService {
     }
 
     /**
-     * Registers a new admin, hashing their password for secure storage.
+     * Orchestrates the registration of a new admin from raw creation data.
+     * <p>
+     * This method handles the entire registration process:
+     * 1. Validates that the email is not already in use.
+     * 2. Calls the PersonFactory to create a new Admin object.
+     * 3. Hashes the admin's password for secure storage.
+     * 4. Persists the new admin to the repository.
+     * </p>
      *
-     * @param admin The admin object containing plain text password to register.
+     * @param data The PersonCreationData DTO containing the admin's raw information.
      * @return true if registration is successful, false if the email already exists.
-     */
-    public boolean registerAdmin(Admin admin) {
-        if (adminRepository.findByEmail(admin.getEmail()).isPresent()) {
-            return false; // Email already registered
+
+    public boolean registerAdmin(PersonCreationData data) {
+        // 1. Validar que el email no exista.
+        if (adminRepository.findByEmail(data.getEmail()).isPresent()) {
+            return false; // Email ya registrado.
         }
 
-        // Security: Hash the plain text password before saving the admin.
-        String hashedPassword = PasswordUtility.hashPassword(admin.getPassword());
-        admin.setPassword(hashedPassword);
+        // 2. Llamar a la fábrica para crear el objeto Admin.
+        Admin newAdmin = (Admin) personFactory.createPerson(PersonType.ADMIN, data);
 
-        adminRepository.addAdmin(admin);
+        // 3. Hashear la contraseña del objeto recién creado.
+        String hashedPassword = PasswordUtility.hashPassword(newAdmin.getPassword());
+        newAdmin.setPassword(hashedPassword);
+
+        // 4. Guardar el admin final en el repositorio.
+        adminRepository.addAdmin(newAdmin);
+
         return true;
     }
+*/
 
     // Other admin-specific business logic methods will go here.
 }

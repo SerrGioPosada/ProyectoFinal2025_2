@@ -1,4 +1,4 @@
-package co.edu.uniquindio.poo.proyectofiinal2025_2.Dto;
+package co.edu.uniquindio.poo.proyectofiinal2025_2.dto;
 
 /**
  * A parameter object used by the Factory to create different types of people,
