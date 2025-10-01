@@ -42,25 +42,25 @@ public class UserService {
      * @return true if registration is successful, false if the email already exists.
 
     public boolean registerUser(PersonCreationData data) {
-        // 1. Validar que el email no exista antes de crear nada.
+        // 1. Validate that the email doesn't already exist.
         if (userRepository.findByEmail(data.getEmail()).isPresent()) {
-            return false; // Email ya registrado.
+            return false; // Email is already registered.
         }
 
-        // 2. Llamar a la fábrica para crear el objeto User.
+        // 2. Call the factory to create the User object.
         User newUser = (User) personFactory.createPerson(PersonType.USER, data);
 
-        // 3. Hashear la contraseña del objeto recién creado.
+        // 3. Hash the password of the newly created object.
         String hashedPassword = PasswordUtility.hashPassword(newUser.getPassword());
         newUser.setPassword(hashedPassword);
 
-        // 4. Guardar el usuario final en el repositorio.
+        // 4. Save the final user to the repository.
         userRepository.addUser(newUser);
 
         return true;
     }
-
  */
+
 
     public User signup(){
         return null;

@@ -37,19 +37,19 @@ public class AdminService {
      * @return true if registration is successful, false if the email already exists.
 
     public boolean registerAdmin(PersonCreationData data) {
-        // 1. Validar que el email no exista.
+        // 1. Validate that the email doesn't already exist.
         if (adminRepository.findByEmail(data.getEmail()).isPresent()) {
-            return false; // Email ya registrado.
+            return false; // Email is already registered.
         }
 
-        // 2. Llamar a la fábrica para crear el objeto Admin.
+        // 2. Call the factory to create the Admin object.
         Admin newAdmin = (Admin) personFactory.createPerson(PersonType.ADMIN, data);
 
-        // 3. Hashear la contraseña del objeto recién creado.
+        // 3. Hash the password of the newly created object.
         String hashedPassword = PasswordUtility.hashPassword(newAdmin.getPassword());
         newAdmin.setPassword(hashedPassword);
 
-        // 4. Guardar el admin final en el repositorio.
+        // 4. Save the final admin to the repository.
         adminRepository.addAdmin(newAdmin);
 
         return true;
