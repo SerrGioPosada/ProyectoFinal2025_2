@@ -1,13 +1,13 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Admin;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.AuthenticablePerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Person;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.AdminRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Utilities.PasswordUtility;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
 
 import java.util.Optional;
 
@@ -46,47 +46,6 @@ public class AuthenticationService {
         return instance;
     }
 
-    /**
-     * Attempts to log in a person with the given credentials using secure password checking.
-     * <p>It checks for a match in the Admin, User, and DeliveryPerson repositories.</p>
-     *
-     * @param email             The email address to check.
-     * @param plainTextPassword The plain text password to verify against the stored hash.
-     * @return true if login is successful, false otherwise.
-     */
-    public boolean login(String email, String plainTextPassword) {
-        // Try to find an admin
-        Optional<Admin> adminOpt = adminRepository.findByEmail(email);
-        if (adminOpt.isPresent()) {
-            Admin admin = adminOpt.get();
-            if (PasswordUtility.checkPassword(plainTextPassword, admin.getPassword())) {
-                this.currentPerson = admin;
-                return true;
-            }
-        }
-
-        // Try to find a user
-        User user = userRepository.findByEmail(email);
-        if (user != null) {
-            if (PasswordUtility.checkPassword(plainTextPassword, user.getPassword())) {
-                this.currentPerson = user;
-                return true;
-            }
-        }
-
-        // Try to find a delivery person
-        Optional<DeliveryPerson> deliveryPersonOpt = deliveryPersonRepository.findDeliveryPersonByEmail(email);
-        if (deliveryPersonOpt.isPresent()) {
-            DeliveryPerson deliveryPerson = deliveryPersonOpt.get();
-            if (PasswordUtility.checkPassword(plainTextPassword, deliveryPerson.getPassword())) {
-                this.currentPerson = deliveryPerson;
-                return true;
-            }
-        }
-
-        // If no match is found
-        return false;
-    }
 
     /**
      * Logs out the currently authenticated person.
@@ -129,5 +88,40 @@ public class AuthenticationService {
      */
     public boolean isPersonLoggedIn() {
         return currentPerson != null;
+    }
+
+    /**
+     * Attempts to log in a person with the given credentials using secure password checking.
+     * <p>It checks for a match in the Admin, User, and DeliveryPerson repositories.</p>
+     *
+     * @param email             The email address to check.
+     * @param plainTextPassword The plain text password to verify against the stored hash.
+     * @return true if login is successful, false otherwise.
+     */
+    public boolean login(String email, String plainTextPassword) {
+        // Sequentially try to authenticate as Admin, User, or DeliveryPerson
+        return tryAuthenticate(() -> adminRepository.findByEmail(email), plainTextPassword) ||
+                tryAuthenticate(() -> userRepository.findByEmail(email), plainTextPassword) ||
+                tryAuthenticate(() -> deliveryPersonRepository.findDeliveryPersonByEmail(email), plainTextPassword);
+    }
+
+    /**
+     * A generic helper method to authenticate a person from an Optional.
+     *
+     * @param personOpt         The Optional containing the person to authenticate.
+     * @param plainTextPassword The plain text password to verify.
+     * @param <T>               A type that extends AuthenticablePerson.
+     * @return true if authentication is successful, false otherwise.
+     */
+    private <T extends AuthenticablePerson> boolean tryAuthenticate(java.util.function.Supplier<Optional<T>> supplier, String plainTextPassword) {
+        Optional<T> personOpt = supplier.get();
+        if (personOpt.isPresent()) {
+            T person = personOpt.get();
+            if (PasswordUtility.checkPassword(plainTextPassword, person.getPassword())) {
+                this.currentPerson = (Person) person; // Cast to Person for storing in currentPerson
+                return true;
+            }
+        }
+        return false;
     }
 }

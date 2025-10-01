@@ -42,7 +42,6 @@ public class ShipmentService {
                 order.getId(),
                 order.getOrigin(),
                 order.getDestination(),
-                null, // vehicle is not assigned yet
                 LocalDateTime.now(),
                 null, // estimatedDelivery can be calculated later
                 ShipmentStatus.PENDING_ASSIGNMENT // Initial status

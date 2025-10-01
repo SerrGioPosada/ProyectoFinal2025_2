@@ -15,7 +15,6 @@ public class Shipment {
     private String orderId; // Link back to the Order aggregate root
     private Address origin;
     private Address destination;
-    private Vehicle vehicle; // Can be null initially
     private LocalDateTime createdAt;
     private LocalDateTime estimatedDate;
     private LocalDateTime deliveredDate;
@@ -28,18 +27,16 @@ public class Shipment {
      * @param orderId           The ID of the order that this shipment fulfills.
      * @param origin            The origin address.
      * @param destination       The destination address.
-     * @param vehicle           The vehicle assigned (can be null).
      * @param createdAt         The timestamp when the shipment was created.
      * @param estimatedDate     The estimated delivery date.
      * @param status            The initial status of the shipment.
      */
-    public Shipment(String id, String orderId, Address origin, Address destination, Vehicle vehicle,
+    public Shipment(String id, String orderId, Address origin, Address destination,
                     LocalDateTime createdAt, LocalDateTime estimatedDate, ShipmentStatus status) {
         this.id = id;
         this.orderId = orderId;
         this.origin = origin;
         this.destination = destination;
-        this.vehicle = vehicle;
         this.createdAt = createdAt;
         this.estimatedDate = estimatedDate;
         this.status = status;
@@ -65,10 +62,6 @@ public class Shipment {
         return destination;
     }
 
-    public Vehicle getVehicle() {
-        return vehicle;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -89,9 +82,6 @@ public class Shipment {
     // Setters for State Changes
     // ======================
 
-    public void setVehicle(Vehicle vehicle) {
-        this.vehicle = vehicle;
-    }
 
     public void setEstimatedDate(LocalDateTime estimatedDate) {
         this.estimatedDate = estimatedDate;

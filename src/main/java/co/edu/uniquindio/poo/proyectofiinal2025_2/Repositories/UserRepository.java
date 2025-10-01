@@ -3,6 +3,7 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository that manages the persistence of users in memory.
@@ -60,17 +61,14 @@ public class UserRepository {
     }
 
     /**
-     * Finds a user by email.
+     * Finds a user by email Address.
      *
-     * @param email email to search
-     * @return user if found, otherwise null
+     * @param email The email to search for.
+     * @return An Optional containing the user if found, otherwise an empty Optional.
      */
-    public User findByEmail(String email) {
-        for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(email)) {
-                return user;
-            }
-        }
-        return null;
+    public Optional<User> findByEmail(String email) {
+        return users.stream()
+                .filter(user -> user.getEmail().equalsIgnoreCase(email))
+                .findFirst();
     }
 }

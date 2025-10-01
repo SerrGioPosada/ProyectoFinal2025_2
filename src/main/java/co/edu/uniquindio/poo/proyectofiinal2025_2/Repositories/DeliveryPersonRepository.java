@@ -57,18 +57,6 @@ public class DeliveryPersonRepository {
     }
 
     /**
-     * Finds a delivery person by their email address.
-     *
-     * @param email The email of the delivery person to find.
-     * @return An Optional containing the found DeliveryPerson, or empty if not found.
-     */
-    public Optional<DeliveryPerson> findDeliveryPersonByEmail(String email) {
-        return deliveryPersons.stream()
-                .filter(person -> person.getEmail().equalsIgnoreCase(email))
-                .findFirst();
-    }
-
-    /**
      * Retrieves all delivery persons from the repository.
      *
      * @return A list of all delivery persons.
@@ -87,5 +75,17 @@ public class DeliveryPersonRepository {
             int index = deliveryPersons.indexOf(existingPerson);
             deliveryPersons.set(index, updatedPerson);
         });
+    }
+
+    /**
+     * Finds a delivery person by their email address.
+     *
+     * @param email The email of the delivery person to find.
+     * @return An Optional containing the found DeliveryPerson, or empty if not found.
+     */
+    public Optional<DeliveryPerson> findDeliveryPersonByEmail(String email) {
+        return deliveryPersons.stream()
+                .filter(person -> person.getEmail().equalsIgnoreCase(email))
+                .findFirst();
     }
 }

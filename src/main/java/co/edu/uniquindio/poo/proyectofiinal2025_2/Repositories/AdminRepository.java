@@ -44,6 +44,16 @@ public class AdminRepository {
         admins.add(admin);
     }
 
+
+    /**
+     * Retrieves all admins from the repository.
+     *
+     * @return A list of all admins.
+     */
+    public List<Admin> getAdmins() {
+        return new ArrayList<>(admins);
+    }
+
     /**
      * Finds an admin by their email address.
      *
@@ -54,14 +64,5 @@ public class AdminRepository {
         return admins.stream()
                 .filter(admin -> admin.getEmail().equalsIgnoreCase(email))
                 .findFirst();
-    }
-
-    /**
-     * Retrieves all admins from the repository.
-     *
-     * @return A list of all admins.
-     */
-    public List<Admin> getAdmins() {
-        return new ArrayList<>(admins);
     }
 }

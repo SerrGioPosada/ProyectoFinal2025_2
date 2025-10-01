@@ -1,4 +1,4 @@
-package co.edu.uniquindio.poo.proyectofiinal2025_2.Utilities;
+package co.edu.uniquindio.poo.proyectofiinal2025_2.Util;
 
 import org.mindrot.jbcrypt.BCrypt;
 
