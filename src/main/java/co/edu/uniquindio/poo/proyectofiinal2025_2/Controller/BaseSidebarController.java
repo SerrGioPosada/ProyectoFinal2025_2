@@ -34,6 +34,12 @@ public abstract class BaseSidebarController implements Initializable {
     // Use the central authentication service
     protected final AuthenticationService authService = AuthenticationService.getInstance();
 
+    protected IndexController indexController;
+
+    public void setIndexController(IndexController indexController) {
+        this.indexController = indexController;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // === Profile Image Setup ===

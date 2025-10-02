@@ -1,9 +1,7 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.dto.PersonCreationData;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
 
 /**
  * <p>Service that handles business logic related to customers (Users).</p>

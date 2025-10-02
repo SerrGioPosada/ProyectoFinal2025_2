@@ -5,10 +5,12 @@ import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane; // Necessary import
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -17,8 +19,8 @@ import java.util.ResourceBundle;
 
 /**
  * Controller for the main Index view (Index.fxml).
- * <p>Handles top-bar interactions and dynamically loads the appropriate sidebar
- * (Admin or User) based on the logged-in person's type.</p>
+ * <p>Handles top-bar interactions, dynamically loads sidebars, and manages the main content area
+ * by loading different views (like Login, Signup, Dashboards) into it.</p>
  */
 public class IndexController implements Initializable {
 
@@ -30,6 +32,10 @@ public class IndexController implements Initializable {
     private Label lblMenuBack;
     @FXML
     private BorderPane rootPane;
+    @FXML
+    private AnchorPane paneIndex;
+    @FXML
+    private StackPane stackIndex; // ADDED: Reference to the StackPane defined in Index.fxml
 
     private AnchorPane sidebar;
     private final AuthenticationService authService = AuthenticationService.getInstance();
@@ -38,29 +44,17 @@ public class IndexController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Dynamically load the correct sidebar based on the person's type (Admin or User)
         loadSidebar();
 
-        // Configure sidebar animation and initial state
-        if (sidebar != null) {
-            sidebar.setTranslateX(-SIDEBAR_WIDTH);
-            rootPane.setLeft(sidebar);
-        }
-
-        // Exit button closes the application
         exit.setOnMouseClicked(event -> System.exit(0));
-
-        // Hide back-menu button initially
         lblMenuBack.setVisible(false);
 
-        // Open sidebar action
         lblMenu.setOnMouseClicked(event -> {
             lblMenu.setVisible(false);
             lblMenuBack.setVisible(true);
             openSidebar();
         });
 
-        // Close sidebar action
         lblMenuBack.setOnMouseClicked(event -> {
             lblMenu.setVisible(true);
             lblMenuBack.setVisible(false);
@@ -69,23 +63,78 @@ public class IndexController implements Initializable {
     }
 
     /**
-     * Loads the appropriate sidebar FXML (AdminSidebar.fxml or UserSidebar.fxml)
-     * into the view based on the current person's type, determined by the AuthenticationService.
+     * Loads the correct sidebar, gets its controller, and passes a reference to this IndexController.
      */
     private void loadSidebar() {
         try {
-            // Ask the authentication service if the current person is an admin
             String fxmlFile = authService.isCurrentPersonAdmin() ? "AdminSidebar.fxml" : "UserSidebar.fxml";
             URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/" + fxmlFile);
             if (fxmlUrl == null) {
                 System.err.println("Cannot find FXML file: " + fxmlFile);
                 return;
             }
-            sidebar = FXMLLoader.load(fxmlUrl);
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            sidebar = loader.load();
+
+            BaseSidebarController sidebarController = loader.getController();
+            sidebarController.setIndexController(this);
+
+            sidebar.setTranslateX(-SIDEBAR_WIDTH);
+            rootPane.setLeft(sidebar);
+
         } catch (IOException e) {
             System.err.println("Failed to load sidebar FXML.");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Loads a new view into the central content pane (stackIndex).
+     * It also passes a reference of this controller to the new view's controller if applicable.
+     *
+     * @param fxmlName The name of the FXML file to load (e.g., "Login.fxml").
+     */
+    public void loadView(String fxmlName) {
+        try {
+            URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/" + fxmlName);
+            if (fxmlUrl == null) {
+                System.err.println("Cannot find FXML file: " + fxmlName);
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Node view = loader.load();
+
+            Object controller = loader.getController();
+            if (controller instanceof LoginController) {
+                ((LoginController) controller).setIndexController(this);
+            }
+            // Add more 'instanceof' checks here for other controllers like SignupController
+
+            // --- START OF RESPONSIVE CENTERING LOGIC ---
+
+            // 1. Clear the StackPane.
+            stackIndex.getChildren().clear();
+
+            // 2. Add the loaded view. StackPane automatically centers its children.
+            stackIndex.getChildren().add(view);
+
+            // --- END OF RESPONSIVE CENTERING LOGIC ---
+
+        } catch (IOException e) {
+            System.err.println("Failed to load view FXML: " + fxmlName);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Called by child controllers (like LoginController) after a successful login.
+     * This method reloads the sidebar and loads the user's main dashboard.
+     */
+    public void onLoginSuccess() {
+        loadSidebar();
+        loadView("UserDashboard.fxml"); // Ensure UserDashboard.fxml exists
     }
 
     /**

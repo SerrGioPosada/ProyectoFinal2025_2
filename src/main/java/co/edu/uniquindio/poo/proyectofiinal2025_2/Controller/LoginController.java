@@ -1,17 +1,11 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
-import co.edu.uniquindio.poo.proyectofiinal2025_2.MainApp;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.AuthenticationService;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
-
-import java.io.IOException;
 
 /**
  * <p>Controller for the Login view (Login.fxml).</p>
@@ -27,12 +21,17 @@ public class LoginController {
     private PasswordField txtPassword;
 
     @FXML
-    private Button btnLogin;
+    private Button btnLoginPane;
 
     @FXML
     private Label lblError;
 
     private final AuthenticationService authService = AuthenticationService.getInstance();
+    private IndexController indexController;
+
+    public void setIndexController(IndexController indexController) {
+        this.indexController = indexController;
+    }
 
     /**
      * Initializes the controller. This method is automatically called
@@ -41,13 +40,13 @@ public class LoginController {
     @FXML
     public void initialize() {
         // Add a listener to the login button to trigger the login process
-        btnLogin.setOnAction(event -> handleLogin());
+        btnLoginPane.setOnAction(event -> handleLogin());
     }
 
     /**
      * Handles the login button click event. It retrieves user input,
-     * calls the AuthenticationService to validate credentials, and navigates
-     * to the main application view on success or displays an error on failure.
+     * calls the AuthenticationService to validate credentials, and notifies
+     * the IndexController on success or displays an error on failure.
      */
     private void handleLogin() {
         String email = txtEmail.getText();
@@ -63,28 +62,13 @@ public class LoginController {
         boolean loginSuccess = authService.login(email, password);
 
         if (loginSuccess) {
-            // On success, navigate to the main application view
-            navigateToMainView();
+            // On success, notify the main controller
+            if (indexController != null) {
+                indexController.onLoginSuccess();
+            }
         } else {
             // On failure, show an error message to the user
             showError("Invalid email or password. Please try again.");
-        }
-    }
-
-    /**
-     * Navigates the user to the main application window after a successful login.
-     */
-    private void navigateToMainView() {
-        try {
-            Stage stage = (Stage) btnLogin.getScene().getWindow();
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("View/Index.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
-            stage.setScene(scene);
-            stage.setTitle("My Project Final 2025-2");
-            stage.centerOnScreen();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showError("Error: Failed to load the main application view.");
         }
     }
 
