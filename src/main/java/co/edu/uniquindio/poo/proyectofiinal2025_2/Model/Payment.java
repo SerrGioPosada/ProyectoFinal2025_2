@@ -1,6 +1,10 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PaymentStatus;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 
 /**
@@ -9,6 +13,9 @@ import java.time.LocalDateTime;
  * A payment contains information about the amount, date, status, the method used,
  * and a reference to the specific invoice it is paying for.</p>
  */
+@Getter
+@Setter
+@ToString
 public class Payment {
 
     private String id;
@@ -35,75 +42,5 @@ public class Payment {
         this.date = date;
         this.status = status;
         this.paymentMethod = paymentMethod;
-    }
-
-    // ======================
-    // Getters
-    // ======================
-
-    public String getId() {
-        return id;
-    }
-
-    public String getInvoiceId() {
-        return invoiceId;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public PaymentStatus getStatus() {
-        return status;
-    }
-
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    // ======================
-    // Setters
-    // ======================
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
-    public void setStatus(PaymentStatus status) {
-        this.status = status;
-    }
-
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    // ======================
-    // toString
-    // ======================
-
-    @Override
-    public String toString() {
-        return "Payment{" +
-                "id='" + id + '\'' +
-                ", invoiceId='" + invoiceId + '\'' +
-                ", amount=" + amount +
-                ", status=" + status +
-                '}';
     }
 }

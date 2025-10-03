@@ -1,6 +1,9 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.ShipmentStatus;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -9,6 +12,9 @@ import java.time.LocalDateTime;
  * <p>A Shipment is created after an order is paid. It has its own lifecycle
  * and is linked back to the order via an {@code orderId}.</p>
  */
+@Getter
+@Setter
+@ToString
 public class Shipment {
 
     private String id;
@@ -39,59 +45,6 @@ public class Shipment {
         this.destination = destination;
         this.createdAt = createdAt;
         this.estimatedDate = estimatedDate;
-        this.status = status;
-    }
-
-    // ======================
-    // Getters
-    // ======================
-
-    public String getId() {
-        return id;
-    }
-
-    public String getOrderId() {
-        return orderId;
-    }
-
-    public Address getOrigin() {
-        return origin;
-    }
-
-    public Address getDestination() {
-        return destination;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getEstimatedDate() {
-        return estimatedDate;
-    }
-
-    public LocalDateTime getDeliveredDate() {
-        return deliveredDate;
-    }
-
-    public ShipmentStatus getStatus() {
-        return status;
-    }
-
-    // ======================
-    // Setters for State Changes
-    // ======================
-
-
-    public void setEstimatedDate(LocalDateTime estimatedDate) {
-        this.estimatedDate = estimatedDate;
-    }
-
-    public void setDeliveredDate(LocalDateTime deliveredDate) {
-        this.deliveredDate = deliveredDate;
-    }
-
-    public void setStatus(ShipmentStatus status) {
         this.status = status;
     }
 }

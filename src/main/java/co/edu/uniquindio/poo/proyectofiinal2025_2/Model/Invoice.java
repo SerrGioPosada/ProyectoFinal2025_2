@@ -1,5 +1,8 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +13,8 @@ import java.util.List;
  * It contains all the necessary details for a financial record, including a breakdown
  * of costs in the form of line items.</p>
  */
+@Getter
+@ToString
 public final class Invoice {
 
     private final String id;
@@ -36,33 +41,5 @@ public final class Invoice {
         this.issuedAt = issuedAt;
         this.totalAmount = totalAmount;
         this.lineItems = Collections.unmodifiableList(lineItems); // Ensure immutability
-    }
-
-    // =================================
-    // Getters Only (Immutable Entity)
-    // =================================
-
-    public String getId() {
-        return id;
-    }
-
-    public String getOrderId() {
-        return orderId;
-    }
-
-    public String getInvoiceNumber() {
-        return invoiceNumber;
-    }
-
-    public LocalDateTime getIssuedAt() {
-        return issuedAt;
-    }
-
-    public double getTotalAmount() {
-        return totalAmount;
-    }
-
-    public List<LineItem> getLineItems() {
-        return lineItems;
     }
 }

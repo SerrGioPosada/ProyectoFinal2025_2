@@ -1,11 +1,20 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+
 /**
- * <p>Represents a person within the system. This is the base abstract class
- * for more specific entities like users and delivery personnel.</p>
- * <p>It contains common personal information such as ID, name, last name,
- * email, and phone number.</p>
+ * Represents a person within the system. This is the base abstract class
+ * for more specific entities like users and delivery personnel.
+ * It contains common personal information such as ID, name, last name,
+ * email, and phone number.
  */
+@Getter
+@Setter
+@ToString
+@SuperBuilder
 public abstract class Person {
 
     private String id;
@@ -13,6 +22,12 @@ public abstract class Person {
     private String lastName;
     private String email;
     private String phone;
+
+    /**
+     * Default constructor for Lombok's @SuperBuilder.
+     */
+    public Person() {
+    }
 
     /**
      * Constructs a new Person with the specified details.
@@ -28,50 +43,6 @@ public abstract class Person {
         this.name = name;
         this.lastName = lastName;
         this.email = email;
-        this.phone = phone;
-    }
-
-    // =================================
-    // Getters and Setters
-    // =================================
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
         this.phone = phone;
     }
 }

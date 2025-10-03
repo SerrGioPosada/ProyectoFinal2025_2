@@ -1,11 +1,17 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.VehicleType;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Represents a vehicle used for shipments.
  * Each vehicle has a license plate, capacity, type and availability status.
  */
+@Getter
+@Setter
+@ToString
 public class Vehicle {
 
     private String plate;          // Vehicle license plate
@@ -26,59 +32,5 @@ public class Vehicle {
         this.capacity = capacity;
         this.type = type;
         this.available = available;
-    }
-
-    // ======================
-    // Getters
-    // ======================
-
-    public String getPlate() {
-        return plate;
-    }
-
-    public double getCapacity() {
-        return capacity;
-    }
-
-    public VehicleType getType() {
-        return type;
-    }
-
-    public boolean isAvailable() {
-        return available;
-    }
-
-    // ======================
-    // Setters
-    // ======================
-
-    public void setPlate(String plate) {
-        this.plate = plate;
-    }
-
-    public void setCapacity(double capacity) {
-        this.capacity = capacity;
-    }
-
-    public void setType(VehicleType type) {
-        this.type = type;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
-    }
-
-    // ======================
-    // ToString
-    // ======================
-
-    @Override
-    public String toString() {
-        return "Vehicle{" +
-                "plate='" + plate + '\'' +
-                ", capacity=" + capacity +
-                ", type=" + type +
-                ", available=" + available +
-                '}';
     }
 }

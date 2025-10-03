@@ -1,5 +1,9 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.util.Objects;
 
 /**
@@ -10,6 +14,9 @@ import java.util.Objects;
  * for validation logic (e.g., ensuring origin and destination are not the same).
  * </p>
  */
+@Getter
+@Setter
+@ToString
 public class Address {
 
     private String alias; // e.g., "Home", "Office"
@@ -36,67 +43,6 @@ public class Address {
         this.state = state;
         this.country = country;
         this.zipCode = zipCode;
-    }
-
-    // ======================
-    // Getters and Setters
-    // ======================
-
-    public String getAlias() {
-        return alias;
-    }
-
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getZipCode() {
-        return zipCode;
-    }
-
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
-
-    // ======================
-    // Overridden Methods
-    // ======================
-
-    @Override
-    public String toString() {
-        return "'" + alias + "': " + street + ", " + city + ", " + state;
     }
 
     /**

@@ -1,6 +1,11 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Admin;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PersonType;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Factory.PersonFactory;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.AdminRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
 
 /**
  * <p>Provides business logic services related to administrators.</p>
@@ -32,7 +37,7 @@ public class AdminService {
      *
      * @param data The PersonCreationData DTO containing the admin's raw information.
      * @return true if registration is successful, false if the email already exists.
-
+     */
     public boolean registerAdmin(PersonCreationData data) {
         // 1. Validate that the email doesn't already exist.
         if (adminRepository.findByEmail(data.getEmail()).isPresent()) {
@@ -40,7 +45,7 @@ public class AdminService {
         }
 
         // 2. Call the factory to create the Admin object.
-        Admin newAdmin = (Admin) personFactory.createPerson(PersonType.ADMIN, data);
+        Admin newAdmin = (Admin) PersonFactory.createPerson(PersonType.ADMIN, data);
 
         // 3. Hash the password of the newly created object.
         String hashedPassword = PasswordUtility.hashPassword(newAdmin.getPassword());
@@ -51,7 +56,7 @@ public class AdminService {
 
         return true;
     }
-*/
+
 
     // Other admin-specific business logic methods will go here.
 }

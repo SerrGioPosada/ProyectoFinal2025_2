@@ -1,14 +1,30 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+
 /**
  * <p>Represents an abstract person who can be authenticated in the system.</p>
  * <p>This class extends the base {@link Person} class and adds a password field,
  * serving as a common ancestor for any entity that requires login credentials,
  * such as {@link User}, {@link Admin}, and {@link DeliveryPerson}.</p>
  */
+@Getter
+@Setter
+@ToString(callSuper = true)
+@SuperBuilder
 public abstract class AuthenticablePerson extends Person {
 
     private String password;
+
+    /**
+     * Default constructor for Lombok's @SuperBuilder.
+     */
+    public AuthenticablePerson() {
+        super();
+    }
 
     /**
      * Constructs a new AuthenticablePerson with the specified details.
@@ -22,18 +38,6 @@ public abstract class AuthenticablePerson extends Person {
      */
     public AuthenticablePerson(String id, String name, String lastName, String email, String phone, String password) {
         super(id, name, lastName, email, phone);
-        this.password = password;
-    }
-
-    // =================================
-    // Getters and Setters
-    // =================================
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
         this.password = password;
     }
 }

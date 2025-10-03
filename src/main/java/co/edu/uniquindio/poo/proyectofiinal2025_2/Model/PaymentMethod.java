@@ -2,12 +2,18 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PaymentMethodType;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PaymentProvider;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Represents a payment method that a user can register.
  * It contains the type (e.g., Credit Card, Cash),
  * and the provider (e.g., Visa, PayPal).
  */
+@Getter
+@Setter
+@ToString
 public class PaymentMethod {
 
     private String id;                       // Unique identifier for the payment method
@@ -30,57 +36,21 @@ public class PaymentMethod {
         this.accountNumber = accountNumber;
     }
 
-    // ======================
-    // Getters
-    // ======================
-
-    public String getId() {
-        return id;
-    }
-
-    public PaymentMethodType getType() {
-        return type;
-    }
-
-    public PaymentProvider getProvider() {
-        return provider;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    // ======================
-    // Setters
-    // ======================
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setType(PaymentMethodType type) {
-        this.type = type;
-    }
-
-    public void setProvider(PaymentProvider provider) {
-        this.provider = provider;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-
-    // ======================
-    // ToString
-    // ======================
-
+    /**
+     * Overridden for custom formatting, including masking the account number for security.
+     * This implementation takes precedence over Lombok's @ToString annotation.
+     */
     @Override
     public String toString() {
+        String maskedNumber = (accountNumber != null && accountNumber.length() > 4)
+                ? "****" + accountNumber.substring(accountNumber.length() - 4)
+                : "N/A";
+
         return "PaymentMethod{" +
                 "id='" + id + '\'' +
                 ", type=" + type +
                 ", provider=" + provider +
-                ", accountNumber='" + (accountNumber != null ? "****" + accountNumber.substring(accountNumber.length() - 4) : "N/A") + '\'' +
+                ", accountNumber='" + maskedNumber + '\'' +
                 '}';
     }
 }

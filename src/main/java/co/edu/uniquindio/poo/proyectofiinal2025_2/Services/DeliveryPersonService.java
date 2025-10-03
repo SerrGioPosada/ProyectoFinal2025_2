@@ -2,8 +2,12 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.AvailabilityStatus;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PersonType;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Factory.PersonFactory;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Shipment;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.DeliveryPersonRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +43,7 @@ public class DeliveryPersonService {
      *
      * @param data The PersonCreationData DTO containing the delivery person's raw information.
      * @return true if registration is successful, false if the email already exists.
-
+     */
     public boolean registerDeliveryPerson(PersonCreationData data) {
         // 1. Validate that the email doesn't already exist.
         if (deliveryPersonRepository.findDeliveryPersonByEmail(data.getEmail()).isPresent()) {
@@ -47,7 +51,7 @@ public class DeliveryPersonService {
         }
 
         // 2. Call the factory to create the DeliveryPerson object.
-        DeliveryPerson newDeliveryPerson = (DeliveryPerson) personFactory.createPerson(PersonType.DELIVERY_PERSON, data);
+        DeliveryPerson newDeliveryPerson = (DeliveryPerson) PersonFactory.createPerson(PersonType.DELIVERY_PERSON, data);
 
         // 3. Hash the password of the newly created object.
         String hashedPassword = PasswordUtility.hashPassword(newDeliveryPerson.getPassword());
@@ -58,7 +62,7 @@ public class DeliveryPersonService {
 
         return true;
     }
-*/
+
 
     /**
      * Updates the availability status of a specific delivery person.

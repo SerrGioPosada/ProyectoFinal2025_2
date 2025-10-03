@@ -1,16 +1,31 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PermissionLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 /**
  * <p>Represents an administrator in the system, extending the {@link AuthenticablePerson} class.</p>
  * <p>An administrator has system management privileges defined by an employee ID and a
  * specific permission level.</p>
  */
+@Getter
+@Setter
+@ToString(callSuper = true)
+@SuperBuilder
 public class Admin extends AuthenticablePerson {
 
     private String employeeId;
     private PermissionLevel permissionLevel;
+
+    /**
+     * Default constructor for Lombok's @SuperBuilder.
+     */
+    public Admin() {
+        super();
+    }
 
     /**
      * Constructs a new Admin with the specified details.
@@ -28,26 +43,6 @@ public class Admin extends AuthenticablePerson {
                  String employeeId, PermissionLevel permissionLevel) {
         super(id, name, lastName, email, phone, password);
         this.employeeId = employeeId;
-        this.permissionLevel = permissionLevel;
-    }
-
-    // =================================
-    // Getters and Setters
-    // =================================
-
-    public String getEmployeeId() {
-        return employeeId;
-    }
-
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
-    }
-
-    public PermissionLevel getPermissionLevel() {
-        return permissionLevel;
-    }
-
-    public void setPermissionLevel(PermissionLevel permissionLevel) {
         this.permissionLevel = permissionLevel;
     }
 }

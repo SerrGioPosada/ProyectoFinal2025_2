@@ -2,6 +2,10 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.AvailabilityStatus;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.CoverageArea;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +15,10 @@ import java.util.List;
  * <p>A delivery person can be authenticated and has specific attributes such as a document ID,
  * availability status, an assigned vehicle, a coverage area, and a list of shipments they are responsible for.</p>
  */
+@Getter
+@Setter
+@ToString(callSuper = true)
+@SuperBuilder
 public class DeliveryPerson extends AuthenticablePerson {
 
     private String documentId;
@@ -18,6 +26,15 @@ public class DeliveryPerson extends AuthenticablePerson {
     private Vehicle assignedVehicle;
     private CoverageArea coverageArea;
     private List<Shipment> assignedShipments;
+
+    /**
+     * Default constructor for Lombok's @SuperBuilder.
+     * Initializes the list of shipments to avoid NullPointerExceptions.
+     */
+    public DeliveryPerson() {
+        super();
+        this.assignedShipments = new ArrayList<>();
+    }
 
     /**
      * Constructs a new DeliveryPerson with the specified details.
@@ -43,56 +60,15 @@ public class DeliveryPerson extends AuthenticablePerson {
         this.assignedShipments = new ArrayList<>();
     }
 
-    // =================================
-    // Getters and Setters
-    // =================================
-
-    public String getDocumentId() {
-        return documentId;
-    }
-
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
-    }
-
-    public AvailabilityStatus getAvailability() {
-        return availability;
-    }
-
-    public void setAvailability(AvailabilityStatus availability) {
-        this.availability = availability;
-    }
-
-    public Vehicle getAssignedVehicle() {
-        return assignedVehicle;
-    }
-
-    public void setAssignedVehicle(Vehicle assignedVehicle) {
-        this.assignedVehicle = assignedVehicle;
-    }
-
-    public CoverageArea getCoverageArea() {
-        return coverageArea;
-    }
-
-    public void setCoverageArea(CoverageArea coverageArea) {
-        this.coverageArea = coverageArea;
-    }
-
-    public List<Shipment> getAssignedShipments() {
-        return assignedShipments;
-    }
-
-    public void setAssignedShipments(List<Shipment> assignedShipments) {
-        this.assignedShipments = assignedShipments;
-    }
-
     /**
      * Adds a shipment to the delivery person's list of assigned shipments.
      *
      * @param shipment The shipment to add.
      */
     public void addShipment(Shipment shipment) {
+        if (this.assignedShipments == null) {
+            this.assignedShipments = new ArrayList<>();
+        }
         this.assignedShipments.add(shipment);
     }
 }

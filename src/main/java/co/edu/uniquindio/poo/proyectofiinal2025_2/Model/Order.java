@@ -1,6 +1,9 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.OrderStatus;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +14,9 @@ import java.time.LocalDateTime;
  * referencing them only by their IDs. This ensures transactional consistency
  * and a clean domain model.</p>
  */
+@Getter
+@Setter
+@ToString
 public class Order {
 
     private String id;
@@ -45,89 +51,5 @@ public class Order {
         this.shipmentId = null; // Null until a shipment is created
         this.paymentId = null;  // Null until a payment is processed
         this.invoiceId = null;  // Null until an invoice is generated
-    }
-
-    // ======================
-    // Getters
-    // ======================
-
-    public String getId() {
-        return id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public Address getOrigin() {
-        return origin;
-    }
-
-    public Address getDestination() {
-        return destination;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public OrderStatus getStatus() {
-        return status;
-    }
-
-    public String getShipmentId() {
-        return shipmentId;
-    }
-
-    public String getPaymentId() {
-        return paymentId;
-    }
-
-    public String getInvoiceId() {
-        return invoiceId;
-    }
-
-    // ======================
-    // Setters for State Transitions
-    // ======================
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public void setStatus(OrderStatus status) {
-        this.status = status;
-    }
-
-    public void setShipmentId(String shipmentId) {
-        this.shipmentId = shipmentId;
-    }
-
-    public void setPaymentId(String paymentId) {
-        this.paymentId = paymentId;
-    }
-
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
-    }
-
-    // ======================
-    // toString
-    // ======================
-
-    @Override
-    public String toString() {
-        return "Order{" +
-                "id='" + id + '\'' +
-                ", userId='" + userId + '\'' +
-                ", status=" + status +
-                ", shipmentId='" + shipmentId + '\'' +
-                ", paymentId='" + paymentId + '\'' +
-                ", invoiceId='" + invoiceId + '\'' +
-                '}';
     }
 }
