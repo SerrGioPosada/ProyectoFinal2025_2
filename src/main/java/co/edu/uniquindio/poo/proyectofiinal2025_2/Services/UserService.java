@@ -16,8 +16,9 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private UserService() {
+        // Correctly get the singleton instance of the repository.
+        this.userRepository = UserRepository.getInstance();
     }
 
     // ===========================

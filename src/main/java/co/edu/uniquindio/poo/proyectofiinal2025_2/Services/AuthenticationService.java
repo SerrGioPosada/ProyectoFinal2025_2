@@ -18,11 +18,34 @@ import java.util.Optional;
  */
 public class AuthenticationService {
 
-    private final AdminRepository adminRepository = AdminRepository.getInstance();
-    private final UserRepository userRepository = UserRepository.getInstance();
-    private final DeliveryPersonRepository deliveryPersonRepository = DeliveryPersonRepository.getInstance();
+    // --- Singleton Implementation ---
+    private static AuthenticationService instance;
+    private final AdminRepository adminRepository;
+    private final UserRepository userRepository;
+    private final DeliveryPersonRepository deliveryPersonRepository;
 
     private Person currentPerson;
+
+    /**
+     * Private constructor to enforce the Singleton pattern and initialize repositories.
+     */
+    private AuthenticationService() {
+        this.adminRepository = AdminRepository.getInstance();
+        this.userRepository = UserRepository.getInstance();
+        this.deliveryPersonRepository = DeliveryPersonRepository.getInstance();
+    }
+
+    /**
+     * Returns the single instance of the AuthenticationService.
+     *
+     * @return The singleton instance of AuthenticationService.
+     */
+    public static synchronized AuthenticationService getInstance() {
+        if (instance == null) {
+            instance = new AuthenticationService();
+        }
+        return instance;
+    }
 
     // ===========================
     // Session Management
