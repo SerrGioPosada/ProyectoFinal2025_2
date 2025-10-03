@@ -18,34 +18,15 @@ import java.util.Optional;
  */
 public class AuthenticationService {
 
-    private static AuthenticationService instance;
-    private final AdminRepository adminRepository;
-    private final UserRepository userRepository;
-    private final DeliveryPersonRepository deliveryPersonRepository;
+    private final AdminRepository adminRepository = AdminRepository.getInstance();
+    private final UserRepository userRepository = UserRepository.getInstance();
+    private final DeliveryPersonRepository deliveryPersonRepository = DeliveryPersonRepository.getInstance();
 
     private Person currentPerson;
 
-    /**
-     * Private constructor to initialize the service and its repository dependencies.
-     */
-    private AuthenticationService() {
-        this.adminRepository = AdminRepository.getInstance();
-        this.userRepository = UserRepository.getInstance();
-        this.deliveryPersonRepository = DeliveryPersonRepository.getInstance();
-    }
-
-    /**
-     * Returns the single instance of the authentication service.
-     *
-     * @return The singleton instance of AuthenticationService.
-     */
-    public static synchronized AuthenticationService getInstance() {
-        if (instance == null) {
-            instance = new AuthenticationService();
-        }
-        return instance;
-    }
-
+    // ===========================
+    // Session Management
+    // ===========================
 
     /**
      * Logs out the currently authenticated person.
@@ -62,6 +43,19 @@ public class AuthenticationService {
     public Person getCurrentPerson() {
         return currentPerson;
     }
+
+    /**
+     * Checks if any person is currently logged in.
+     *
+     * @return true if a person is logged in, false otherwise.
+     */
+    public boolean isPersonLoggedIn() {
+        return currentPerson != null;
+    }
+
+    // ===========================
+    // Role Checks
+    // ===========================
 
     /**
      * Checks if the currently logged-in person is an administrator.
@@ -81,14 +75,9 @@ public class AuthenticationService {
         return currentPerson instanceof DeliveryPerson;
     }
 
-    /**
-     * Checks if any person is currently logged in.
-     *
-     * @return true if a person is logged in, false otherwise.
-     */
-    public boolean isPersonLoggedIn() {
-        return currentPerson != null;
-    }
+    // ===========================
+    // Person Management
+    // ===========================
 
     /**
      * Attempts to log in a person with the given credentials using secure password checking.
@@ -99,12 +88,12 @@ public class AuthenticationService {
      * @return true if login is successful, false otherwise.
      */
     public boolean login(String email, String plainTextPassword) {
-        // Sequentially try to authenticate as Admin, User, or DeliveryPerson
         return tryAuthenticate(() -> adminRepository.findByEmail(email), plainTextPassword) ||
                 tryAuthenticate(() -> userRepository.findByEmail(email), plainTextPassword) ||
                 tryAuthenticate(() -> deliveryPersonRepository.findDeliveryPersonByEmail(email), plainTextPassword);
     }
 
+    // Authentication
     /**
      * A generic helper method to authenticate a person from an Optional.
      *
@@ -118,7 +107,7 @@ public class AuthenticationService {
         if (personOpt.isPresent()) {
             T person = personOpt.get();
             if (PasswordUtility.checkPassword(plainTextPassword, person.getPassword())) {
-                this.currentPerson = (Person) person; // Cast to Person for storing in currentPerson
+                this.currentPerson = (Person) person;
                 return true;
             }
         }

@@ -31,6 +31,10 @@ public class DeliveryPersonService {
         this.deliveryPersonRepository = deliveryPersonRepository;
     }
 
+    // ===========================
+    // DeliveryPerson Management
+    // ===========================
+
     /**
      * Orchestrates the registration of a new delivery person from raw creation data.
      * <p>
@@ -45,6 +49,7 @@ public class DeliveryPersonService {
      * @return true if registration is successful, false if the email already exists.
      */
     public boolean registerDeliveryPerson(PersonCreationData data) {
+
         // 1. Validate that the email doesn't already exist.
         if (deliveryPersonRepository.findDeliveryPersonByEmail(data.getEmail()).isPresent()) {
             return false; // Email is already registered.
@@ -63,6 +68,9 @@ public class DeliveryPersonService {
         return true;
     }
 
+    // ===========================
+    // Status Updates
+    // ===========================
 
     /**
      * Updates the availability status of a specific delivery person.
@@ -82,6 +90,10 @@ public class DeliveryPersonService {
         return false;
     }
 
+    // ===========================
+    // Queries
+    // ===========================
+
     /**
      * Finds all delivery persons who are currently available.
      *
@@ -92,6 +104,10 @@ public class DeliveryPersonService {
                 .filter(person -> person.getAvailability() == AvailabilityStatus.AVAILABLE)
                 .collect(Collectors.toList());
     }
+
+    // ===========================
+    // Shipment Management
+    // ===========================
 
     /**
      * Assigns a shipment to a delivery person and updates their status.

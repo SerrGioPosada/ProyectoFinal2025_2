@@ -7,6 +7,8 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.AdminRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
 
+import java.util.Optional;
+
 /**
  * <p>Provides business logic services related to administrators.</p>
  * <p>This service class encapsulates the logic for administrator-specific
@@ -16,14 +18,13 @@ public class AdminService {
 
     private final AdminRepository adminRepository;
 
-    /**
-     * Constructs a new AdminService with a repository dependency.
-     *
-     * @param adminRepository The repository for managing administrator data.
-     */
     public AdminService(AdminRepository adminRepository) {
         this.adminRepository = adminRepository;
     }
+
+    // ===========================
+    // Administrator Management
+    // ===========================
 
     /**
      * Orchestrates the registration of a new admin from raw creation data.
@@ -39,24 +40,19 @@ public class AdminService {
      * @return true if registration is successful, false if the email already exists.
      */
     public boolean registerAdmin(PersonCreationData data) {
-        // 1. Validate that the email doesn't already exist.
+
         if (adminRepository.findByEmail(data.getEmail()).isPresent()) {
-            return false; // Email is already registered.
+            return false;
         }
 
-        // 2. Call the factory to create the Admin object.
         Admin newAdmin = (Admin) PersonFactory.createPerson(PersonType.ADMIN, data);
 
-        // 3. Hash the password of the newly created object.
         String hashedPassword = PasswordUtility.hashPassword(newAdmin.getPassword());
         newAdmin.setPassword(hashedPassword);
 
-        // 4. Save the final admin to the repository.
         adminRepository.addAdmin(newAdmin);
 
         return true;
     }
-
-
-    // Other admin-specific business logic methods will go here.
 }
+

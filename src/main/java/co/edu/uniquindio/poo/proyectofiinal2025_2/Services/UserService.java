@@ -16,19 +16,13 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    /**
-     * Constructs a UserService with the given repository.
-     *
-     * @param userRepository repository instance
-     */
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    // ======================
-    // User management
-    // ======================
-
+    // ===========================
+    // User Management
+    // ===========================
 
     /**
      * Orchestrates the registration of a new user from raw creation data.
@@ -43,7 +37,6 @@ public class UserService {
      * @param data The PersonCreationData DTO containing the user's raw information.
      * @return true if registration is successful, false if the email already exists.
      */
-
     public boolean registerUser(PersonCreationData data) {
         // 1. Validate that the email doesn't already exist.
         if (userRepository.findByEmail(data.getEmail()).isPresent()) {
@@ -63,10 +56,8 @@ public class UserService {
         return true;
     }
 
-
-    public User signup(){
+    public User signup() {
+        // Placeholder for future signup logic
         return null;
     }
-
-    // Other user-specific business logic methods will go here.
 }

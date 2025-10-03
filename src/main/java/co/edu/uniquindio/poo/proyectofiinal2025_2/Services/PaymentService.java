@@ -21,14 +21,15 @@ public class PaymentService {
     private final InvoiceRepository invoiceRepository;
     private final OrderService orderService;
 
-    /**
-     * Constructs a new PaymentService with its dependencies.
-     */
     public PaymentService() {
         this.paymentRepository = PaymentRepository.getInstance();
         this.invoiceRepository = InvoiceRepository.getInstance();
         this.orderService = new OrderService(); // In a real DI framework, this would be injected
     }
+
+    // ===========================
+    // Payment Processing
+    // ===========================
 
     /**
      * Processes a payment for a given invoice.

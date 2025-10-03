@@ -18,14 +18,13 @@ public class ShipmentService {
 
     private final ShipmentRepository shipmentRepository;
 
-    /**
-     * Constructs a new ShipmentService with its dependency.
-     *
-     * @param shipmentRepository The repository for shipment data persistence.
-     */
     public ShipmentService(ShipmentRepository shipmentRepository) {
         this.shipmentRepository = shipmentRepository;
     }
+
+    // ===========================
+    // Shipment Management
+    // ===========================
 
     /**
      * Creates a new shipment for a confirmed and paid order.
@@ -36,7 +35,6 @@ public class ShipmentService {
      * @return The unique ID of the newly created shipment.
      */
     public String createShipmentForOrder(Order order) {
-        // Create a new Shipment instance
         Shipment newShipment = Shipment.builder()
                 .id(UUID.randomUUID().toString())
                 .orderId(order.getId())
@@ -46,13 +44,9 @@ public class ShipmentService {
                 .status(ShipmentStatus.PENDING_ASSIGNMENT)
                 .build();
 
-        // Persist the new shipment
         shipmentRepository.addShipment(newShipment);
 
-        // Return the new shipment's ID
         return newShipment.getId();
     }
-
-    // Other shipment-related methods will go here in the future
-    // (e.g., assignVehicleToShipment, updateShipmentStatus, etc.)
 }
+
