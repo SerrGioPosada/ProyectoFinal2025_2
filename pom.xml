@@ -46,6 +46,13 @@
             <version>0.4</version>
         </dependency>
 
+        <!-- Gson for handling JSON (Java Object <-> JSON)-->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+
         <!-- Lombok for Boilerplate Code Reduction -->
         <dependency>
             <groupId>org.projectlombok</groupId>

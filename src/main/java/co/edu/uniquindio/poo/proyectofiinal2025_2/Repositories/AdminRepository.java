@@ -1,32 +1,45 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Admin;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.*;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
- * <p>Manages the persistence and retrieval of Admin entities.</p>
- * <p>This class is implemented as a Singleton to ensure that there is only one
- * instance managing all administrator data in the application.</p>
+ * Manages the persistence and retrieval of Admin entities using HashMaps for fast lookups.
+ * <p>
+ * Implements the Singleton pattern and saves data to a local JSON file.
+ * </p>
  */
 public class AdminRepository {
 
+    private static final String FILE_PATH = "data/admins.json";
+    private final Gson gson = new Gson();
+
     private static AdminRepository instance;
-    private final List<Admin> admins;
+    private final Map<String, Admin> adminsById;
+    private final Map<String, Admin> adminsByEmail;
 
     /**
-     * Private constructor to initialize the repository. Part of the Singleton pattern.
+     * Private constructor that initializes the maps and loads data from the file.
      */
     private AdminRepository() {
-        this.admins = new ArrayList<>();
+        this.adminsById = new HashMap<>();
+        this.adminsByEmail = new HashMap<>();
+        loadFromFile();
     }
 
     /**
-     * Returns the single instance of the repository.
+     * Returns the singleton instance of the repository.
      *
-     * @return The singleton instance of AdminRepository.
+     * @return the unique instance of AdminRepository
      */
     public static synchronized AdminRepository getInstance() {
         if (instance == null) {
@@ -35,34 +48,60 @@ public class AdminRepository {
         return instance;
     }
 
-    /**
-     * Adds a new admin to the repository.
-     *
-     * @param admin The Admin to add.
-     */
+    // ======================
+    // Private file handling
+    // ======================
+
+    private void saveToFile() {
+        try (Writer writer = new FileWriter(FILE_PATH)) {
+
+            gson.toJson(adminsById.values(), writer);
+        } catch (IOException e) {
+            System.err.println("Error saving admins to file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void loadFromFile() {
+        File file = new File(FILE_PATH);
+        if (file.exists() && file.length() > 0) {
+            try (Reader reader = new FileReader(file)) {
+                Type listType = new TypeToken<ArrayList<Admin>>() {}.getType();
+                List<Admin> loadedAdmins = gson.fromJson(reader, listType);
+                if (loadedAdmins != null) {
+
+                    for (Admin admin : loadedAdmins) {
+                        adminsById.put(admin.getId(), admin);
+                        adminsByEmail.put(admin.getEmail().toLowerCase(), admin);
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("Error loading admins from file: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // ======================
+    // Handling methods
+    // ======================
+
     public void addAdmin(Admin admin) {
-        admins.add(admin);
+
+        adminsById.put(admin.getId(), admin);
+        adminsByEmail.put(admin.getEmail().toLowerCase(), admin);
+        saveToFile();
     }
 
+    // ======================
+    // Query methods
+    // ======================
 
-    /**
-     * Retrieves all admins from the repository.
-     *
-     * @return A list of all admins.
-     */
     public List<Admin> getAdmins() {
-        return new ArrayList<>(admins);
+        return new ArrayList<>(adminsById.values());
     }
 
-    /**
-     * Finds an admin by their email address.
-     *
-     * @param email The email of the admin to find.
-     * @return An Optional containing the found Admin, or empty if not found.
-     */
     public Optional<Admin> findByEmail(String email) {
-        return admins.stream()
-                .filter(admin -> admin.getEmail().equalsIgnoreCase(email))
-                .findFirst();
+        return Optional.ofNullable(adminsByEmail.get(email.toLowerCase()));
     }
 }

@@ -108,7 +108,7 @@ public class AuthenticationService {
     /**
      * A generic helper method to authenticate a person from an Optional.
      *
-     * @param personOpt         The Optional containing the person to authenticate.
+     * @param supplier         The Optional containing the person to authenticate.
      * @param plainTextPassword The plain text password to verify.
      * @param <T>               A type that extends AuthenticablePerson.
      * @return true if authentication is successful, false otherwise.
