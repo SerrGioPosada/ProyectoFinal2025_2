@@ -22,6 +22,7 @@
             <PasswordField fx:id="txtPassword" promptText="Contraseña" />
             <Label fx:id="lblError1" />
             <Separator prefHeight="36.0" prefWidth="200.0" />
+            <Label fx:id="googleLoginLabel" text="Iniciar Sesión con Google" styleClass="link-label" />
             <Button fx:id="btnLoginPane" alignment="CENTER" mnemonicParsing="false" styleClass="nav-button" text="Iniciar Sesión" textAlignment="CENTER">
                <VBox.margin>
                   <Insets />

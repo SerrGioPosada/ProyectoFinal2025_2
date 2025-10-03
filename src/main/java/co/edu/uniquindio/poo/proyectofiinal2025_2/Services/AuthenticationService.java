@@ -68,6 +68,17 @@ public class AuthenticationService {
     }
 
     /**
+     * Manually sets the authenticated person for the current session.
+     * This is useful for external authentication flows like OAuth (e.g., Google Sign-In)
+     * where the authentication is verified externally.
+     *
+     * @param person The person to be set as the current authenticated user.
+     */
+    public void setAuthenticatedUser(Person person) {
+        this.currentPerson = person;
+    }
+
+    /**
      * Checks if any person is currently logged in.
      *
      * @return true if a person is logged in, false otherwise.
@@ -99,7 +110,7 @@ public class AuthenticationService {
     }
 
     // ===========================
-    // Person Management
+    // Person Management & Authentication
     // ===========================
 
     /**
@@ -116,7 +127,6 @@ public class AuthenticationService {
                 tryAuthenticate(() -> deliveryPersonRepository.findDeliveryPersonByEmail(email), plainTextPassword);
     }
 
-    // Authentication
     /**
      * A generic helper method to authenticate a person from an Optional.
      *

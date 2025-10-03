@@ -99,3 +99,13 @@
 
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0.3, 0, 2);
 }
+
+.link-label {
+    -fx-text-fill: #0066cc;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+.link-label:hover {
+    -fx-text-fill: #004c99;
+}

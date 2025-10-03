@@ -11,6 +11,9 @@ module co.edu.uniquindio.poo.proyectofiinal2025_2 {
     // Gson is a runtime dependency (used to read/write files)
     requires com.google.gson;
 
+    requires one.jpro.platform.auth.core;
+    //requires one.jpro.platform.auth.google;
+
     opens co.edu.uniquindio.poo.proyectofiinal2025_2.Controller to javafx.fxml;
     exports co.edu.uniquindio.poo.proyectofiinal2025_2;
 }
