@@ -37,15 +37,14 @@ public class ShipmentService {
      */
     public String createShipmentForOrder(Order order) {
         // Create a new Shipment instance
-        Shipment newShipment = new Shipment(
-                UUID.randomUUID().toString(),
-                order.getId(),
-                order.getOrigin(),
-                order.getDestination(),
-                LocalDateTime.now(),
-                null, // estimatedDelivery can be calculated later
-                ShipmentStatus.PENDING_ASSIGNMENT // Initial status
-        );
+        Shipment newShipment = Shipment.builder()
+                .id(UUID.randomUUID().toString())
+                .orderId(order.getId())
+                .origin(order.getOrigin())
+                .destination(order.getDestination())
+                .createdAt(LocalDateTime.now())
+                .status(ShipmentStatus.PENDING_ASSIGNMENT)
+                .build();
 
         // Persist the new shipment
         shipmentRepository.addShipment(newShipment);

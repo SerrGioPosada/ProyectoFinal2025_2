@@ -41,14 +41,18 @@ public class OrderService {
      * @return The newly created Order, ready for payment.
      */
     public Order initiateOrderCreation(String userId, Address origin, Address destination) {
+
         // 1. Create the Order in its initial state
-        Order newOrder = new Order(
-                UUID.randomUUID().toString(),
-                userId,
-                origin,
-                destination,
-                LocalDateTime.now()
-        );
+        Order newOrder = Order.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(userId)
+                .origin(origin)
+                .destination(destination)
+                .createdAt(LocalDateTime.now())
+                // Es una buena práctica establecer el estado inicial al crear la orden
+                .status(OrderStatus.AWAITING_PAYMENT)
+                .build();
+
         orderRepository.addOrder(newOrder);
 
         // 2. Call the InvoiceService to create the associated invoice
