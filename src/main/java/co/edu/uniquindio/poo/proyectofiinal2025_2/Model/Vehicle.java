@@ -9,9 +9,11 @@ import lombok.ToString;
  * Represents a vehicle used for shipments.
  * Each vehicle has a license plate, capacity, type and availability status.
  */
+
 @Getter
 @Setter
 @ToString
+
 public class Vehicle {
 
     private String plate;          // Vehicle license plate

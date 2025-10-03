@@ -1,5 +1,6 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -13,33 +14,18 @@ import java.util.List;
  * It contains all the necessary details for a financial record, including a breakdown
  * of costs in the form of line items.</p>
  */
+
 @Getter
 @ToString
+@Builder
+
 public final class Invoice {
 
-    private final String id;
-    private final String orderId;
-    private final String invoiceNumber;
-    private final LocalDateTime issuedAt;
-    private final double totalAmount;
-    private final List<LineItem> lineItems;
+    private final String id;                // Unique identifier for the invoice
+    private final String orderId;           // ID of the order this invoice belongs to
+    private final String invoiceNumber;     // Human-readable invoice number
+    private final LocalDateTime issuedAt;   // Date and time when the invoice was issued
+    private final double totalAmount;       // Total amount of the invoice
+    private final List<LineItem> lineItems; // Immutable list of line items detailing costs
 
-    /**
-     * Constructs a new, immutable Invoice.
-     *
-     * @param id            The unique identifier for this invoice.
-     * @param orderId       The ID of the order this invoice is for.
-     * @param invoiceNumber A unique, human-readable invoice number.
-     * @param issuedAt      The date and time the invoice was issued.
-     * @param totalAmount   The total amount of the invoice.
-     * @param lineItems     A list of line items detailing the costs.
-     */
-    public Invoice(String id, String orderId, String invoiceNumber, LocalDateTime issuedAt, double totalAmount, List<LineItem> lineItems) {
-        this.id = id;
-        this.orderId = orderId;
-        this.invoiceNumber = invoiceNumber;
-        this.issuedAt = issuedAt;
-        this.totalAmount = totalAmount;
-        this.lineItems = Collections.unmodifiableList(lineItems); // Ensure immutability
-    }
 }

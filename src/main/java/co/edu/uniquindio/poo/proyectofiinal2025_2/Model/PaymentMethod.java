@@ -11,9 +11,11 @@ import lombok.ToString;
  * It contains the type (e.g., Credit Card, Cash),
  * and the provider (e.g., Visa, PayPal).
  */
+
 @Getter
 @Setter
 @ToString
+
 public class PaymentMethod {
 
     private String id;                       // Unique identifier for the payment method
@@ -34,23 +36,5 @@ public class PaymentMethod {
         this.type = type;
         this.provider = provider;
         this.accountNumber = accountNumber;
-    }
-
-    /**
-     * Overridden for custom formatting, including masking the account number for security.
-     * This implementation takes precedence over Lombok's @ToString annotation.
-     */
-    @Override
-    public String toString() {
-        String maskedNumber = (accountNumber != null && accountNumber.length() > 4)
-                ? "****" + accountNumber.substring(accountNumber.length() - 4)
-                : "N/A";
-
-        return "PaymentMethod{" +
-                "id='" + id + '\'' +
-                ", type=" + type +
-                ", provider=" + provider +
-                ", accountNumber='" + maskedNumber + '\'' +
-                '}';
     }
 }

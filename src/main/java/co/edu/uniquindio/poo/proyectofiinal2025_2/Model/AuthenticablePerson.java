@@ -11,13 +11,15 @@ import lombok.experimental.SuperBuilder;
  * serving as a common ancestor for any entity that requires login credentials,
  * such as {@link User}, {@link Admin}, and {@link DeliveryPerson}.</p>
  */
+
 @Getter
 @Setter
 @ToString(callSuper = true)
 @SuperBuilder
+
 public abstract class AuthenticablePerson extends Person {
 
-    private String password;
+    private String password; // Encrypted password for user authentication
 
     /**
      * Default constructor for Lombok's @SuperBuilder.

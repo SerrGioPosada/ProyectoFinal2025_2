@@ -1,6 +1,7 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.OrderStatus;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,42 +15,24 @@ import java.time.LocalDateTime;
  * referencing them only by their IDs. This ensures transactional consistency
  * and a clean domain model.</p>
  */
+
 @Getter
 @Setter
 @ToString
+@Builder
+
 public class Order {
 
-    private String id;
-    private String userId;
-    private Address origin;
-    private Address destination;
-    private LocalDateTime createdAt;
-    private OrderStatus status;
+    private String id;            // Unique identifier for the order
+    private String userId;        // ID of the user who created the order
+    private Address origin;       // Origin address for the shipment
+    private Address destination;  // Destination address for the shipment
+    private LocalDateTime createdAt; // Timestamp when the order was created
+    private OrderStatus status;   // Current status of the order
 
     // IDs for related aggregates
-    private String shipmentId;
-    private String paymentId;
-    private String invoiceId;
+    private String shipmentId;    // ID of the associated shipment
+    private String paymentId;     // ID of the associated payment
+    private String invoiceId;     // ID of the associated invoice
 
-    /**
-     * Constructs a new Order at the beginning of its lifecycle.
-     * The initial status is always set to AWAITING_PAYMENT.
-     *
-     * @param id          The unique identifier for the order.
-     * @param userId      The ID of the user who created the order.
-     * @param origin      The origin address for the shipment.
-     * @param destination The destination address for the shipment.
-     * @param createdAt   The timestamp when the order was created.
-     */
-    public Order(String id, String userId, Address origin, Address destination, LocalDateTime createdAt) {
-        this.id = id;
-        this.userId = userId;
-        this.origin = origin;
-        this.destination = destination;
-        this.createdAt = createdAt;
-        this.status = OrderStatus.AWAITING_PAYMENT; // Initial state
-        this.shipmentId = null; // Null until a shipment is created
-        this.paymentId = null;  // Null until a payment is processed
-        this.invoiceId = null;  // Null until an invoice is generated
-    }
 }

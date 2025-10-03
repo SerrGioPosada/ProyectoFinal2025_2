@@ -11,17 +11,19 @@ import lombok.experimental.SuperBuilder;
  * It contains common personal information such as ID, name, last name,
  * email, and phone number.
  */
+
 @Getter
 @Setter
 @ToString
 @SuperBuilder
+
 public abstract class Person {
 
-    private String id;
-    private String name;
-    private String lastName;
-    private String email;
-    private String phone;
+    private String id;        // Unique identifier for the person
+    private String name;      // First name of the person
+    private String lastName;  // Last name of the person
+    private String email;     // Email address
+    private String phone;     // Phone number
 
     /**
      * Default constructor for Lombok's @SuperBuilder.
