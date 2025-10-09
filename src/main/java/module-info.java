@@ -1,19 +1,29 @@
 module co.edu.uniquindio.poo.proyectofiinal2025_2 {
+    // JavaFX
     requires javafx.controls;
     requires javafx.fxml;
 
-    // The module name for jBCrypt is derived from its JAR file name
+    // Java Desktop (para abrir navegador)
+    requires java.desktop;
+
+    // Seguridad
     requires jbcrypt;
 
-    // Lombok is a compile-time only dependency
+    // Utilidades
     requires static lombok;
-
-    // Gson is a runtime dependency (used to read/write files)
     requires com.google.gson;
 
-    requires one.jpro.platform.auth.core;
-    //requires one.jpro.platform.auth.google;
+    // Google OAuth2
+    requires com.google.api.client;
+    requires com.google.api.client.auth;
+    requires com.google.api.client.json.jackson2;
+    requires com.google.common;
 
+    // Exports y Opens
     opens co.edu.uniquindio.poo.proyectofiinal2025_2.Controller to javafx.fxml;
     exports co.edu.uniquindio.poo.proyectofiinal2025_2;
+
+    opens co.edu.uniquindio.poo.proyectofiinal2025_2.Services to com.google.gson;
+    opens co.edu.uniquindio.poo.proyectofiinal2025_2.Model to com.google.gson;
+    opens co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto to com.google.gson;
 }
