@@ -1,8 +1,8 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
-import lombok.*;
-
-import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Represents a physical address with an optional alias (e.g., "Home" or "Office").
@@ -12,20 +12,96 @@ import java.util.UUID;
  * and consider all fields by default. Use the alias primarily for user-friendly labeling.
  * </p>
  */
-
 @Setter
 @Getter
 @ToString
-@Builder
-
 public class Address {
 
-    private String id;       // Unique identifier for the address
-    private String alias;    // User-friendly name for the address (e.g., Home, Office)
-    private String street;   // Street name and number
-    private String city;     // City of the address
-    private String state;    // State or province
-    private String country;  // Country
-    private String zipCode;  // Postal code
+    private String id;
+    private String alias;
+    private String street;
+    private String city;
+    private String state;
+    private String country;
+    private String zipCode;
 
+    /**
+     * Default constructor.
+     */
+    public Address() {
+    }
+
+    /**
+     * Private constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    private Address(Builder builder) {
+        this.id = builder.id;
+        this.alias = builder.alias;
+        this.street = builder.street;
+        this.city = builder.city;
+        this.state = builder.state;
+        this.country = builder.country;
+        this.zipCode = builder.zipCode;
+    }
+
+    // ======================================
+    //               BUILDER
+    // ======================================
+
+    /**
+     * Static builder class for creating Address instances.
+     */
+    public static class Builder {
+        private String id;
+        private String alias;
+        private String street;
+        private String city;
+        private String state;
+        private String country;
+        private String zipCode;
+
+        public Builder withId(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withAlias(String alias) {
+            this.alias = alias;
+            return this;
+        }
+
+        public Builder withStreet(String street) {
+            this.street = street;
+            return this;
+        }
+
+        public Builder withCity(String city) {
+            this.city = city;
+            return this;
+        }
+
+        public Builder withState(String state) {
+            this.state = state;
+            return this;
+        }
+
+        public Builder withCountry(String country) {
+            this.country = country;
+            return this;
+        }
+
+        public Builder withZipCode(String zipCode) {
+            this.zipCode = zipCode;
+            return this;
+        }
+
+        /**
+         * Creates a new Address instance from the builder's properties.
+         * @return A new Address instance.
+         */
+        public Address build() {
+            return new Address(this);
+        }
+    }
 }

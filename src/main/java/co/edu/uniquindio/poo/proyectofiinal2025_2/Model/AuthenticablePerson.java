@@ -3,7 +3,6 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 /**
  * <p>Represents an abstract person who can be authenticated in the system.</p>
@@ -11,18 +10,15 @@ import lombok.experimental.SuperBuilder;
  * serving as a common ancestor for any entity that requires login credentials,
  * such as {@link User}, {@link Admin}, and {@link DeliveryPerson}.</p>
  */
-
 @Getter
 @Setter
 @ToString(callSuper = true)
-@SuperBuilder
-
 public abstract class AuthenticablePerson extends Person {
 
     private String password; // Encrypted password for user authentication
 
     /**
-     * Default constructor for Lombok's @SuperBuilder.
+     * Default constructor.
      */
     public AuthenticablePerson() {
         super();
@@ -41,5 +37,39 @@ public abstract class AuthenticablePerson extends Person {
     public AuthenticablePerson(String id, String name, String lastName, String email, String phone, String password) {
         super(id, name, lastName, email, phone);
         this.password = password;
+    }
+
+    /**
+     * Constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    protected AuthenticablePerson(Builder<?> builder) {
+        super(builder);
+        this.password = builder.password;
+    }
+
+    // ======================================
+    //               BUILDER
+    // ======================================
+
+    /**
+     * Abstract builder for AuthenticablePerson. Extends the Person builder.
+     *
+     * @param <T> The type of the concrete builder subclass.
+     */
+    public abstract static class Builder<T extends Builder<T>> extends Person.Builder<T> {
+        private String password;
+
+        public T withPassword(String password) {
+            this.password = password;
+            return self();
+        }
+
+        /**
+         * Abstract method to create a new AuthenticablePerson instance from the builder's properties.
+         * @return A new AuthenticablePerson instance.
+         */
+        @Override
+        public abstract AuthenticablePerson build();
     }
 }

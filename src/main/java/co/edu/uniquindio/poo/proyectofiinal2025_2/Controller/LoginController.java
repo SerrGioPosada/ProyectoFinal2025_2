@@ -382,10 +382,11 @@ public class LoginController {
         userRepository.findByEmail(email).ifPresentOrElse(
                 existingUser -> authService.setAuthenticatedUser(existingUser),
                 () -> {
-                    PersonCreationData newData = new PersonCreationData();
-                    newData.setName(name);
-                    newData.setEmail(email);
-                    newData.setPassword("oauth_google_user_" + System.currentTimeMillis());
+                    PersonCreationData newData = new PersonCreationData.Builder()
+                            .withName(name)
+                            .withEmail(email)
+                            .withPassword("oauth_google_user_" + System.currentTimeMillis())
+                            .build();
                     authService.setAuthenticatedUser(personFactory.createPerson(PersonType.USER, newData));
                 }
         );
