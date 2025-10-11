@@ -1,14 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.SignupController"
-            prefHeight="400.0" prefWidth="600.0">
+<ScrollPane fitToWidth="true" fitToHeight="true" styleClass="login-scroll" pannable="true"
+            stylesheets="@../Style.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.SignupController">
 
-</AnchorPane>
+    <StackPane alignment="CENTER" maxWidth="Infinity" prefWidth="Infinity" styleClass="login-background-pane">
+
+        <VBox styleClass="login-container" alignment="CENTER" spacing="20">
+
+            <!-- Logo Circle -->
+            <HBox alignment="CENTER">
+                <StackPane styleClass="logo-circle">
+                    <Label text="SF" styleClass="logo-text"/>
+                </StackPane>
+            </HBox>
+
+            <!-- Welcome Text -->
+            <VBox alignment="CENTER" spacing="5">
+                <Label text="¡Regístrate!" styleClass="welcome-text"/>
+                <Label text="Crea tu cuenta para comenzar" styleClass="welcome-text"/>
+            </VBox>
+
+            <!-- Form Fields -->
+            <VBox spacing="15" styleClass="form-container">
+
+                <!-- Name Field -->
+                <VBox spacing="3">
+                    <TextField fx:id="txtName" styleClass="modern-input" promptText="NOMBRE"/>
+                    <Label fx:id="lblNameError" styleClass="validation-error" visible="false" managed="false"/>
+                </VBox>
+
+                <!-- Last Name Field -->
+                <VBox spacing="3">
+                    <TextField fx:id="txtLastName" styleClass="modern-input" promptText="APELLIDO"/>
+                    <Label fx:id="lblLastNameError" styleClass="validation-error" visible="false" managed="false"/>
+                </VBox>
+
+                <!-- Email Field -->
+                <VBox spacing="3">
+                    <TextField fx:id="txtEmail" styleClass="modern-input" promptText="CORREO ELECTRÓNICO"/>
+                    <Label fx:id="lblEmailError" styleClass="validation-error" visible="false" managed="false"/>
+                </VBox>
+
+                <!-- Phone Field -->
+                <VBox spacing="3">
+                    <TextField fx:id="txtPhone" styleClass="modern-input" promptText="TELÉFONO"/>
+                    <Label fx:id="lblPhoneError" styleClass="validation-error" visible="false" managed="false"/>
+                </VBox>
+
+                <!-- Password Field -->
+                <VBox spacing="3">
+                    <PasswordField fx:id="txtPassword" styleClass="modern-input" promptText="CONTRASEÑA"/>
+                    <Label fx:id="lblPasswordError" styleClass="validation-error" visible="false" managed="false"/>
+                </VBox>
+
+                <!-- Confirm Password Field -->
+                <VBox spacing="3">
+                    <PasswordField fx:id="txtConfirmPassword" styleClass="modern-input" promptText="CONFIRMAR CONTRASEÑA"/>
+                    <Label fx:id="lblConfirmPasswordError" styleClass="validation-error" visible="false" managed="false"/>
+                </VBox>
+
+                <!-- Register Button -->
+                <Button fx:id="btnRegister" text="REGISTRARSE" styleClass="signin-button"/>
+
+                <!-- General Error Label -->
+                <Label fx:id="lblGeneralError" styleClass="error-label" visible="false" managed="false"/>
+
+                <!-- Already registered link -->
+                <Label fx:id="lblAlreadyRegistered" text="¿Ya tienes cuenta? Inicia sesión" styleClass="link-label"/>
+
+                <!-- Divider -->
+                <HBox alignment="CENTER" spacing="10">
+                    <Separator styleClass="divider" HBox.hgrow="ALWAYS"/>
+                    <Label text="o" styleClass="divider-text"/>
+                    <Separator styleClass="divider" HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <!-- Google Sign Up -->
+                <Label fx:id="googleSignupLabel" text="Registrarse con Google" styleClass="google-link"/>
+
+            </VBox>
+
+            <!-- Espaciado inferior -->
+            <VBox prefHeight="30"/>
+
+        </VBox>
+    </StackPane>
+</ScrollPane>

@@ -10,7 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane; // Necessary import
+import javafx.scene.layout.StackPane; // Changed from AnchorPane
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -33,9 +33,7 @@ public class IndexController implements Initializable {
     @FXML
     private BorderPane rootPane;
     @FXML
-    private AnchorPane paneIndex;
-    @FXML
-    private StackPane stackIndex; // ADDED: Reference to the StackPane defined in Index.fxml
+    private StackPane paneIndex; // Changed from AnchorPane to StackPane
 
     private AnchorPane sidebar;
     private final AuthenticationService authService = AuthenticationService.getInstance();
@@ -90,7 +88,7 @@ public class IndexController implements Initializable {
     }
 
     /**
-     * Loads a new view into the central content pane (stackIndex).
+     * Loads a new view into the central content pane (paneIndex).
      * It also passes a reference of this controller to the new view's controller if applicable.
      *
      * @param fxmlName The name of the FXML file to load (e.g., "Login.fxml").
@@ -112,15 +110,7 @@ public class IndexController implements Initializable {
             }
             // Add more 'instanceof' checks here for other controllers like SignupController
 
-            // --- START OF RESPONSIVE CENTERING LOGIC ---
-
-            // 1. Clear the StackPane.
-            stackIndex.getChildren().clear();
-
-            // 2. Add the loaded view. StackPane automatically centers its children.
-            stackIndex.getChildren().add(view);
-
-            // --- END OF RESPONSIVE CENTERING LOGIC ---
+            paneIndex.getChildren().setAll(view);
 
         } catch (IOException e) {
             System.err.println("Failed to load view FXML: " + fxmlName);

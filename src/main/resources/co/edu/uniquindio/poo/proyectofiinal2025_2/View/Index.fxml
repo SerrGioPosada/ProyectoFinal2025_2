@@ -75,16 +75,10 @@
          <!-- LEFT SIDEBAR (will be loaded programmatically) -->
          <left>
          </left>
-         <!-- CENTER PANE: The BorderPane's center region naturally expands to fill all available space.
-              Added temporary background color to visualize its bounds. -->
+
+         <!-- CENTER PANE: Changed to StackPane to center content automatically -->
          <center>
-            <AnchorPane fx:id="paneIndex">
-               <BorderPane.margin>
-                  <Insets />
-               </BorderPane.margin>
-               <children>
-                  <StackPane fx:id="stackIndex" layoutX="250.0" layoutY="76.0" prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-               </children></AnchorPane>
+            <StackPane fx:id="paneIndex" BorderPane.alignment="CENTER" />
          </center>
 
       </BorderPane>
