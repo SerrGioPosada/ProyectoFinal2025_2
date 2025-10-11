@@ -67,14 +67,14 @@ public class InvoiceService {
         // Calculate total amount
         double totalAmount = lineItems.stream().mapToDouble(LineItem::getAmount).sum();
 
-        // Create the immutable invoice object
-        Invoice newInvoice = Invoice.builder()
-                .id(UUID.randomUUID().toString())
-                .orderId(order.getId())
-                .invoiceNumber("INV-" + System.currentTimeMillis()) // Simple unique invoice number
-                .issuedAt(LocalDateTime.now())
-                .totalAmount(totalAmount)
-                .lineItems(lineItems)
+        // Create the immutable invoice object using the manual builder
+        Invoice newInvoice = new Invoice.Builder()
+                .withId(UUID.randomUUID().toString())
+                .withOrderId(order.getId())
+                .withInvoiceNumber("INV-" + System.currentTimeMillis()) // Simple unique invoice number
+                .withIssuedAt(LocalDateTime.now())
+                .withTotalAmount(totalAmount)
+                .withLineItems(lineItems)
                 .build();
 
         // Persist the new invoice

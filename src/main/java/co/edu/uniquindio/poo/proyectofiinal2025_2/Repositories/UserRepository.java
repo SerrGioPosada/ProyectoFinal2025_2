@@ -1,11 +1,14 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Adapter.LocalDateTimeAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +23,9 @@ public class UserRepository {
 
     // --- Attributes for Persistence ---
     private static final String FILE_PATH = "data/users.json";
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     private static UserRepository instance;
 
@@ -57,7 +62,6 @@ public class UserRepository {
      */
     private void saveToFile() {
         try (Writer writer = new FileWriter(FILE_PATH)) {
-
             gson.toJson(usersById.values(), writer);
         } catch (IOException e) {
             System.err.println("Error saving users to file: " + e.getMessage());
@@ -75,7 +79,6 @@ public class UserRepository {
                 Type listType = new TypeToken<ArrayList<User>>() {}.getType();
                 List<User> loadedUsers = gson.fromJson(reader, listType);
                 if (loadedUsers != null) {
-
                     for (User user : loadedUsers) {
                         usersById.put(user.getId(), user);
                         usersByEmail.put(user.getEmail().toLowerCase(), user);
@@ -99,7 +102,6 @@ public class UserRepository {
      * @param user the user to add to the repository
      */
     public void addUser(User user) {
-
         usersById.put(user.getId(), user);
         usersByEmail.put(user.getEmail().toLowerCase(), user);
         saveToFile();

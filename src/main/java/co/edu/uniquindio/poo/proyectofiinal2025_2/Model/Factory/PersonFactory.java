@@ -33,7 +33,7 @@ public class PersonFactory {
                         .withEmail(data.getEmail())
                         .withPhone(data.getPhone())
                         .withPassword(data.getPassword())
-                        .withProfileImage(data.getProfileImage())
+                        .withProfileImagePath(data.getProfileImagePath())
                         .build();
 
             case ADMIN:
@@ -44,6 +44,7 @@ public class PersonFactory {
                         .withEmail(data.getEmail())
                         .withPhone(data.getPhone())
                         .withPassword(data.getPassword())
+                        .withProfileImagePath(data.getProfileImagePath()) // Now part of AuthenticablePerson
                         .withEmployeeId(data.getEmployeeId())
                         .withPermissionLevel(data.getPermissionLevel())
                         .build();
@@ -56,6 +57,7 @@ public class PersonFactory {
                         .withEmail(data.getEmail())
                         .withPhone(data.getPhone())
                         .withPassword(data.getPassword())
+                        .withProfileImagePath(data.getProfileImagePath()) // Now part of AuthenticablePerson
                         .withDocumentId(data.getDocumentId())
                         .withAvailability(data.getAvailability())
                         .withAssignedVehicle(data.getAssignedVehicle())

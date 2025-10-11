@@ -35,13 +35,13 @@ public class ShipmentService {
      * @return The unique ID of the newly created shipment.
      */
     public String createShipmentForOrder(Order order) {
-        Shipment newShipment = Shipment.builder()
-                .id(UUID.randomUUID().toString())
-                .orderId(order.getId())
-                .origin(order.getOrigin())
-                .destination(order.getDestination())
-                .createdAt(LocalDateTime.now())
-                .status(ShipmentStatus.PENDING_ASSIGNMENT)
+        Shipment newShipment = new Shipment.Builder()
+                .withId(UUID.randomUUID().toString())
+                .withOrderId(order.getId())
+                .withOrigin(order.getOrigin())
+                .withDestination(order.getDestination())
+                .withCreatedAt(LocalDateTime.now())
+                .withStatus(ShipmentStatus.PENDING_ASSIGNMENT)
                 .build();
 
         shipmentRepository.addShipment(newShipment);
@@ -49,4 +49,3 @@ public class ShipmentService {
         return newShipment.getId();
     }
 }
-

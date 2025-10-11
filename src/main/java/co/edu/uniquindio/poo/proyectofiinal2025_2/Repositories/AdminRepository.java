@@ -1,11 +1,14 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Admin;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Adapter.LocalDateTimeAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +24,9 @@ import java.util.Optional;
 public class AdminRepository {
 
     private static final String FILE_PATH = "data/admins.json";
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     private static AdminRepository instance;
     private final Map<String, Admin> adminsById;
@@ -54,7 +59,6 @@ public class AdminRepository {
 
     private void saveToFile() {
         try (Writer writer = new FileWriter(FILE_PATH)) {
-
             gson.toJson(adminsById.values(), writer);
         } catch (IOException e) {
             System.err.println("Error saving admins to file: " + e.getMessage());
@@ -69,7 +73,6 @@ public class AdminRepository {
                 Type listType = new TypeToken<ArrayList<Admin>>() {}.getType();
                 List<Admin> loadedAdmins = gson.fromJson(reader, listType);
                 if (loadedAdmins != null) {
-
                     for (Admin admin : loadedAdmins) {
                         adminsById.put(admin.getId(), admin);
                         adminsByEmail.put(admin.getEmail().toLowerCase(), admin);
@@ -87,7 +90,6 @@ public class AdminRepository {
     // ======================
 
     public void addAdmin(Admin admin) {
-
         adminsById.put(admin.getId(), admin);
         adminsByEmail.put(admin.getEmail().toLowerCase(), admin);
         saveToFile();

@@ -1,11 +1,14 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Address;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Adapter.LocalDateTimeAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +24,9 @@ import java.util.Optional;
 public class AddressRepository {
 
     private static final String FILE_PATH = "data/addresses.json";
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     private static AddressRepository instance;
     private final Map<String, Address> addressesById;
@@ -52,7 +57,6 @@ public class AddressRepository {
 
     private void saveToFile() {
         try (Writer writer = new FileWriter(FILE_PATH)) {
-
             gson.toJson(addressesById.values(), writer);
         } catch (IOException e) {
             System.err.println("Error saving addresses to file: " + e.getMessage());
@@ -67,7 +71,6 @@ public class AddressRepository {
                 Type listType = new TypeToken<ArrayList<Address>>() {}.getType();
                 List<Address> loadedAddresses = gson.fromJson(reader, listType);
                 if (loadedAddresses != null) {
-
                     for (Address address : loadedAddresses) {
                         addressesById.put(address.getId(), address);
                     }

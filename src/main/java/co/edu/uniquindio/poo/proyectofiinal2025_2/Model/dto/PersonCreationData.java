@@ -4,7 +4,6 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.AvailabilityStatus
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.CoverageArea;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PermissionLevel;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Vehicle;
-import javafx.scene.image.Image;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,9 +30,10 @@ public class PersonCreationData {
     private String email;
     private String phone;
     private String password;
+    private String profileImagePath;
 
     // --- User-specific Attribute ---
-    private Image profileImage;
+
 
     // --- Admin-specific Attributes ---
     private String employeeId;
@@ -56,7 +56,7 @@ public class PersonCreationData {
         this.email = builder.email;
         this.phone = builder.phone;
         this.password = builder.password;
-        this.profileImage = builder.profileImage;
+        this.profileImagePath = builder.profileImagePath;
         this.employeeId = builder.employeeId;
         this.permissionLevel = builder.permissionLevel;
         this.documentId = builder.documentId;
@@ -79,7 +79,7 @@ public class PersonCreationData {
         private String email;
         private String phone;
         private String password;
-        private Image profileImage;
+        private String profileImagePath;
         private String employeeId;
         private PermissionLevel permissionLevel;
         private String documentId;
@@ -117,8 +117,8 @@ public class PersonCreationData {
             return this;
         }
 
-        public Builder withProfileImage(Image profileImage) {
-            this.profileImage = profileImage;
+        public Builder withProfileImagePath(String profileImagePath) {
+            this.profileImagePath = profileImagePath;
             return this;
         }
 

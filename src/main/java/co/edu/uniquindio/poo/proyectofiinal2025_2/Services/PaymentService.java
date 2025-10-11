@@ -48,13 +48,13 @@ public class PaymentService {
         // For now, we will assume the payment is always successful.
         boolean paymentSuccessful = true;
 
-        Payment newPayment = Payment.builder()
-                .id(UUID.randomUUID().toString())
-                .invoiceId(invoiceId)
-                .amount(invoice.getTotalAmount())
-                .date(LocalDateTime.now())
-                .status(paymentSuccessful ? PaymentStatus.APPROVED : PaymentStatus.FAILED)
-                .paymentMethod(paymentMethod)
+        Payment newPayment = new Payment.Builder()
+                .withId(UUID.randomUUID().toString())
+                .withInvoiceId(invoiceId)
+                .withAmount(invoice.getTotalAmount())
+                .withDate(LocalDateTime.now())
+                .withStatus(paymentSuccessful ? PaymentStatus.APPROVED : PaymentStatus.FAILED)
+                .withPaymentMethod(paymentMethod)
                 .build();
 
         paymentRepository.addPayment(newPayment);

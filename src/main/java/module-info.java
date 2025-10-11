@@ -13,7 +13,8 @@ module co.edu.uniquindio.poo.proyectofiinal2025_2 {
     requires static lombok;
     requires com.google.gson;
 
-    // Google OAuth2
+    // Google OAuth2 - Estas dependencias pueden que no sean de 'jpro-auth',
+    // si usas jpro-auth, las correctas son 'one.jpro.platform.auth.core' y 'one.jpro.platform.auth.google'
     requires com.google.api.client;
     requires com.google.api.client.auth;
     requires com.google.api.client.json.jackson2;
@@ -23,7 +24,8 @@ module co.edu.uniquindio.poo.proyectofiinal2025_2 {
     opens co.edu.uniquindio.poo.proyectofiinal2025_2.Controller to javafx.fxml;
     exports co.edu.uniquindio.poo.proyectofiinal2025_2;
 
-    opens co.edu.uniquindio.poo.proyectofiinal2025_2.Services to com.google.gson;
+    // --- Permisos para Gson ---
     opens co.edu.uniquindio.poo.proyectofiinal2025_2.Model to com.google.gson;
     opens co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto to com.google.gson;
+    opens co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums to com.google.gson;
 }

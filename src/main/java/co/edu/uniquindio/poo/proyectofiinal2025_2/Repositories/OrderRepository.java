@@ -1,11 +1,14 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Order;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Adapter.LocalDateTimeAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +25,9 @@ public class OrderRepository {
 
     // --- Attributes for Persistence ---
     private static final String FILE_PATH = "data/orders.json";
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     private static OrderRepository instance;
     private final Map<String, Order> ordersById;
@@ -53,7 +58,6 @@ public class OrderRepository {
 
     private void saveToFile() {
         try (Writer writer = new FileWriter(FILE_PATH)) {
-
             gson.toJson(ordersById.values(), writer);
         } catch (IOException e) {
             System.err.println("Error saving orders to file: " + e.getMessage());
@@ -68,7 +72,6 @@ public class OrderRepository {
                 Type listType = new TypeToken<ArrayList<Order>>() {}.getType();
                 List<Order> loadedOrders = gson.fromJson(reader, listType);
                 if (loadedOrders != null) {
-
                     for (Order order : loadedOrders) {
                         ordersById.put(order.getId(), order);
                     }
@@ -90,7 +93,10 @@ public class OrderRepository {
     }
 
     public void update(Order newOrder){
-
+        if (ordersById.containsKey(newOrder.getId())) {
+            ordersById.put(newOrder.getId(), newOrder);
+            saveToFile();
+        }
     }
 
     // ======================

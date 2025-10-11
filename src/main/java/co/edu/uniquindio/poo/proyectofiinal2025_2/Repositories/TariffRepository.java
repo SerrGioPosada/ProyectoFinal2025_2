@@ -1,11 +1,14 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Tariff;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Adapter.LocalDateTimeAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +23,9 @@ public class TariffRepository {
 
     // --- Attributes for Persistence ---
     private static final String FILE_PATH = "data/tariffs.json";
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     private static TariffRepository instance;
 
@@ -30,7 +35,6 @@ public class TariffRepository {
      * Private constructor that loads data from the file upon initialization.
      */
     private TariffRepository() {
-
         this.tariffsById = new HashMap<>();
         loadFromFile();
     }
@@ -53,7 +57,6 @@ public class TariffRepository {
 
     private void saveToFile() {
         try (Writer writer = new FileWriter(FILE_PATH)) {
-
             gson.toJson(tariffsById.values(), writer);
         } catch (IOException e) {
             System.err.println("Error saving tariffs to file: " + e.getMessage());
@@ -68,7 +71,6 @@ public class TariffRepository {
                 Type listType = new TypeToken<ArrayList<Tariff>>() {}.getType();
                 List<Tariff> loadedTariffs = gson.fromJson(reader, listType);
                 if (loadedTariffs != null) {
-
                     for (Tariff tariff : loadedTariffs) {
                         tariffsById.put(tariff.getId(), tariff);
                     }
@@ -96,8 +98,6 @@ public class TariffRepository {
     public Optional<Tariff> findById(String id) {
         return Optional.ofNullable(tariffsById.get(id));
     }
-
-
 
     public List<Tariff> findAll() {
         return new ArrayList<>(tariffsById.values());

@@ -1,6 +1,5 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
-import javafx.scene.image.Image;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,8 +10,8 @@ import java.util.List;
 /**
  * Represents a customer in the system, extending the {@link AuthenticablePerson} class.
  * <p>
- * A user is a customer with a profile image, and manages lists of
- * addresses, payment methods, and orders.
+ * A user manages lists of addresses, payment methods, and orders.
+ * The profile image is inherited from AuthenticablePerson.
  * </p>
  */
 @Getter
@@ -20,7 +19,6 @@ import java.util.List;
 @ToString(callSuper = true)
 public class User extends AuthenticablePerson {
 
-    private Image profileImage;
     private List<Address> frequentAddresses;
     private List<PaymentMethod> paymentMethods;
     private List<Order> orders;
@@ -42,7 +40,6 @@ public class User extends AuthenticablePerson {
      */
     protected User(Builder builder) {
         super(builder);
-        this.profileImage = builder.profileImage;
         this.frequentAddresses = new ArrayList<>(); // Always initialize lists
         this.paymentMethods = new ArrayList<>();
         this.orders = new ArrayList<>();
@@ -56,12 +53,6 @@ public class User extends AuthenticablePerson {
      * Concrete builder for creating User instances.
      */
     public static class Builder extends AuthenticablePerson.Builder<Builder> {
-        private Image profileImage;
-
-        public Builder withProfileImage(Image profileImage) {
-            this.profileImage = profileImage;
-            return this;
-        }
 
         /**
          * Returns the concrete builder instance (part of the CRTP pattern).

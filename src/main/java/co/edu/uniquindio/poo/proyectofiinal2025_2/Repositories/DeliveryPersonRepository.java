@@ -1,11 +1,14 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.DeliveryPerson;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Adapter.LocalDateTimeAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +24,9 @@ import java.util.Optional;
 public class DeliveryPersonRepository {
 
     private static final String FILE_PATH = "data/delivery_persons.json";
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     private static DeliveryPersonRepository instance;
 
@@ -49,7 +54,6 @@ public class DeliveryPersonRepository {
 
     private void saveToFile() {
         try (Writer writer = new FileWriter(FILE_PATH)) {
-
             gson.toJson(personsById.values(), writer);
         } catch (IOException e) {
             System.err.println("Error saving delivery persons to file: " + e.getMessage());
@@ -63,7 +67,6 @@ public class DeliveryPersonRepository {
                 Type listType = new TypeToken<ArrayList<DeliveryPerson>>() {}.getType();
                 List<DeliveryPerson> loadedPersons = gson.fromJson(reader, listType);
                 if (loadedPersons != null) {
-
                     for (DeliveryPerson person : loadedPersons) {
                         personsById.put(person.getId(), person);
                         personsByEmail.put(person.getEmail().toLowerCase(), person);
@@ -81,7 +84,6 @@ public class DeliveryPersonRepository {
     // ======================
 
     public void addDeliveryPerson(DeliveryPerson person) {
-
         personsById.put(person.getId(), person);
         personsByEmail.put(person.getEmail().toLowerCase(), person);
         personsByDocumentId.put(person.getDocumentId(), person);

@@ -1,11 +1,14 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Vehicle;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Adapter.LocalDateTimeAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +23,9 @@ public class VehicleRepository {
 
     // --- Attributes for Persistence ---
     private static final String FILE_PATH = "data/vehicles.json";
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     private static VehicleRepository instance;
     private final Map<String, Vehicle> vehiclesByPlate;
@@ -46,7 +51,6 @@ public class VehicleRepository {
 
     private void saveToFile() {
         try (Writer writer = new FileWriter(FILE_PATH)) {
-
             gson.toJson(vehiclesByPlate.values(), writer);
         } catch (IOException e) {
             System.err.println("Error saving vehicles to file: " + e.getMessage());
@@ -61,7 +65,6 @@ public class VehicleRepository {
                 Type listType = new TypeToken<ArrayList<Vehicle>>() {}.getType();
                 List<Vehicle> loadedVehicles = gson.fromJson(reader, listType);
                 if (loadedVehicles != null) {
-
                     for (Vehicle vehicle : loadedVehicles) {
                         vehiclesByPlate.put(vehicle.getPlate().toLowerCase(), vehicle);
                     }

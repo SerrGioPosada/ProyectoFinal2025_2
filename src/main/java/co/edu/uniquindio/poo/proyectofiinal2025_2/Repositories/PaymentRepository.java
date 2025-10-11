@@ -1,11 +1,14 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Payment;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Adapter.LocalDateTimeAdapter;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +25,9 @@ public class PaymentRepository {
 
     // File path for persistence
     private static final String FILE_PATH = "data/payments.json";
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     private static PaymentRepository instance;
     private final Map<String, Payment> paymentsById;
@@ -53,7 +58,6 @@ public class PaymentRepository {
 
     private void saveToFile() {
         try (Writer writer = new FileWriter(FILE_PATH)) {
-
             gson.toJson(paymentsById.values(), writer);
         } catch (IOException e) {
             System.err.println("Error saving payments to file: " + e.getMessage());
@@ -68,7 +72,6 @@ public class PaymentRepository {
                 Type listType = new TypeToken<ArrayList<Payment>>() {}.getType();
                 List<Payment> loadedPayments = gson.fromJson(reader, listType);
                 if (loadedPayments != null) {
-
                     for (Payment payment : loadedPayments) {
                         paymentsById.put(payment.getId(), payment);
                     }
