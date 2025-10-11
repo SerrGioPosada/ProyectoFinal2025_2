@@ -168,22 +168,19 @@ public class LoginController {
                 },
                 // IF the user DOES NOT EXIST...
                 () -> {
-                    // 1. Prepare the data for the new user.
-                    PersonCreationData newData = new PersonCreationData();
-                    newData.setName(name);
-                    newData.setEmail(email);
-                    newData.setPassword("oauth_google_user_" + System.currentTimeMillis());
+                    // Use UserService to register the OAuth user
+                    co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService userService =
+                            co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService.getInstance();
 
-                    // 2. Create the User object.
-                    User newUser = (User) personFactory.createPerson(PersonType.USER, newData);
+                    User newUser = userService.registerOAuthUser(name, email);
 
-                    // 3. Add the new user to the repository.
-                    //    This will call saveToFile() internally.
-                    userRepository.addUser(newUser);
-                    System.out.println("New user created and saved: " + newUser.getEmail());
-
-                    // 4. Now, log in with the newly created user.
-                    authService.setAuthenticatedUser(newUser);
+                    if (newUser != null) {
+                        System.out.println("New OAuth user created: " + newUser.getEmail());
+                        authService.setAuthenticatedUser(newUser);
+                    } else {
+                        showError("Failed to create user account");
+                        return;
+                    }
                 }
         );
 

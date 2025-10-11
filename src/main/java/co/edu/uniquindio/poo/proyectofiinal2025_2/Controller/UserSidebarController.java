@@ -55,9 +55,10 @@ public class UserSidebarController extends BaseSidebarController {
             }
         });
 
+        // CAMBIO AQUÍ: Ahora abre ventana modal en lugar de cargar la vista
         btnSignup.setOnAction(event -> {
             if (indexController != null) {
-                indexController.loadView("Signup.fxml");
+                indexController.openSignupWindow();
             }
         });
     }

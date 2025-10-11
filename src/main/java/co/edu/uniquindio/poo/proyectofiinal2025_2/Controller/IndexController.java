@@ -6,11 +6,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane; // Changed from AnchorPane
+import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -33,12 +37,12 @@ public class IndexController implements Initializable {
     @FXML
     private BorderPane rootPane;
     @FXML
-    private StackPane paneIndex; // Changed from AnchorPane to StackPane
+    private StackPane paneIndex;
 
     private AnchorPane sidebar;
     private final AuthenticationService authService = AuthenticationService.getInstance();
 
-    private static final double SIDEBAR_WIDTH = 176.0; // keep in sync with FXML/sidebar width
+    private static final double SIDEBAR_WIDTH = 176.0;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -119,12 +123,50 @@ public class IndexController implements Initializable {
     }
 
     /**
+     * Abre la ventana emergente de registro.
+     * Esta ventana es modal, lo que significa que bloquea la interacción con la ventana principal.
+     */
+    public void openSignupWindow() {
+        try {
+            URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/Signup.fxml");
+            if (fxmlUrl == null) {
+                System.err.println("Cannot find FXML file: Signup.fxml");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            // Obtener el controller y pasarle la referencia de IndexController
+            SignupController signupController = loader.getController();
+            signupController.setIndexController(this);
+
+            Stage stage = new Stage();
+            stage.setTitle("Registro");
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL); // Ventana modal
+            stage.setResizable(false);
+
+            // Cerrar el sidebar si está abierto cuando se abre el registro
+            closeSidebar();
+            lblMenu.setVisible(true);
+            lblMenuBack.setVisible(false);
+
+            stage.showAndWait(); // Espera a que se cierre la ventana de registro
+
+        } catch (IOException e) {
+            System.err.println("Failed to load Signup window.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Called by child controllers (like LoginController) after a successful login.
      * This method reloads the sidebar and loads the user's main dashboard.
      */
     public void onLoginSuccess() {
         loadSidebar();
-        loadView("UserDashboard.fxml"); // Ensure UserDashboard.fxml exists
+        loadView("UserDashboard.fxml");
     }
 
     /**
