@@ -38,8 +38,6 @@
     -fx-text-fill: #032d4d;
     -fx-font-weight: bold;
     -fx-cursor: hand;
-
-    /* Ajuste automático al tamaño del HBox */
     -fx-max-width: Infinity;
     -fx-max-height: Infinity;
 }
@@ -49,7 +47,6 @@
     -fx-text-fill: white;
 }
 
-/* Separators between nav buttons */
 .nav-separator {
     -fx-background-color: #b2b2b2;
     -fx-pref-width: 1;
@@ -73,7 +70,6 @@
     -fx-background-color: #0A4969;
 }
 
-/* Sidebar buttons */
 .sidebar-button {
     -fx-background-color: #0A4969;
     -fx-text-fill: white;
@@ -96,6 +92,248 @@
     -fx-fit-width: 100;
     -fx-fit-height: 100;
     -fx-preserve-ratio: true;
-
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0.3, 0, 2);
+}
+
+/* ======================
+   LOGIN SCREEN STYLES
+   ====================== */
+.login-background-pane {
+    -fx-background-color: linear-gradient(to bottom, #1a1a3e 0%, #0f0f2e 100%);
+}
+
+.login-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-hbar-policy: never;
+    -fx-vbar-policy: as-needed;
+}
+
+.login-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.login-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 10;
+}
+
+.login-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+    -fx-background-radius: 5;
+}
+
+.login-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.5);
+}
+
+.login-scroll .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.login-scroll .scroll-bar:vertical .increment-button,
+.login-scroll .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+}
+
+/* This container holds the form. We remove the max-width to allow it to be properly centered. */
+.login-container {
+    -fx-padding: 40 20 40 20;
+    -fx-alignment: center;
+}
+
+/* Logo Circle */
+.logo-circle {
+    -fx-background-color: transparent;
+    -fx-border-color: white;
+    -fx-border-width: 3;
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+    -fx-pref-width: 100;
+    -fx-pref-height: 100;
+    -fx-min-width: 100;
+    -fx-min-height: 100;
+    -fx-max-width: 100;
+    -fx-max-height: 100;
+    -fx-alignment: center;
+}
+
+.logo-text {
+    -fx-text-fill: white;
+    -fx-font-size: 40;
+    -fx-font-weight: bold;
+}
+
+/* Welcome Text */
+.welcome-text {
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+}
+
+/* This container holds the input fields and buttons. We give IT the max-width. */
+.form-container {
+    -fx-max-width: 400;
+    -fx-pref-width: 400;
+}
+
+/* Input Container */
+.input-container {
+    -fx-min-height: 50;
+    -fx-pref-height: 50;
+}
+
+/* Modern Input Fields */
+.modern-input {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 25;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 25;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.5);
+    -fx-padding: 15 50 15 25;
+    -fx-font-size: 14;
+    -fx-pref-height: 50;
+    -fx-min-height: 50;
+    -fx-max-height: 50;
+}
+
+.modern-input:focused {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-border-color: #4a9eff;
+    -fx-border-width: 2;
+    -fx-prompt-text-fill: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(74, 158, 255, 0.4), 10, 0, 0, 0);
+}
+
+/* Floating Label - Nueva versión */
+.floating-label-top {
+    -fx-text-fill: rgba(255, 255, 255, 0.5);
+    -fx-font-size: 12;
+    -fx-opacity: 0;
+    -fx-translate-y: 35;
+    -fx-background-color: transparent;
+}
+
+.floating-label-top-active {
+    -fx-text-fill: #4a9eff;
+}
+
+/* Password Toggle Icon */
+.password-toggle {
+    -fx-cursor: hand;
+}
+
+.password-toggle:hover {
+    -fx-opacity: 0.7;
+}
+
+/* Password Toggle Icon - Fuera del campo */
+.password-toggle-outside {
+    -fx-cursor: hand;
+}
+
+.password-toggle-outside:hover {
+    -fx-opacity: 0.7;
+}
+
+/* Checkbox */
+.modern-checkbox {
+    -fx-text-fill: white;
+}
+
+.modern-checkbox .box {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+.modern-checkbox:selected .box {
+    -fx-background-color: #4a9eff;
+    -fx-border-color: #4a9eff;
+}
+
+.modern-checkbox .mark {
+    -fx-background-color: white;
+}
+
+.checkbox-label {
+    -fx-text-fill: white;
+    -fx-font-size: 14;
+}
+
+/* Sign In Button */
+.signin-button {
+    -fx-background-color: #4a9eff;
+    -fx-background-radius: 25;
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-padding: 8 0 8 0;
+    -fx-pref-width: 400;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(74, 158, 255, 0.3), 10, 0, 0, 5);
+}
+
+.signin-button:hover {
+    -fx-background-color: #3a8eef;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.signin-button:pressed {
+    -fx-background-color: #2a7edf;
+}
+
+/* Error Label */
+.error-label {
+    -fx-text-fill: #ff6b6b;
+    -fx-font-size: 13;
+    -fx-padding: 5 0 0 0;
+    -fx-alignment: center;
+}
+
+/* Link Label (Forgot Password) */
+.link-label {
+    -fx-text-fill: rgba(255, 255, 255, 0.7);
+    -fx-font-size: 14;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+}
+
+.link-label:hover {
+    -fx-text-fill: white;
+    -fx-underline: true;
+}
+
+/* Divider */
+.divider {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-pref-height: 1;
+}
+
+.divider-text {
+    -fx-text-fill: rgba(255, 255, 255, 0.5);
+    -fx-font-size: 14;
+}
+
+/* Google Link */
+.google-link {
+    -fx-text-fill: white;
+    -fx-font-size: 14;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-padding: 12 25 12 25;
+    -fx-background-radius: 25;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-width: 1;
+    -fx-border-radius: 25;
+}
+
+.google-link:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-border-color: white;
 }

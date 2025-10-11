@@ -21,14 +21,15 @@ public class PaymentService {
     private final InvoiceRepository invoiceRepository;
     private final OrderService orderService;
 
-    /**
-     * Constructs a new PaymentService with its dependencies.
-     */
     public PaymentService() {
         this.paymentRepository = PaymentRepository.getInstance();
         this.invoiceRepository = InvoiceRepository.getInstance();
         this.orderService = new OrderService(); // In a real DI framework, this would be injected
     }
+
+    // ===========================
+    // Payment Processing
+    // ===========================
 
     /**
      * Processes a payment for a given invoice.
@@ -47,14 +48,14 @@ public class PaymentService {
         // For now, we will assume the payment is always successful.
         boolean paymentSuccessful = true;
 
-        Payment newPayment = new Payment(
-                UUID.randomUUID().toString(),
-                invoiceId,
-                invoice.getTotalAmount(),
-                LocalDateTime.now(),
-                paymentSuccessful ? PaymentStatus.APPROVED : PaymentStatus.FAILED,
-                paymentMethod
-        );
+        Payment newPayment = new Payment.Builder()
+                .withId(UUID.randomUUID().toString())
+                .withInvoiceId(invoiceId)
+                .withAmount(invoice.getTotalAmount())
+                .withDate(LocalDateTime.now())
+                .withStatus(paymentSuccessful ? PaymentStatus.APPROVED : PaymentStatus.FAILED)
+                .withPaymentMethod(paymentMethod)
+                .build();
 
         paymentRepository.addPayment(newPayment);
 

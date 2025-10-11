@@ -1,6 +1,9 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.ShipmentStatus;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -9,99 +12,104 @@ import java.time.LocalDateTime;
  * <p>A Shipment is created after an order is paid. It has its own lifecycle
  * and is linked back to the order via an {@code orderId}.</p>
  */
+@Getter
+@Setter
+@ToString
 public class Shipment {
 
     private String id;
-    private String orderId; // Link back to the Order aggregate root
+    private String orderId;
     private Address origin;
     private Address destination;
-    private Vehicle vehicle; // Can be null initially
     private LocalDateTime createdAt;
     private LocalDateTime estimatedDate;
     private LocalDateTime deliveredDate;
     private ShipmentStatus status;
 
     /**
-     * Constructs a new Shipment.
-     *
-     * @param id                The unique identifier for the shipment.
-     * @param orderId           The ID of the order that this shipment fulfills.
-     * @param origin            The origin address.
-     * @param destination       The destination address.
-     * @param vehicle           The vehicle assigned (can be null).
-     * @param createdAt         The timestamp when the shipment was created.
-     * @param estimatedDate     The estimated delivery date.
-     * @param status            The initial status of the shipment.
+     * Default constructor.
      */
-    public Shipment(String id, String orderId, Address origin, Address destination, Vehicle vehicle,
-                    LocalDateTime createdAt, LocalDateTime estimatedDate, ShipmentStatus status) {
-        this.id = id;
-        this.orderId = orderId;
-        this.origin = origin;
-        this.destination = destination;
-        this.vehicle = vehicle;
-        this.createdAt = createdAt;
-        this.estimatedDate = estimatedDate;
-        this.status = status;
+    public Shipment() {
     }
 
-    // ======================
-    // Getters
-    // ======================
-
-    public String getId() {
-        return id;
+    /**
+     * Private constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    private Shipment(Builder builder) {
+        this.id = builder.id;
+        this.orderId = builder.orderId;
+        this.origin = builder.origin;
+        this.destination = builder.destination;
+        this.createdAt = builder.createdAt;
+        this.estimatedDate = builder.estimatedDate;
+        this.deliveredDate = builder.deliveredDate;
+        this.status = builder.status;
     }
 
-    public String getOrderId() {
-        return orderId;
-    }
+    // ======================================
+    //               BUILDER
+    // ======================================
 
-    public Address getOrigin() {
-        return origin;
-    }
+    /**
+     * Static builder class for creating Shipment instances.
+     */
+    public static class Builder {
+        private String id;
+        private String orderId;
+        private Address origin;
+        private Address destination;
+        private LocalDateTime createdAt;
+        private LocalDateTime estimatedDate;
+        private LocalDateTime deliveredDate;
+        private ShipmentStatus status;
 
-    public Address getDestination() {
-        return destination;
-    }
+        public Builder withId(String id) {
+            this.id = id;
+            return this;
+        }
 
-    public Vehicle getVehicle() {
-        return vehicle;
-    }
+        public Builder withOrderId(String orderId) {
+            this.orderId = orderId;
+            return this;
+        }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+        public Builder withOrigin(Address origin) {
+            this.origin = origin;
+            return this;
+        }
 
-    public LocalDateTime getEstimatedDate() {
-        return estimatedDate;
-    }
+        public Builder withDestination(Address destination) {
+            this.destination = destination;
+            return this;
+        }
 
-    public LocalDateTime getDeliveredDate() {
-        return deliveredDate;
-    }
+        public Builder withCreatedAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
 
-    public ShipmentStatus getStatus() {
-        return status;
-    }
+        public Builder withEstimatedDate(LocalDateTime estimatedDate) {
+            this.estimatedDate = estimatedDate;
+            return this;
+        }
 
-    // ======================
-    // Setters for State Changes
-    // ======================
+        public Builder withDeliveredDate(LocalDateTime deliveredDate) {
+            this.deliveredDate = deliveredDate;
+            return this;
+        }
 
-    public void setVehicle(Vehicle vehicle) {
-        this.vehicle = vehicle;
-    }
+        public Builder withStatus(ShipmentStatus status) {
+            this.status = status;
+            return this;
+        }
 
-    public void setEstimatedDate(LocalDateTime estimatedDate) {
-        this.estimatedDate = estimatedDate;
-    }
-
-    public void setDeliveredDate(LocalDateTime deliveredDate) {
-        this.deliveredDate = deliveredDate;
-    }
-
-    public void setStatus(ShipmentStatus status) {
-        this.status = status;
+        /**
+         * Creates a new Shipment instance from the builder's properties.
+         * @return A new Shipment instance.
+         */
+        public Shipment build() {
+            return new Shipment(this);
+        }
     }
 }

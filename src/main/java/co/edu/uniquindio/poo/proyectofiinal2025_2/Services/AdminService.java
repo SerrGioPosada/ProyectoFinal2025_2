@@ -1,8 +1,13 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Admin;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PersonType;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Factory.PersonFactory;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.AdminRepository;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Utilities.PasswordUtility;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
+
+import java.util.Optional;
 
 /**
  * <p>Provides business logic services related to administrators.</p>
@@ -13,33 +18,41 @@ public class AdminService {
 
     private final AdminRepository adminRepository;
 
-    /**
-     * Constructs a new AdminService with a repository dependency.
-     *
-     * @param adminRepository The repository for managing administrator data.
-     */
     public AdminService(AdminRepository adminRepository) {
         this.adminRepository = adminRepository;
     }
 
+    // ===========================
+    // Administrator Management
+    // ===========================
+
     /**
-     * Registers a new admin, hashing their password for secure storage.
+     * Orchestrates the registration of a new admin from raw creation data.
+     * <p>
+     * This method handles the entire registration process:
+     * 1. Validates that the email is not already in use.
+     * 2. Calls the PersonFactory to create a new Admin object.
+     * 3. Hashes the admin's password for secure storage.
+     * 4. Persists the new admin to the repository.
+     * </p>
      *
-     * @param admin The admin object containing plain text password to register.
+     * @param data The PersonCreationData DTO containing the admin's raw information.
      * @return true if registration is successful, false if the email already exists.
      */
-    public boolean registerAdmin(Admin admin) {
-        if (adminRepository.findByEmail(admin.getEmail()).isPresent()) {
-            return false; // Email already registered
+    public boolean registerAdmin(PersonCreationData data) {
+
+        if (adminRepository.findByEmail(data.getEmail()).isPresent()) {
+            return false;
         }
 
-        // Security: Hash the plain text password before saving the admin.
-        String hashedPassword = PasswordUtility.hashPassword(admin.getPassword());
-        admin.setPassword(hashedPassword);
+        Admin newAdmin = (Admin) PersonFactory.createPerson(PersonType.ADMIN, data);
 
-        adminRepository.addAdmin(admin);
+        String hashedPassword = PasswordUtility.hashPassword(newAdmin.getPassword());
+        newAdmin.setPassword(hashedPassword);
+
+        adminRepository.addAdmin(newAdmin);
+
         return true;
     }
-
-    // Other admin-specific business logic methods will go here.
 }
+

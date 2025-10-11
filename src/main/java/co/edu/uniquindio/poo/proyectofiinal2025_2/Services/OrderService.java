@@ -21,14 +21,15 @@ public class OrderService {
     private final InvoiceService invoiceService;
     private final ShipmentService shipmentService;
 
-    /**
-     * Constructs a new OrderService with its dependencies.
-     */
     public OrderService() {
         this.orderRepository = OrderRepository.getInstance();
         this.invoiceService = new InvoiceService();
         this.shipmentService = new ShipmentService(ShipmentRepository.getInstance());
     }
+
+    // ===========================
+    // Order Management
+    // ===========================
 
     /**
      * Initiates the creation of a new order.
@@ -41,14 +42,17 @@ public class OrderService {
      * @return The newly created Order, ready for payment.
      */
     public Order initiateOrderCreation(String userId, Address origin, Address destination) {
-        // 1. Create the Order in its initial state
-        Order newOrder = new Order(
-                UUID.randomUUID().toString(),
-                userId,
-                origin,
-                destination,
-                LocalDateTime.now()
-        );
+
+        // 1. Create the Order in its initial state using the manual builder
+        Order newOrder = new Order.Builder()
+                .withId(UUID.randomUUID().toString())
+                .withUserId(userId)
+                .withOrigin(origin)
+                .withDestination(destination)
+                .withCreatedAt(LocalDateTime.now())
+                .withStatus(OrderStatus.AWAITING_PAYMENT)
+                .build();
+
         orderRepository.addOrder(newOrder);
 
         // 2. Call the InvoiceService to create the associated invoice
@@ -60,6 +64,10 @@ public class OrderService {
 
         return newOrder;
     }
+
+    // ===========================
+    // Payment Confirmation
+    // ===========================
 
     /**
      * Confirms that an order has been paid, and transitions it to the next state.
@@ -76,7 +84,10 @@ public class OrderService {
 
         // State Validation: Ensure we can only confirm payment for an order that is awaiting it.
         if (order.getStatus() != OrderStatus.AWAITING_PAYMENT) {
-            throw new IllegalStateException("Cannot confirm payment for an order that is not in the AWAITING_PAYMENT state. Current state: " + order.getStatus());
+            throw new IllegalStateException(
+                    "Cannot confirm payment for an order that is not in the AWAITING_PAYMENT state. Current state: "
+                            + order.getStatus()
+            );
         }
 
         // 1. Update the order state to PAID

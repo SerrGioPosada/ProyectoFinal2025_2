@@ -2,9 +2,12 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.AvailabilityStatus;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PersonType;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Factory.PersonFactory;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Shipment;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.DeliveryPersonRepository;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Utilities.PasswordUtility;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,24 +31,46 @@ public class DeliveryPersonService {
         this.deliveryPersonRepository = deliveryPersonRepository;
     }
 
+    // ===========================
+    // DeliveryPerson Management
+    // ===========================
+
     /**
-     * Registers a new delivery person, hashing their password for secure storage.
+     * Orchestrates the registration of a new delivery person from raw creation data.
+     * <p>
+     * This method handles the entire registration process:
+     * 1. Validates that the email is not already in use.
+     * 2. Calls the PersonFactory to create a new DeliveryPerson object.
+     * 3. Hashes the delivery person's password for secure storage.
+     * 4. Persists the new delivery person to the repository.
+     * </p>
      *
-     * @param person The delivery person object containing plain text password to register.
+     * @param data The PersonCreationData DTO containing the delivery person's raw information.
      * @return true if registration is successful, false if the email already exists.
      */
-    public boolean registerDeliveryPerson(DeliveryPerson person) {
-        if (deliveryPersonRepository.findDeliveryPersonByEmail(person.getEmail()).isPresent()) {
-            return false; // Email already registered
+    public boolean registerDeliveryPerson(PersonCreationData data) {
+
+        // 1. Validate that the email doesn't already exist.
+        if (deliveryPersonRepository.findDeliveryPersonByEmail(data.getEmail()).isPresent()) {
+            return false; // Email is already registered.
         }
 
-        // Security: Hash the plain text password before saving the delivery person.
-        String hashedPassword = PasswordUtility.hashPassword(person.getPassword());
-        person.setPassword(hashedPassword);
+        // 2. Call the factory to create the DeliveryPerson object.
+        DeliveryPerson newDeliveryPerson = (DeliveryPerson) PersonFactory.createPerson(PersonType.DELIVERY_PERSON, data);
 
-        deliveryPersonRepository.addDeliveryPerson(person);
+        // 3. Hash the password of the newly created object.
+        String hashedPassword = PasswordUtility.hashPassword(newDeliveryPerson.getPassword());
+        newDeliveryPerson.setPassword(hashedPassword);
+
+        // 4. Save the final delivery person to the repository.
+        deliveryPersonRepository.addDeliveryPerson(newDeliveryPerson);
+
         return true;
     }
+
+    // ===========================
+    // Status Updates
+    // ===========================
 
     /**
      * Updates the availability status of a specific delivery person.
@@ -65,6 +90,10 @@ public class DeliveryPersonService {
         return false;
     }
 
+    // ===========================
+    // Queries
+    // ===========================
+
     /**
      * Finds all delivery persons who are currently available.
      *
@@ -75,6 +104,10 @@ public class DeliveryPersonService {
                 .filter(person -> person.getAvailability() == AvailabilityStatus.AVAILABLE)
                 .collect(Collectors.toList());
     }
+
+    // ===========================
+    // Shipment Management
+    // ===========================
 
     /**
      * Assigns a shipment to a delivery person and updates their status.

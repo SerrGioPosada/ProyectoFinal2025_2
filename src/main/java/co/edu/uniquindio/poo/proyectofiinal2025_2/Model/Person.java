@@ -1,11 +1,18 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 /**
- * <p>Represents a person within the system. This is the base abstract class
- * for more specific entities like users and delivery personnel.</p>
- * <p>It contains common personal information such as ID, name, last name,
- * email, and phone number.</p>
+ * Represents a person within the system. This is the base abstract class
+ * for more specific entities like users and delivery personnel.
+ * It contains common personal information such as ID, name, last name,
+ * email, and phone number.
  */
+@Getter
+@Setter
+@ToString
 public abstract class Person {
 
     private String id;
@@ -13,6 +20,12 @@ public abstract class Person {
     private String lastName;
     private String email;
     private String phone;
+
+    /**
+     * Default constructor.
+     */
+    public Person() {
+    }
 
     /**
      * Constructs a new Person with the specified details.
@@ -31,47 +44,70 @@ public abstract class Person {
         this.phone = phone;
     }
 
-    // =================================
-    // Getters and Setters
-    // =================================
-
-    public String getId() {
-        return id;
+    /**
+     * Constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    protected Person(Builder<?> builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.lastName = builder.lastName;
+        this.email = builder.email;
+        this.phone = builder.phone;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    // ======================================
+    //               BUILDER
+    // ======================================
 
-    public String getName() {
-        return name;
-    }
+    /**
+     * Abstract base builder for Person and its subclasses.
+     * Uses the "Curiously Recurring Template Pattern" (CRTP) for fluent inheritance.
+     *
+     * @param <T> The type of the concrete builder subclass.
+     */
+    public abstract static class Builder<T extends Builder<T>> {
+        private String id;
+        private String name;
+        private String lastName;
+        private String email;
+        private String phone;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+        public T withId(String id) {
+            this.id = id;
+            return self();
+        }
 
-    public String getLastName() {
-        return lastName;
-    }
+        public T withName(String name) {
+            this.name = name;
+            return self();
+        }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+        public T withLastName(String lastName) {
+            this.lastName = lastName;
+            return self();
+        }
 
-    public String getEmail() {
-        return email;
-    }
+        public T withEmail(String email) {
+            this.email = email;
+            return self();
+        }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+        public T withPhone(String phone) {
+            this.phone = phone;
+            return self();
+        }
 
-    public String getPhone() {
-        return phone;
-    }
+        /**
+         * Returns the concrete builder instance (part of the CRTP pattern).
+         * @return The concrete builder instance.
+         */
+        protected abstract T self();
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+        /**
+         * Abstract method to create a new Person instance from the builder's properties.
+         * @return A new Person instance.
+         */
+        public abstract Person build();
     }
 }

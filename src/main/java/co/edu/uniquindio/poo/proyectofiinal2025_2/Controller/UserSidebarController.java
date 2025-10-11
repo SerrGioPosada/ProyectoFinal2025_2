@@ -47,6 +47,19 @@ public class UserSidebarController extends BaseSidebarController {
         setButtonVisibility(btnNewShipment, isLoggedIn);
         setButtonVisibility(btnOrders, isLoggedIn);
         setButtonVisibility(btnLogout, isLoggedIn);
+
+        // Add actions to navigate
+        btnLogin.setOnAction(event -> {
+            if (indexController != null) {
+                indexController.loadView("Login.fxml");
+            }
+        });
+
+        btnSignup.setOnAction(event -> {
+            if (indexController != null) {
+                indexController.loadView("Signup.fxml");
+            }
+        });
     }
 
     /**

@@ -1,8 +1,11 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PersonType;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Factory.PersonFactory;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Utilities.PasswordUtility;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
 
 /**
  * <p>Service that handles business logic related to customers (Users).</p>
@@ -13,41 +16,49 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    /**
-     * Constructs a UserService with the given repository.
-     *
-     * @param userRepository repository instance
-     */
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private UserService() {
+        // Correctly get the singleton instance of the repository.
+        this.userRepository = UserRepository.getInstance();
     }
 
-    // ======================
-    // User management
-    // ======================
+    // ===========================
+    // User Management
+    // ===========================
 
     /**
-     * Registers a new user, hashing their password for secure storage.
+     * Orchestrates the registration of a new user from raw creation data.
+     * <p>
+     * This method handles the entire registration process:
+     * 1. Validates that the email is not already in use.
+     * 2. Calls the PersonFactory to create a new User object.
+     * 3. Hashes the user's password for secure storage.
+     * 4. Persists the new user to the repository.
+     * </p>
      *
-     * @param user The user object containing plain text password to register.
+     * @param data The PersonCreationData DTO containing the user's raw information.
      * @return true if registration is successful, false if the email already exists.
      */
-    public boolean registerUser(User user) {
-        if (userRepository.findByEmail(user.getEmail()) != null) {
-            return false; // Email already registered
+    public boolean registerUser(PersonCreationData data) {
+        // 1. Validate that the email doesn't already exist.
+        if (userRepository.findByEmail(data.getEmail()).isPresent()) {
+            return false; // Email is already registered.
         }
 
-        // Security: Hash the plain text password before saving the user.
-        String hashedPassword = PasswordUtility.hashPassword(user.getPassword());
-        user.setPassword(hashedPassword);
+        // 2. Call the factory to create the User object.
+        User newUser = (User) PersonFactory.createPerson(PersonType.USER, data);
 
-        userRepository.addUser(user);
+        // 3. Hash the password of the newly created object.
+        String hashedPassword = PasswordUtility.hashPassword(newUser.getPassword());
+        newUser.setPassword(hashedPassword);
+
+        // 4. Save the final user to the repository.
+        userRepository.addUser(newUser);
+
         return true;
     }
 
-    public User signup(){
+    public User signup() {
+        // Placeholder for future signup logic
         return null;
     }
-
-    // Other user-specific business logic methods will go here.
 }

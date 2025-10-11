@@ -1,7 +1,7 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.AuthenticablePerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Person;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.AuthenticationService;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
@@ -14,6 +14,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -31,18 +32,39 @@ public abstract class BaseSidebarController implements Initializable {
     @FXML
     protected AnchorPane slider;
 
-    // Use the central authentication service
     protected final AuthenticationService authService = AuthenticationService.getInstance();
+    protected IndexController indexController;
+
+    public void setIndexController(IndexController indexController) {
+        this.indexController = indexController;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // === Profile Image Setup ===
-        String path = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png";
-        URL imgUrl = getClass().getResource(path);
+        String defaultImagePath = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png";
+        Image defaultImage = new Image(getClass().getResourceAsStream(defaultImagePath));
 
         // Set a default image initially
-        if (imgUrl != null) {
-            imgUserImage.setImage(new Image(imgUrl.toExternalForm()));
+        imgUserImage.setImage(defaultImage);
+
+        // Check if an authenticable person is logged in and set their specific profile image
+        Person currentPerson = authService.getCurrentPerson();
+        if (currentPerson instanceof AuthenticablePerson) {
+            AuthenticablePerson currentAuthPerson = (AuthenticablePerson) currentPerson;
+            String userImagePath = currentAuthPerson.getProfileImagePath();
+            if (userImagePath != null && !userImagePath.isEmpty()) {
+                try {
+                    InputStream userImageStream = getClass().getResourceAsStream(userImagePath);
+                    if (userImageStream != null) {
+                        imgUserImage.setImage(new Image(userImageStream));
+                    } else {
+                        System.err.println("Could not find user profile image at path: " + userImagePath);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to load user profile image from path: " + userImagePath);
+                }
+            }
         }
 
         // Apply a circular clipping mask
@@ -66,42 +88,44 @@ public abstract class BaseSidebarController implements Initializable {
 
         // On click: show profile info from the authenticated person
         imgUserImage.setOnMouseClicked(e -> {
-            Person currentPerson = authService.getCurrentPerson();
+            Person personOnClick = authService.getCurrentPerson();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Profile Information");
             alert.setHeaderText(null);
 
-            if (currentPerson != null) {
-                alert.setContentText("Name: " + currentPerson.getName() + "\nEmail: " + currentPerson.getEmail());
-                ImageView imageView = new ImageView();
-                imageView.setFitWidth(80);
-                imageView.setFitHeight(80);
-                imageView.setPreserveRatio(true);
+            if (personOnClick != null) {
+                alert.setContentText("Name: " + personOnClick.getName() + "\nEmail: " + personOnClick.getEmail());
+                ImageView alertImageView = new ImageView();
+                alertImageView.setFitWidth(80);
+                alertImageView.setFitHeight(80);
+                alertImageView.setPreserveRatio(true);
 
-                // A User has a profile image, an Admin does not
-                if (currentPerson instanceof User) {
-                    User currentUser = (User) currentPerson;
-                    if (currentUser.getProfileImage() != null) {
-                        imageView.setImage(currentUser.getProfileImage());
-                    } else if (imgUrl != null) {
-                        imageView.setImage(new Image(imgUrl.toExternalForm())); // Fallback to default
+                Image imageToShow = defaultImage;
+
+                if (personOnClick instanceof AuthenticablePerson) {
+                    AuthenticablePerson clickedAuthPerson = (AuthenticablePerson) personOnClick;
+                    String imagePath = clickedAuthPerson.getProfileImagePath();
+                    if (imagePath != null && !imagePath.isEmpty()) {
+                        try {
+                            InputStream stream = getClass().getResourceAsStream(imagePath);
+                            if (stream != null) {
+                                imageToShow = new Image(stream);
+                            }
+                        } catch (Exception ex) {
+                            System.err.println("Failed to load image for alert dialog: " + imagePath);
+                        }
                     }
-                } else if (imgUrl != null) {
-                    // For Admins or other types, use the default image
-                    imageView.setImage(new Image(imgUrl.toExternalForm()));
                 }
-                alert.setGraphic(imageView);
+                alertImageView.setImage(imageToShow);
+                alert.setGraphic(alertImageView);
 
             } else {
-                // Case where no one is logged in
                 alert.setContentText("Please log in to view your profile.");
-                if (imgUrl != null) {
-                    ImageView imageView = new ImageView(new Image(imgUrl.toExternalForm()));
-                    imageView.setFitWidth(80);
-                    imageView.setFitHeight(80);
-                    imageView.setPreserveRatio(true);
-                    alert.setGraphic(imageView);
-                }
+                ImageView alertImageView = new ImageView(defaultImage);
+                alertImageView.setFitWidth(80);
+                alertImageView.setFitHeight(80);
+                alertImageView.setPreserveRatio(true);
+                alert.setGraphic(alertImageView);
             }
 
             alert.showAndWait();

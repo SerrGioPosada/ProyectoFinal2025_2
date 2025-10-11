@@ -1,11 +1,18 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 /**
  * <p>Defines the pricing rules and tariffs for calculating shipping costs.</p>
  * <p>This class holds all the variables required to calculate the final cost of a shipment,
  * including base costs, per-kilometer rates, per-kilogram rates, and surcharges for
  * different priority levels.</p>
  */
+@Getter
+@Setter
+@ToString
 public class Tariff {
 
     private String id;
@@ -16,73 +23,75 @@ public class Tariff {
     private double prioritySurcharge;
 
     /**
-     * Constructs a new Tariff with the specified pricing rules.
-     *
-     * @param id                The unique identifier for the tariff.
-     * @param description       A brief description of the tariff (e.g., "Standard Rate").
-     * @param baseCost          The flat base cost for any shipment.
-     * @param costPerKilometer  The additional cost for each kilometer of distance.
-     * @param costPerKilogram   The additional cost for each kilogram of weight.
-     * @param prioritySurcharge A flat surcharge to be added for high-priority shipments.
+     * Default constructor.
      */
-    public Tariff(String id, String description, double baseCost, double costPerKilometer, double costPerKilogram, double prioritySurcharge) {
-        this.id = id;
-        this.description = description;
-        this.baseCost = baseCost;
-        this.costPerKilometer = costPerKilometer;
-        this.costPerKilogram = costPerKilogram;
-        this.prioritySurcharge = prioritySurcharge;
+    public Tariff() {
     }
 
-    // =================================
-    // Getters and Setters
-    // =================================
-
-    public String getId() {
-        return id;
+    /**
+     * Private constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    private Tariff(Builder builder) {
+        this.id = builder.id;
+        this.description = builder.description;
+        this.baseCost = builder.baseCost;
+        this.costPerKilometer = builder.costPerKilometer;
+        this.costPerKilogram = builder.costPerKilogram;
+        this.prioritySurcharge = builder.prioritySurcharge;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    // ======================================
+    //               BUILDER
+    // ======================================
 
-    public String getDescription() {
-        return description;
-    }
+    /**
+     * Static builder class for creating Tariff instances.
+     */
+    public static class Builder {
+        private String id;
+        private String description;
+        private double baseCost;
+        private double costPerKilometer;
+        private double costPerKilogram;
+        private double prioritySurcharge;
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+        public Builder withId(String id) {
+            this.id = id;
+            return this;
+        }
 
-    public double getBaseCost() {
-        return baseCost;
-    }
+        public Builder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
 
-    public void setBaseCost(double baseCost) {
-        this.baseCost = baseCost;
-    }
+        public Builder withBaseCost(double baseCost) {
+            this.baseCost = baseCost;
+            return this;
+        }
 
-    public double getCostPerKilometer() {
-        return costPerKilometer;
-    }
+        public Builder withCostPerKilometer(double costPerKilometer) {
+            this.costPerKilometer = costPerKilometer;
+            return this;
+        }
 
-    public void setCostPerKilometer(double costPerKilometer) {
-        this.costPerKilometer = costPerKilometer;
-    }
+        public Builder withCostPerKilogram(double costPerKilogram) {
+            this.costPerKilogram = costPerKilogram;
+            return this;
+        }
 
-    public double getCostPerKilogram() {
-        return costPerKilogram;
-    }
+        public Builder withPrioritySurcharge(double prioritySurcharge) {
+            this.prioritySurcharge = prioritySurcharge;
+            return this;
+        }
 
-    public void setCostPerKilogram(double costPerKilogram) {
-        this.costPerKilogram = costPerKilogram;
-    }
-
-    public double getPrioritySurcharge() {
-        return prioritySurcharge;
-    }
-
-    public void setPrioritySurcharge(double prioritySurcharge) {
-        this.prioritySurcharge = prioritySurcharge;
+        /**
+         * Creates a new Tariff instance from the builder's properties.
+         * @return A new Tariff instance.
+         */
+        public Tariff build() {
+            return new Tariff(this);
+        }
     }
 }

@@ -1,13 +1,13 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Admin;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.AuthenticablePerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Person;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.AdminRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Utilities.PasswordUtility;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
 
 import java.util.Optional;
 
@@ -18,6 +18,7 @@ import java.util.Optional;
  */
 public class AuthenticationService {
 
+    // --- Singleton Implementation ---
     private static AuthenticationService instance;
     private final AdminRepository adminRepository;
     private final UserRepository userRepository;
@@ -26,7 +27,7 @@ public class AuthenticationService {
     private Person currentPerson;
 
     /**
-     * Private constructor to initialize the service and its repository dependencies.
+     * Private constructor to enforce the Singleton pattern and initialize repositories.
      */
     private AuthenticationService() {
         this.adminRepository = AdminRepository.getInstance();
@@ -35,7 +36,7 @@ public class AuthenticationService {
     }
 
     /**
-     * Returns the single instance of the authentication service.
+     * Returns the single instance of the AuthenticationService.
      *
      * @return The singleton instance of AuthenticationService.
      */
@@ -46,47 +47,9 @@ public class AuthenticationService {
         return instance;
     }
 
-    /**
-     * Attempts to log in a person with the given credentials using secure password checking.
-     * <p>It checks for a match in the Admin, User, and DeliveryPerson repositories.</p>
-     *
-     * @param email             The email address to check.
-     * @param plainTextPassword The plain text password to verify against the stored hash.
-     * @return true if login is successful, false otherwise.
-     */
-    public boolean login(String email, String plainTextPassword) {
-        // Try to find an admin
-        Optional<Admin> adminOpt = adminRepository.findByEmail(email);
-        if (adminOpt.isPresent()) {
-            Admin admin = adminOpt.get();
-            if (PasswordUtility.checkPassword(plainTextPassword, admin.getPassword())) {
-                this.currentPerson = admin;
-                return true;
-            }
-        }
-
-        // Try to find a user
-        User user = userRepository.findByEmail(email);
-        if (user != null) {
-            if (PasswordUtility.checkPassword(plainTextPassword, user.getPassword())) {
-                this.currentPerson = user;
-                return true;
-            }
-        }
-
-        // Try to find a delivery person
-        Optional<DeliveryPerson> deliveryPersonOpt = deliveryPersonRepository.findDeliveryPersonByEmail(email);
-        if (deliveryPersonOpt.isPresent()) {
-            DeliveryPerson deliveryPerson = deliveryPersonOpt.get();
-            if (PasswordUtility.checkPassword(plainTextPassword, deliveryPerson.getPassword())) {
-                this.currentPerson = deliveryPerson;
-                return true;
-            }
-        }
-
-        // If no match is found
-        return false;
-    }
+    // ===========================
+    // Session Management
+    // ===========================
 
     /**
      * Logs out the currently authenticated person.
@@ -103,6 +66,30 @@ public class AuthenticationService {
     public Person getCurrentPerson() {
         return currentPerson;
     }
+
+    /**
+     * Manually sets the authenticated person for the current session.
+     * This is useful for external authentication flows like OAuth (e.g., Google Sign-In)
+     * where the authentication is verified externally.
+     *
+     * @param person The person to be set as the current authenticated user.
+     */
+    public void setAuthenticatedUser(Person person) {
+        this.currentPerson = person;
+    }
+
+    /**
+     * Checks if any person is currently logged in.
+     *
+     * @return true if a person is logged in, false otherwise.
+     */
+    public boolean isPersonLoggedIn() {
+        return currentPerson != null;
+    }
+
+    // ===========================
+    // Role Checks
+    // ===========================
 
     /**
      * Checks if the currently logged-in person is an administrator.
@@ -122,12 +109,41 @@ public class AuthenticationService {
         return currentPerson instanceof DeliveryPerson;
     }
 
+    // ===========================
+    // Person Management & Authentication
+    // ===========================
+
     /**
-     * Checks if any person is currently logged in.
+     * Attempts to log in a person with the given credentials using secure password checking.
+     * <p>It checks for a match in the Admin, User, and DeliveryPerson repositories.</p>
      *
-     * @return true if a person is logged in, false otherwise.
+     * @param email             The email address to check.
+     * @param plainTextPassword The plain text password to verify against the stored hash.
+     * @return true if login is successful, false otherwise.
      */
-    public boolean isPersonLoggedIn() {
-        return currentPerson != null;
+    public boolean login(String email, String plainTextPassword) {
+        return tryAuthenticate(() -> adminRepository.findByEmail(email), plainTextPassword) ||
+                tryAuthenticate(() -> userRepository.findByEmail(email), plainTextPassword) ||
+                tryAuthenticate(() -> deliveryPersonRepository.findDeliveryPersonByEmail(email), plainTextPassword);
+    }
+
+    /**
+     * A generic helper method to authenticate a person from an Optional.
+     *
+     * @param supplier         The Optional containing the person to authenticate.
+     * @param plainTextPassword The plain text password to verify.
+     * @param <T>               A type that extends AuthenticablePerson.
+     * @return true if authentication is successful, false otherwise.
+     */
+    private <T extends AuthenticablePerson> boolean tryAuthenticate(java.util.function.Supplier<Optional<T>> supplier, String plainTextPassword) {
+        Optional<T> personOpt = supplier.get();
+        if (personOpt.isPresent()) {
+            T person = personOpt.get();
+            if (PasswordUtility.checkPassword(plainTextPassword, person.getPassword())) {
+                this.currentPerson = (Person) person;
+                return true;
+            }
+        }
+        return false;
     }
 }
