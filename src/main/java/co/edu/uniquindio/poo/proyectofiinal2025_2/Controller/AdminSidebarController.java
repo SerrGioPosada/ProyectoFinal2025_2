@@ -1,6 +1,6 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.NavigationUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController.NavigationUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 

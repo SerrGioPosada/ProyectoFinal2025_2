@@ -2,7 +2,7 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.DialogUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController.DialogUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;

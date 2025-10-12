@@ -1,4 +1,4 @@
-package co.edu.uniquindio.poo.proyectofiinal2025_2.Util;
+package co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXMLLoader;

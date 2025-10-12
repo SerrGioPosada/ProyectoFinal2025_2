@@ -5,9 +5,7 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PersonType;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Factory.PersonFactory;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.AdminRepository;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
-
-import java.util.Optional;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.PasswordUtility;
 
 /**
  * <p>Provides business logic services related to administrators.</p>

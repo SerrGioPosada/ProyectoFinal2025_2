@@ -4,19 +4,23 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PersonType;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Factory.PersonFactory;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.PasswordUtility;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.PasswordUtility;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
- * <p>Service that handles business logic related to customers (Users).</p>
- * <p>Uses UserRepository for persistence and provides higher-level
- * operations such as registration, ensuring that passwords are securely hashed.</p>
+ * Service that handles business logic related to customers (Users).
+ * Uses UserRepository for persistence and provides higher-level
+ * operations such as registration, ensuring that passwords are securely hashed.
  */
 public class UserService {
 
-    // --- Singleton Implementation ---
     private static UserService instance;
     private final UserRepository userRepository;
 
@@ -39,82 +43,58 @@ public class UserService {
         return instance;
     }
 
-    // ===========================
-    // User Management
-    // ===========================
-
     /**
      * Orchestrates the registration of a new user from raw creation data.
-     * <p>
      * This method handles the entire registration process:
      * 1. Validates that the email is not already in use.
-     * 2. Calls the PersonFactory to create a new User object.
-     * 3. Ensures the user has a valid ID (generates one if missing).
+     * 2. Generates a unique ID if not provided.
+     * 3. Calls the PersonFactory to create a new User object.
      * 4. Hashes the user's password for secure storage.
      * 5. Persists the new user to the repository.
-     * </p>
      *
      * @param data The PersonCreationData DTO containing the user's raw information.
      * @return true if registration is successful, false if the email already exists.
      */
     public boolean registerUser(PersonCreationData data) {
         try {
-            // 1. Validate that the email doesn't already exist.
             if (userRepository.findByEmail(data.getEmail()).isPresent()) {
-                System.out.println("Registration failed: Email already exists - " + data.getEmail());
+                Logger.warn("Registration failed: Email already exists - " + data.getEmail());
                 return false;
             }
 
-            // 1.5. Generate ID if not provided
             if (data.getId() == null || data.getId().trim().isEmpty()) {
                 data.setId(UUID.randomUUID().toString());
-                System.out.println("Generated new ID in service: " + data.getId());
+                Logger.debug("Generated new ID in service: " + data.getId());
             }
 
-            // 2. Call the factory to create the User object.
             User newUser = (User) PersonFactory.createPerson(PersonType.USER, data);
 
-            // CRITICAL: Verify the user object was created properly
             if (newUser == null) {
-                System.err.println("ERROR: PersonFactory returned null user");
+                Logger.error("PersonFactory returned null user");
                 return false;
             }
 
-            System.out.println("User created by factory: " + newUser.getEmail());
-            System.out.println("User ID from factory: " + newUser.getId());
-
-            // 3. Ensure the user has an ID (generate if missing)
             if (newUser.getId() == null || newUser.getId().trim().isEmpty()) {
                 String generatedId = UUID.randomUUID().toString();
                 newUser.setId(generatedId);
-                System.out.println("Generated new ID for user: " + generatedId);
+                Logger.debug("Generated new ID for user: " + generatedId);
             }
 
-            // Double-check email is set
             if (newUser.getEmail() == null || newUser.getEmail().trim().isEmpty()) {
-                System.err.println("ERROR: User email is null or empty after factory creation");
+                Logger.error("User email is null or empty after factory creation");
                 return false;
             }
 
-            // 4. Hash the password of the newly created object.
             String hashedPassword = PasswordUtility.hashPassword(newUser.getPassword());
             newUser.setPassword(hashedPassword);
 
-            // 5. Final validation before saving
-            System.out.println("Final user before save:");
-            System.out.println("  - ID: " + newUser.getId());
-            System.out.println("  - Email: " + newUser.getEmail());
-            System.out.println("  - Name: " + newUser.getName());
-
-            // 6. Save the final user to the repository.
             userRepository.addUser(newUser);
 
-            System.out.println("User successfully registered: " + newUser.getEmail());
+            Logger.info("User successfully registered: " + newUser.getEmail());
             return true;
 
         } catch (Exception e) {
-            System.err.println("ERROR during user registration: " + e.getMessage());
-            e.printStackTrace();
+            Logger.error("Error during user registration: " + e.getMessage(), e);
             return false;
         }
     }
@@ -130,98 +110,97 @@ public class UserService {
      */
     public User registerOAuthUser(String name, String email) {
         try {
-            // 1. Check if user already exists
             if (userRepository.findByEmail(email).isPresent()) {
-                System.out.println("OAuth registration: User already exists - " + email);
+                Logger.info("OAuth registration: User already exists - " + email);
                 return userRepository.findByEmail(email).get();
             }
 
-            // 2. Create PersonCreationData with generated ID
             PersonCreationData data = new PersonCreationData();
             data.setId(UUID.randomUUID().toString());
             data.setName(name);
             data.setEmail(email);
             data.setPassword("oauth_google_user_" + System.currentTimeMillis());
 
-            // 3. Create User object via factory
             User newUser = (User) PersonFactory.createPerson(PersonType.USER, data);
 
             if (newUser == null) {
-                System.err.println("ERROR: PersonFactory returned null for OAuth user");
+                Logger.error("PersonFactory returned null for OAuth user");
                 return null;
             }
 
-            // 4. Validate user data
             if (newUser.getId() == null || newUser.getEmail() == null) {
-                System.err.println("ERROR: OAuth user has null ID or email");
+                Logger.error("OAuth user has null ID or email");
                 return null;
             }
 
-            // 5. Save to repository (password is already set, no need to hash for OAuth)
             userRepository.addUser(newUser);
 
-            System.out.println("OAuth user successfully registered: " + newUser.getEmail());
+            Logger.info("OAuth user successfully registered: " + newUser.getEmail());
             return newUser;
 
         } catch (Exception e) {
-            System.err.println("ERROR during OAuth user registration: " + e.getMessage());
-            e.printStackTrace();
+            Logger.error("Error during OAuth user registration: " + e.getMessage(), e);
             return null;
         }
     }
 
-    // ===========================
-    // User Management Operations
-    // ===========================
-
     /**
      * Retrieves all users as UserSummaryDTO objects for display purposes.
+     *
      * @return List of UserSummaryDTO containing user summary information.
      */
-    public java.util.List<co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO> getAllUsersSummary() {
-        java.util.List<User> allUsers = userRepository.getUsers();
-        System.out.println("UserService: Retrieved " + allUsers.size() + " users from repository");
+    public List<UserSummaryDTO> getAllUsersSummary() {
+        List<User> allUsers = userRepository.getUsers();
+        Logger.debug("UserService: Retrieved " + allUsers.size() + " users from repository");
 
-        java.util.List<co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO> summaries =
-                allUsers.stream()
-                        .map(user -> {
-                            System.out.println("  - Processing user: " + user.getEmail());
-                            return new co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO(
-                                    user.getId(),
-                                    user.getName() != null ? user.getName() : "",
-                                    user.getLastName() != null ? user.getLastName() : "",
-                                    user.getEmail() != null ? user.getEmail() : "",
-                                    user.getPhone() != null ? user.getPhone() : "",
-                                    user.getOrders() != null ? user.getOrders().size() : 0,
-                                    user.getFrequentAddresses() != null ? user.getFrequentAddresses().size() : 0,
-                                    user.getProfileImagePath(),
-                                    user.isActive()
-                            );
-                        })
-                        .collect(java.util.stream.Collectors.toList());
+        List<UserSummaryDTO> summaries = allUsers.stream()
+                .map(this::convertToSummaryDTO)
+                .collect(Collectors.toList());
 
-        System.out.println("UserService: Created " + summaries.size() + " UserSummaryDTO objects");
+        Logger.debug("UserService: Created " + summaries.size() + " UserSummaryDTO objects");
         return summaries;
     }
 
     /**
+     * Converts a User entity to a UserSummaryDTO.
+     *
+     * @param user The user to convert.
+     * @return The UserSummaryDTO object.
+     */
+    private UserSummaryDTO convertToSummaryDTO(User user) {
+        return new UserSummaryDTO(
+                user.getId(),
+                user.getName() != null ? user.getName() : "",
+                user.getLastName() != null ? user.getLastName() : "",
+                user.getEmail() != null ? user.getEmail() : "",
+                user.getPhone() != null ? user.getPhone() : "",
+                user.getOrders() != null ? user.getOrders().size() : 0,
+                user.getFrequentAddresses() != null ? user.getFrequentAddresses().size() : 0,
+                user.getProfileImagePath(),
+                user.isActive()
+        );
+    }
+
+    /**
      * Deletes a user permanently from the system.
+     *
      * @param userId The ID of the user to delete.
      * @return true if deletion was successful, false otherwise.
      */
     public boolean deleteUser(String userId) {
         try {
-            java.util.Optional<User> userOpt = userRepository.findById(userId);
-            if (userOpt.isPresent()) {
-                userRepository.removeUser(userId);
-                System.out.println("User deleted successfully: " + userOpt.get().getEmail());
-                return true;
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isEmpty()) {
+                Logger.warn("User not found for deletion: " + userId);
+                return false;
             }
-            System.err.println("User not found for deletion: " + userId);
-            return false;
+
+            userRepository.removeUser(userId);
+            Logger.info("User deleted successfully: " + userOpt.get().getEmail());
+            return true;
+
         } catch (Exception e) {
-            System.err.println("Error deleting user: " + e.getMessage());
-            e.printStackTrace();
+            Logger.error("Error deleting user: " + e.getMessage(), e);
             return false;
         }
     }
@@ -229,58 +208,69 @@ public class UserService {
     /**
      * Disables a user account (soft delete).
      * The user cannot log in but their data is preserved.
+     *
      * @param userId The ID of the user to disable.
      * @return true if successful, false otherwise.
      */
     public boolean disableUser(String userId) {
-        try {
-            java.util.Optional<User> userOpt = userRepository.findById(userId);
-            if (userOpt.isPresent()) {
-                User user = userOpt.get();
-                user.setActive(false);
-                userRepository.addUser(user); // Update in repository
-                System.out.println("User disabled successfully: " + user.getEmail());
-                return true;
-            }
-            System.err.println("User not found for disabling: " + userId);
-            return false;
-        } catch (Exception e) {
-            System.err.println("Error disabling user: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
+        return updateUserActiveStatus(userId, false, "disabled");
     }
 
     /**
      * Enables a previously disabled user account.
+     *
      * @param userId The ID of the user to enable.
      * @return true if successful, false otherwise.
      */
     public boolean enableUser(String userId) {
+        return updateUserActiveStatus(userId, true, "enabled");
+    }
+
+    /**
+     * Updates the active status of a user.
+     *
+     * @param userId     The ID of the user.
+     * @param isActive   The new active status.
+     * @param actionName The action name for logging (enabled/disabled).
+     * @return true if successful, false otherwise.
+     */
+    private boolean updateUserActiveStatus(String userId, boolean isActive, String actionName) {
         try {
-            java.util.Optional<User> userOpt = userRepository.findById(userId);
-            if (userOpt.isPresent()) {
-                User user = userOpt.get();
-                user.setActive(true);
-                userRepository.addUser(user); // Update in repository
-                System.out.println("User enabled successfully: " + user.getEmail());
-                return true;
+            Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isEmpty()) {
+                Logger.warn("User not found for " + actionName + ": " + userId);
+                return false;
             }
-            System.err.println("User not found for enabling: " + userId);
-            return false;
+
+            User user = userOpt.get();
+            user.setActive(isActive);
+            userRepository.addUser(user);
+
+            Logger.info("User " + actionName + " successfully: " + user.getEmail());
+            return true;
+
         } catch (Exception e) {
-            System.err.println("Error enabling user: " + e.getMessage());
-            e.printStackTrace();
+            Logger.error("Error " + actionName + " user: " + e.getMessage(), e);
             return false;
         }
     }
 
     /**
      * Gets a user by ID.
+     *
      * @param userId The user ID to search for.
      * @return Optional containing the user if found.
      */
-    public java.util.Optional<User> getUserById(String userId) {
+    public Optional<User> getUserById(String userId) {
         return userRepository.findById(userId);
+    }
+
+    /**
+     * Retrieves all users in the system.
+     *
+     * @return A list of all users.
+     */
+    public List<User> getAllUsers() {
+        return userRepository.getUsers();
     }
 }
