@@ -9,12 +9,11 @@ import java.util.ResourceBundle;
 /**
  * Controller for the default user sidebar (UserSidebar.fxml).
  * <p>
- * This class extends {@link BaseSidebarController} to inherit common sidebar functionalities.
- * It is responsible for handling navigation events for both authenticated and unauthenticated users,
+ * Extends BaseSidebarController to inherit common sidebar functionalities.
+ * Handles navigation events for both authenticated and unauthenticated users,
  * dynamically adjusting the visibility of buttons based on the user's login status.
  * </p>
  */
-
 public class UserSidebarController extends BaseSidebarController {
 
     // =================================================================================================================
@@ -23,7 +22,6 @@ public class UserSidebarController extends BaseSidebarController {
 
     @FXML private Button btnLogin;
     @FXML private Button btnSignup;
-    @FXML private Button btnLogout;
     @FXML private Button btnProfile;
     @FXML private Button btnNewShipment;
     @FXML private Button btnOrders;
@@ -34,9 +32,7 @@ public class UserSidebarController extends BaseSidebarController {
 
     /**
      * Initializes the controller after its root element has been completely processed.
-     *
-     * @param url The location used to resolve relative paths for the root object, or {@code null} if not known.
-     * @param resourceBundle The resources used to localize the root object, or {@code null} if not used.
+     * Sets button visibility and binds actions.
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -72,36 +68,27 @@ public class UserSidebarController extends BaseSidebarController {
     }
 
     /**
-     * Handles the Logout button click.
-     * This will eventually log the user out and refresh the UI.
-     */
-    private void handleLogout() {
-        System.out.println("Logout button clicked. (TODO: Implement logout logic)");
-        // TODO: Call authService.logout() and then indexController.onLogout() to refresh the main view.
-    }
-
-    /**
      * Handles the Profile button click.
      */
     private void handleProfile() {
-        System.out.println("Profile button clicked. (TODO: Implement navigation to profile view)");
-        // TODO: Navigate to a detailed user profile view: indexController.loadView("ProfileView.fxml");
+        System.out.println("Profile button clicked.");
+        indexController.loadView("ProfileView.fxml");
     }
 
     /**
      * Handles the New Shipment button click.
      */
     private void handleNewShipment() {
-        System.out.println("New Shipment button clicked. (TODO: Implement navigation to shipment creation)");
-        // TODO: Navigate to the new shipment form: indexController.loadView("CreateShipmentView.fxml");
+        System.out.println("New Shipment button clicked.");
+        indexController.loadView("CreateShipment.fxml");
     }
 
     /**
      * Handles the Orders button click.
      */
     private void handleOrders() {
-        System.out.println("Orders button clicked. (TODO: Implement navigation to orders history)");
-        // TODO: Navigate to the user's order history: indexController.loadView("MyShipmentsView.fxml");
+        System.out.println("Orders button clicked.");
+        indexController.loadView("MyShipments.fxml");
     }
 
     // =================================================================================================================
@@ -114,7 +101,6 @@ public class UserSidebarController extends BaseSidebarController {
     private void setupButtonActions() {
         btnLogin.setOnAction(event -> handleLogin());
         btnSignup.setOnAction(event -> handleSignup());
-        btnLogout.setOnAction(event -> handleLogout());
         btnProfile.setOnAction(event -> handleProfile());
         btnNewShipment.setOnAction(event -> handleNewShipment());
         btnOrders.setOnAction(event -> handleOrders());
@@ -132,7 +118,6 @@ public class UserSidebarController extends BaseSidebarController {
         setButtonVisibility(btnSignup, !isLoggedIn);
 
         // Buttons visible when logged IN
-        setButtonVisibility(btnLogout, isLoggedIn);
         setButtonVisibility(btnProfile, isLoggedIn);
         setButtonVisibility(btnNewShipment, isLoggedIn);
         setButtonVisibility(btnOrders, isLoggedIn);

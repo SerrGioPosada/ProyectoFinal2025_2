@@ -3,45 +3,49 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.AuthenticablePerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Person;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.AuthenticationService;
-import javafx.animation.ScaleTransition;
-import javafx.animation.TranslateTransition;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.AnimationUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.DialogUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.ImageUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.NavigationUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.shape.Circle;
-import javafx.util.Duration;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
  * Abstract base controller for all sidebars in the application.
  * <p>
- * This class provides core functionalities shared across different sidebars, such as:
+ * Provides shared logic for sidebar-related features such as:
  * <ul>
- *     <li>Displaying and styling the user's profile image.</li>
- *     <li>Handling animations for opening and closing the sidebar.</li>
- *     <li>Providing a mechanism for communication with the main {@link IndexController}.</li>
+ *     <li>Displaying and styling the user’s profile image.</li>
+ *     <li>Handling open/close animations for the sidebar.</li>
+ *     <li>Offering a utility method for navigation between FXML views.</li>
+ *     <li>Displaying basic profile information for the logged user.</li>
  * </ul>
- * Subclasses are expected to handle their own specific button actions.
+ * <p>
+ * All sidebar controllers (e.g., Admin, Employee, Client) should extend this class.
  * </p>
  */
-
 public abstract class BaseSidebarController implements Initializable {
+
+    // =================================================================================================================
+    // Constants
+    // =================================================================================================================
+
+    private static final double PROFILE_CLIP_RADIUS = 50;
+    private static final double PROFILE_DIALOG_IMAGE_WIDTH = 80;
+    private static final double PROFILE_DIALOG_IMAGE_HEIGHT = 80;
 
     // =================================================================================================================
     // FXML Fields
     // =================================================================================================================
 
-    @FXML
-    protected ImageView imgUserImage;
-
-    @FXML
-    protected AnchorPane slider;
+    @FXML protected ImageView imgUserImage;
+    @FXML protected AnchorPane slider;
 
     // =================================================================================================================
     // Dependencies and State
@@ -56,193 +60,150 @@ public abstract class BaseSidebarController implements Initializable {
     // =================================================================================================================
 
     /**
-     * Initializes the controller, setting up all UI components and event handlers.
+     * Initializes the sidebar controller, configuring UI elements such as
+     * the profile image and the initial animation state of the sidebar.
      *
      * @param url The location used to resolve relative paths for the root object, or {@code null} if not known.
      * @param resourceBundle The resources used to localize the root object, or {@code null} if not used.
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        System.out.println("Initializing BaseSidebarController...");
-        loadDefaultImage();
+        log("Initializing BaseSidebarController...");
+        defaultProfileImage = ImageUtil.loadDefaultImage("/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png");
         setupProfileImage();
-        setupSidebarAnimation();
-        System.out.println("BaseSidebarController initialized successfully.");
+        prepareSidebarAnimation();
+        log("BaseSidebarController initialized successfully.");
     }
 
     // =================================================================================================================
-    // Public API Methods
+    // Public API
     // =================================================================================================================
 
     /**
-     * Sets the reference to the main IndexController to enable cross-controller communication.
+     * Injects the main {@link IndexController} reference, enabling
+     * view navigation from within sidebar controllers.
      *
-     * @param indexController The instance of the main application controller.
+     * @param indexController The instance of the main IndexController.
      */
     public void setIndexController(IndexController indexController) {
-        System.out.println("IndexController has been set in BaseSidebarController.");
         this.indexController = indexController;
+        log("IndexController reference successfully injected into BaseSidebarController.");
     }
 
     /**
-     * Opens the sidebar with a sliding animation.
+     * Opens the sidebar with a smooth slide-in animation.
      */
     public void openSidebar() {
-        if (slider == null) {
-            System.err.println("Cannot open sidebar: slider component is null.");
-            return;
-        }
-        TranslateTransition slide = new TranslateTransition(Duration.seconds(0.4), slider);
-        slide.setToX(0);
-        slide.play();
+        AnimationUtil.slide(slider, 0, 0.4);
     }
 
     /**
-     * Closes the sidebar with a sliding animation.
+     * Closes the sidebar with a smooth slide-out animation.
      */
     public void closeSidebar() {
-        if (slider == null) {
-            System.err.println("Cannot close sidebar: slider component is null.");
-            return;
-        }
-        TranslateTransition slide = new TranslateTransition(Duration.seconds(0.4), slider);
-        slide.setToX(-slider.getPrefWidth());
-        slide.play();
-    }
-
-    // =================================================================================================================
-    // Private Helper Methods
-    // =================================================================================================================
-
-    /**
-     * Loads and caches the default profile image from the resources.
-     */
-    private void loadDefaultImage() {
-        String defaultImagePath = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png";
-        System.out.println("Loading default profile image from: " + defaultImagePath);
-        try {
-            this.defaultProfileImage = new Image(getClass().getResourceAsStream(defaultImagePath));
-            if (this.defaultProfileImage.isError()) {
-                System.err.println("CRITICAL: Default profile image failed to load. Check the path.");
-            }
-        } catch (Exception e) {
-            System.err.println("CRITICAL: Exception while loading default profile image.");
-            e.printStackTrace();
+        if (slider != null) {
+            AnimationUtil.slide(slider, -slider.getPrefWidth(), 0.4);
         }
     }
 
     /**
-     * Configures the profile image view, including loading the user-specific image,
-     * applying a circular clip, and setting up event handlers.
+     * Provides a shortcut for navigating between views using {@link NavigationUtil}.
+     * This method can be used by subclasses to trigger FXML view changes.
+     *
+     * @param viewName The name of the FXML file to load (e.g., "AdminDashboard.fxml").
      */
-    private void setupProfileImage() {
-        System.out.println("Setting up profile image view...");
-        imgUserImage.setImage(getPersonImage(authService.getCurrentPerson()));
-        Circle clip = new Circle(50, 50, 50); // Assuming the image view is 100x100
-        imgUserImage.setClip(clip);
-        addHoverAnimation(imgUserImage);
-        imgUserImage.setOnMouseClicked(event -> {
-            showProfileInformationDialog();
-        });
-        System.out.println("Profile image setup complete.");
+    protected void navigateTo(String viewName) {
+        NavigationUtil.navigate(indexController, viewName, getClass());
     }
 
+    // =================================================================================================================
+    // Protected Utility Methods
+    // =================================================================================================================
+
     /**
-     * Prepares the initial state of the sidebar for the slide-in animation.
+     * Prepares the sidebar to be hidden off-screen before any animations are triggered.
+     * Ensures a smooth entry when the sidebar first opens.
      */
-    private void setupSidebarAnimation() {
+    private void prepareSidebarAnimation() {
         if (slider != null) {
             slider.setTranslateX(-slider.getPrefWidth());
         }
     }
 
-    /**
-     * Adds a scale-on-hover animation to the profile image.
-     *
-     * @param imageView The ImageView to animate.
-     */
-    private void addHoverAnimation(ImageView imageView) {
-        ScaleTransition stEnter = new ScaleTransition(Duration.millis(200), imageView);
-        stEnter.setToX(1.1);
-        stEnter.setToY(1.1);
-        ScaleTransition stExit = new ScaleTransition(Duration.millis(200), imageView);
-        stExit.setToX(1.0);
-        stExit.setToY(1.0);
-        imageView.setOnMouseEntered(e -> stEnter.play());
-        imageView.setOnMouseExited(e -> stExit.play());
-    }
+    // =================================================================================================================
+    // Profile Image Handling
+    // =================================================================================================================
 
     /**
-     * Creates and displays an information dialog with the current user's profile details.
+     * Configures the profile image view:
+     * <ul>
+     *     <li>Sets the image based on the currently authenticated user.</li>
+     *     <li>Applies a circular clip to the image.</li>
+     *     <li>Adds hover animation effects.</li>
+     *     <li>Displays a profile dialog when clicked.</li>
+     * </ul>
      */
-    private void showProfileInformationDialog() {
-        Person currentPerson = authService.getCurrentPerson();
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Profile Information");
-        alert.setHeaderText(null);
-
-        if (currentPerson == null) {
-            System.out.println("No user logged in. Showing default info in dialog.");
-            alert.setContentText("Please log in to view your profile.");
-            alert.setGraphic(new ImageView(defaultProfileImage));
-            alert.showAndWait();
+    private void setupProfileImage() {
+        if (imgUserImage == null) {
+            logError("ImageView 'imgUserImage' is null. Cannot set up profile image.");
             return;
         }
 
-        alert.setContentText("Name: " + currentPerson.getName() + "\nEmail: " + currentPerson.getEmail());
-        ImageView alertImageView = new ImageView(getPersonImage(currentPerson));
-        alertImageView.setFitWidth(80);
-        alertImageView.setFitHeight(80);
-        alertImageView.setPreserveRatio(true);
-        alert.setGraphic(alertImageView);
-        alert.showAndWait();
+        log("Setting up profile image view...");
+        imgUserImage.setImage(getPersonImage(authService.getCurrentPerson()));
+        ImageUtil.applyCircularClip(imgUserImage, PROFILE_CLIP_RADIUS);
+        AnimationUtil.addHoverScale(imgUserImage, 1.1, 200);
+
+        // Show profile info when clicked, delegated to DialogUtil
+        imgUserImage.setOnMouseClicked(event -> {
+            Person person = authService.getCurrentPerson();
+            DialogUtil.showProfileDialog(person, defaultProfileImage,
+                    PROFILE_DIALOG_IMAGE_WIDTH, PROFILE_DIALOG_IMAGE_HEIGHT);
+        });
+
+        log("Profile image successfully initialized.");
     }
 
     /**
-     * Safely retrieves the profile image for a given person.
+     * Retrieves the correct profile image for a given person.
+     * <p>
+     * If the user has no profile image or cannot be authenticated, the default image is used.
+     * </p>
      *
-     * @param person The person whose image is to be loaded.
-     * @return The loaded {@link Image} object, or the default profile image if not found or if the person is not authenticable.
+     * @param person The {@link Person} whose profile image should be loaded.
+     * @return A {@link Image} representing the person’s profile picture, or a default image if unavailable.
      */
     private Image getPersonImage(Person person) {
-
-        if (person == null) {
+        if (!(person instanceof AuthenticablePerson authPerson)) {
             return defaultProfileImage;
         }
 
-        if (!(person instanceof AuthenticablePerson)) {
-            return defaultProfileImage;
-        }
+        String path = authPerson.getProfileImagePath();
+        if (path == null || path.isEmpty()) return defaultProfileImage;
 
-        AuthenticablePerson authPerson = (AuthenticablePerson) person;
-        String imagePath = authPerson.getProfileImagePath();
-        System.out.println("Person is Authenticable. Profile image path: '" + imagePath + "'");
+        Image img = ImageUtil.safeLoad(path);
+        return (img != null) ? img : defaultProfileImage;
+    }
 
-        if (imagePath == null || imagePath.isEmpty()) {
-            return defaultProfileImage;
-        }
+    // =================================================================================================================
+    // Logging Utilities
+    // =================================================================================================================
 
-        try {
-            InputStream stream = getClass().getResourceAsStream(imagePath);
-            if (stream == null) {
-                System.err.println("Could not find resource stream for path: " + imagePath + ". Falling back to default.");
-                return defaultProfileImage;
-            }
+    /**
+     * Logs informational messages from the BaseSidebarController.
+     *
+     * @param msg The message to be printed to the standard output.
+     */
+    protected void log(String msg) {
+        System.out.println("[BaseSidebar] " + msg);
+    }
 
-            System.out.println("Image stream found. Loading image from path.");
-            Image loadedImage = new Image(stream);
-
-            if (loadedImage.isError()) {
-                System.err.println("Error loading image from stream for path: " + imagePath + ". Falling back to default.");
-                return defaultProfileImage;
-            }
-
-            return loadedImage;
-
-        } catch (Exception e) {
-            System.err.println("Exception while loading profile image from path: " + imagePath);
-            e.printStackTrace();
-            return defaultProfileImage;
-        }
+    /**
+     * Logs error messages to the standard error output.
+     *
+     * @param msg The error message to print.
+     */
+    protected void logError(String msg) {
+        System.err.println("[BaseSidebar:ERROR] " + msg);
     }
 }

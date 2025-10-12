@@ -9,6 +9,7 @@ import javafx.beans.property.*;
  * with JavaFX controls. It provides a flattened, read-only view of a user's most important data points.
  * </p>
  */
+
 public class UserSummaryDTO {
 
     // =================================================================================================================

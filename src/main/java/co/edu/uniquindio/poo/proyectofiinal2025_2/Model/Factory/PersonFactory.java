@@ -12,6 +12,7 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
  * (User, Admin, etc.) by encapsulating the instantiation logic.
  * It uses a manual, inheritance-aware Builder pattern internally for complex object construction.
  */
+
 public class PersonFactory {
 
     /**

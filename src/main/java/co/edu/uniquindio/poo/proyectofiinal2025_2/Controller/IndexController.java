@@ -24,13 +24,12 @@ import java.util.ResourceBundle;
 /**
  * The main controller for the application's primary stage (Index.fxml).
  * <p>
- * This controller acts as an orchestrator, managing the overall layout which includes a top bar,
- * a dynamic sidebar, and a central content area. It is responsible for:
+ * Orchestrates the main layout (top bar, sidebar, content area) and handles:
  * <ul>
- *     <li>Loading the appropriate sidebar (Admin or User) based on authentication status.</li>
- *     <li>Loading different views (e.g., Login, Dashboard, ManageUsers) into the central content pane.</li>
- *     <li>Handling top-level UI events, such as the sidebar menu toggle and application exit.</li>
- *     <li>Coordinating actions after major events, like a successful login.</li>
+ *     <li>Loading the correct sidebar based on user role.</li>
+ *     <li>Loading views dynamically into the main content area.</li>
+ *     <li>Top-level UI events (menu toggle, exit).</li>
+ *     <li>Login success handling.</li>
  * </ul>
  * </p>
  */
@@ -41,21 +40,15 @@ public class IndexController implements Initializable {
     // FXML Fields
     // =================================================================================================================
 
-    @FXML
-    private ImageView exit;
-    @FXML
-    private Label lblMenu;
-    @FXML
-    private Label lblMenuBack;
-    @FXML
-    private BorderPane rootPane;
-    @FXML
-    private StackPane paneIndex;
+    @FXML private ImageView exit;
+    @FXML private Label lblMenu;
+    @FXML private Label lblMenuBack;
+    @FXML private BorderPane rootPane;
+    @FXML private StackPane paneIndex;
 
     // =================================================================================================================
     // Dependencies and State
     // =================================================================================================================
-
     private AnchorPane sidebar;
     private final AuthenticationService authService = AuthenticationService.getInstance();
     private static final double SIDEBAR_WIDTH = 176.0;
@@ -63,13 +56,6 @@ public class IndexController implements Initializable {
     // =================================================================================================================
     // Initialization
     // =================================================================================================================
-
-    /**
-     * Initializes the controller, setting up the initial state of the UI.
-     *
-     * @param url The location used to resolve relative paths for the root object.
-     * @param resourceBundle The resources used to localize the root object.
-     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadSidebar();
@@ -81,17 +67,16 @@ public class IndexController implements Initializable {
     // =================================================================================================================
 
     /**
-     * Loads a new view into the central content pane.
-     * This is the primary method for navigating between different sections of the application.
+     * Loads a view into the central content pane.
      *
-     * @param fxmlName The name of the FXML file to load (e.g., "Login.fxml").
+     * @param fxmlName The FXML filename to load (e.g., "Login.fxml").
      */
     public void loadView(String fxmlName) {
-        System.out.println("Attempting to load view: " + fxmlName);
+        System.out.println("Loading view: " + fxmlName);
         try {
             URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/" + fxmlName);
             if (fxmlUrl == null) {
-                System.err.println("CRITICAL: Cannot find FXML resource: " + fxmlName + ". Displaying placeholder.");
+                System.err.println("Cannot find FXML resource: " + fxmlName + ". Showing placeholder.");
                 showPlaceholder(fxmlName.replace(".fxml", ""));
                 return;
             }
@@ -99,53 +84,49 @@ public class IndexController implements Initializable {
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Node view = loader.load();
 
-            // Pass this IndexController instance to the new controller if it needs it.
+            // Inject IndexController to child if needed
             Object controller = loader.getController();
             injectIndexController(controller);
 
             paneIndex.getChildren().setAll(view);
 
         } catch (IOException e) {
-            System.err.println("CRITICAL: Failed to load view FXML: " + fxmlName);
+            System.err.println("Failed to load view FXML: " + fxmlName);
             e.printStackTrace();
         }
     }
 
     /**
-     * Handles the application state change after a user successfully logs in.
-     * This method reloads the sidebar to reflect the new user's role and loads the appropriate dashboard.
+     * Called after successful login.
+     * Reloads the sidebar and opens the appropriate dashboard.
      */
     public void onLoginSuccess() {
         loadSidebar();
 
         if (authService.isCurrentPersonAdmin()) {
-
             Stage stage = (Stage) paneIndex.getScene().getWindow();
             stage.setMaximized(true);
             loadView("AdminDashboard.fxml");
-            return; // Guard clause: exit after handling admin case
+            return;
         }
 
-        // Default case for non-admin users
         loadView("UserDashboard.fxml");
     }
 
     /**
-     * Opens the Signup window as a separate, modal dialog.
-     * This is typically used for initial user registration from the login screen.
+     * Opens the Signup window in a modal dialog.
      */
     public void openSignupWindow() {
         try {
             URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/Signup.fxml");
             if (fxmlUrl == null) {
-                System.err.println("CRITICAL: Cannot find FXML file: Signup.fxml");
+                System.err.println("Cannot find FXML file: Signup.fxml");
                 return;
             }
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
-            // Pass a reference of this controller to the signup controller
             SignupController signupController = loader.getController();
             signupController.setIndexController(this);
 
@@ -155,7 +136,6 @@ public class IndexController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
 
-            // Ensure the main sidebar is closed when the modal is open
             closeSidebar();
             lblMenu.setVisible(true);
             lblMenuBack.setVisible(false);
@@ -163,9 +143,23 @@ public class IndexController implements Initializable {
             stage.showAndWait();
 
         } catch (IOException e) {
-            System.err.println("CRITICAL: Failed to load Signup window.");
+            System.err.println("Failed to load Signup window.");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Opens the sidebar with slide-in animation.
+     */
+    public void openSidebar() {
+        toggleSidebar(true);
+    }
+
+    /**
+     * Closes the sidebar with slide-out animation.
+     */
+    public void closeSidebar() {
+        toggleSidebar(false);
     }
 
     // =================================================================================================================
@@ -173,11 +167,23 @@ public class IndexController implements Initializable {
     // =================================================================================================================
 
     /**
-     * Sets up the event handlers for the main application controls, such as the exit and menu buttons.
+     * Toggles the sidebar animation based on open/close state.
+     *
+     * @param open true to open, false to close
+     */
+    private void toggleSidebar(boolean open) {
+        if (sidebar == null) return;
+        TranslateTransition slide = new TranslateTransition(Duration.seconds(0.35), sidebar);
+        slide.setToX(open ? 0 : -SIDEBAR_WIDTH);
+        slide.play();
+    }
+
+    /**
+     * Sets up the top bar button event handlers.
      */
     private void setupTopBarEventHandlers() {
         exit.setOnMouseClicked(event -> {
-            System.out.println("Exit button clicked. Closing application.");
+            System.out.println("Exit clicked, closing app.");
             System.exit(0);
         });
 
@@ -197,16 +203,15 @@ public class IndexController implements Initializable {
     }
 
     /**
-     * Loads the correct sidebar (Admin or User) based on the current authentication state.
-     * It also injects a reference of this IndexController into the sidebar's controller.
+     * Loads the appropriate sidebar based on user role.
      */
     private void loadSidebar() {
         String fxmlFile = authService.isCurrentPersonAdmin() ? "AdminSidebar.fxml" : "UserSidebar.fxml";
-        System.out.println("Attempting to load sidebar: " + fxmlFile);
+        System.out.println("Loading sidebar: " + fxmlFile);
         try {
             URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/" + fxmlFile);
             if (fxmlUrl == null) {
-                System.err.println("CRITICAL: Cannot find sidebar FXML file: " + fxmlFile);
+                System.err.println("Cannot find sidebar FXML: " + fxmlFile);
                 return;
             }
 
@@ -214,64 +219,32 @@ public class IndexController implements Initializable {
             sidebar = loader.load();
 
             BaseSidebarController sidebarController = loader.getController();
-            if (sidebarController != null) {
-                sidebarController.setIndexController(this);
-            }
+            if (sidebarController != null) sidebarController.setIndexController(this);
 
             sidebar.setTranslateX(-SIDEBAR_WIDTH);
             rootPane.setLeft(sidebar);
 
         } catch (IOException e) {
-            System.err.println("CRITICAL: Failed to load sidebar FXML.");
+            System.err.println("Failed to load sidebar FXML.");
             e.printStackTrace();
         }
     }
 
     /**
-     * Opens the sidebar with a slide-in animation.
-     */
-    private void openSidebar() {
-        if (sidebar == null) return;
-        TranslateTransition slide = new TranslateTransition(Duration.seconds(0.35), sidebar);
-        slide.setToX(0);
-        slide.play();
-    }
-
-    /**
-     * Closes the sidebar with a slide-out animation.
-     */
-    private void closeSidebar() {
-        if (sidebar == null) return;
-        TranslateTransition slide = new TranslateTransition(Duration.seconds(0.35), sidebar);
-        slide.setToX(-SIDEBAR_WIDTH);
-        slide.play();
-    }
-
-    /**
-     * Injects this IndexController instance into a newly loaded controller if it supports it.
-     * This allows child views to communicate back to the main controller.
+     * Injects this IndexController into child controllers if they support it.
      *
-     * @param controller The controller instance of the newly loaded view.
+     * @param controller the child controller
      */
     private void injectIndexController(Object controller) {
-
-        if (controller instanceof LoginController) {
-            ((LoginController) controller).setIndexController(this);
-            return;
-        }
-        if (controller instanceof SignupController) {
-            ((SignupController) controller).setIndexController(this);
-            return;
-        }
-        if (controller instanceof ManageUsersController) {
-            ((ManageUsersController) controller).setIndexController(this);
-        }
+        if (controller instanceof LoginController login) login.setIndexController(this);
+        else if (controller instanceof SignupController signup) signup.setIndexController(this);
+        else if (controller instanceof ManageUsersController manage) manage.setIndexController(this);
     }
 
     /**
-     * Displays a placeholder in the main content area for views that are not yet implemented.
+     * Shows a placeholder for unimplemented views.
      *
-     * @param viewName The name of the view to display in the placeholder text.
+     * @param viewName Name of the view
      */
     private void showPlaceholder(String viewName) {
         Label placeholder = new Label("View: " + viewName + "\n\n(Not yet implemented)");
@@ -279,5 +252,15 @@ public class IndexController implements Initializable {
         StackPane container = new StackPane(placeholder);
         container.setStyle("-fx-background-color: #f8f9fa;");
         paneIndex.getChildren().setAll(container);
+    }
+
+    /**
+     * Replaces the center content of the main BorderPane with the given view.
+     *
+     * @param content The new content to display in the center of the main layout.
+     */
+    public void setCenterContent(Parent content) {
+        if (paneIndex == null || content == null) return;
+        paneIndex.getChildren().setAll(content);
     }
 }

@@ -2,6 +2,7 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.DialogUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -18,7 +19,7 @@ import java.util.Optional;
 /**
  * Controller for the user management view (ManageUsers.fxml), accessible by administrators.
  * <p>
- * This class is responsible for:
+ * Responsibilities include:
  * <ul>
  *     <li>Displaying a list of all registered users in a table.</li>
  *     <li>Providing functionality to search and filter the user list.</li>
@@ -28,7 +29,6 @@ import java.util.Optional;
  * </ul>
  * </p>
  */
-
 public class ManageUsersController {
 
     // =================================================================================================================
@@ -71,6 +71,10 @@ public class ManageUsersController {
 
     /**
      * Initializes the controller after its root element has been completely processed.
+     * <p>
+     * This method sets up the table columns, loads users, configures the search filter,
+     * sets up selection listeners, and updates the user statistics labels.
+     * </p>
      */
     @FXML
     public void initialize() {
@@ -82,8 +86,9 @@ public class ManageUsersController {
     }
 
     /**
-     * Injected by the parent controller to establish communication for navigation.
-     * @param indexController The main application controller.
+     * Injects the main controller reference to enable navigation to other views.
+     *
+     * @param indexController The main {@link IndexController} instance.
      */
     public void setIndexController(IndexController indexController) {
         System.out.println("IndexController has been set in ManageUsersController.");
@@ -95,8 +100,11 @@ public class ManageUsersController {
     // =================================================================================================================
 
     /**
-     * Reloads the user data from the service and refreshes the table and statistics.
-     * This method can be called from other controllers after a change has been made.
+     * Refreshes the user data from the service and updates the table and statistics.
+     * <p>
+     * This method can be called externally whenever user data has been modified
+     * to ensure the table and statistics remain up-to-date.
+     * </p>
      */
     public void refreshUsers() {
         System.out.println("Refreshing user data...");
@@ -108,6 +116,9 @@ public class ManageUsersController {
     // Event Handlers
     // =================================================================================================================
 
+    /**
+     * Handles the "Add User" button click, opening the signup view.
+     */
     @FXML
     private void handleAddUser() {
         if (indexController == null) {
@@ -117,26 +128,43 @@ public class ManageUsersController {
         indexController.loadView("Signup.fxml");
     }
 
+    /**
+     * Handles the "View Orders" button click.
+     * <p>
+     * Currently shows a placeholder dialog indicating the feature is in development.
+     * </p>
+     */
     @FXML
     private void handleViewOrders() {
         UserSummaryDTO selected = tableUsers.getSelectionModel().getSelectedItem();
         if (selected == null) return;
 
         System.out.println("View Orders button clicked for user: " + selected.getFullName());
-        showInfo("Función en Desarrollo", "El historial de pedidos para " + selected.getFullName() + " estará disponible pronto.");
-        // TODO: Implement navigation to user orders view: indexController.loadUserOrdersView(selected.getId());
+        DialogUtil.showInfo("Función en Desarrollo", "El historial de pedidos para " + selected.getFullName() + " estará disponible pronto.");
     }
 
+    /**
+     * Handles the "View Addresses" button click.
+     * <p>
+     * Currently shows a placeholder dialog indicating the feature is in development.
+     * </p>
+     */
     @FXML
     private void handleViewAddresses() {
         UserSummaryDTO selected = tableUsers.getSelectionModel().getSelectedItem();
         if (selected == null) return;
 
         System.out.println("View Addresses button clicked for user: " + selected.getFullName());
-        showInfo("Función en Desarrollo", "La libreta de direcciones para " + selected.getFullName() + " estará disponible pronto.");
-        // TODO: Implement navigation to user addresses view: indexController.loadUserAddressesView(selected.getId());
+        DialogUtil.showInfo("Función en Desarrollo", "La libreta de direcciones para " + selected.getFullName() + " estará disponible pronto.");
     }
 
+    /**
+     * Toggles the active/inactive status of the selected user.
+     * <p>
+     * Prompts for confirmation, updates the service, refreshes the table,
+     * and updates the statistics and status button text.
+     * </p>
+     */
     @FXML
     private void handleToggleStatus() {
         UserSummaryDTO selected = tableUsers.getSelectionModel().getSelectedItem();
@@ -145,65 +173,58 @@ public class ManageUsersController {
         boolean isCurrentlyActive = selected.isActive();
         String action = isCurrentlyActive ? "inhabilitar" : "habilitar";
 
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("Confirmar Acción");
-        confirmation.setHeaderText("¿Estás seguro de que quieres " + action + " este usuario?");
-        confirmation.setContentText("Usuario: " + selected.getFullName());
+        boolean confirmed = DialogUtil.showConfirmation(
+                "Confirmar Acción",
+                "¿Estás seguro de que quieres " + action + " este usuario?",
+                "Usuario: " + selected.getFullName()
+        );
 
-        Optional<ButtonType> result = confirmation.showAndWait();
-        if (result.isEmpty() || result.get() != ButtonType.OK) {
-            return;
-        }
+        if (!confirmed) return;
 
-        System.out.println("User confirmed action. Proceeding to " + action + " user.");
         boolean success = isCurrentlyActive
                 ? userService.disableUser(selected.getId())
                 : userService.enableUser(selected.getId());
 
         if (!success) {
-            showError("Error al " + action + " el usuario.");
+            DialogUtil.showError("Error al " + action + " el usuario.");
             return;
         }
 
         selected.setActive(!isCurrentlyActive);
         tableUsers.refresh();
         updateStatistics();
-        showSuccess("Usuario " + (isCurrentlyActive ? "inhabilitado" : "habilitado") + " exitosamente.");
+        DialogUtil.showSuccess("Usuario " + (isCurrentlyActive ? "inhabilitado" : "habilitado") + " exitosamente.");
     }
 
+    /**
+     * Deletes the selected user after confirming the action.
+     * <p>
+     * Updates the table, statistics, and displays success or error messages.
+     * </p>
+     */
     @FXML
     private void handleDeleteUser() {
         UserSummaryDTO selected = tableUsers.getSelectionModel().getSelectedItem();
         if (selected == null) return;
 
-        System.out.println("Delete User button clicked for user: " + selected.getFullName());
+        boolean confirmed = DialogUtil.showWarningConfirmation(
+                "Confirmar Eliminación",
+                "¿Estás seguro de que quieres eliminar este usuario?",
+                "Esta acción NO se puede deshacer.\nUsuario: " + selected.getFullName()
+        );
 
-        Alert confirmation = new Alert(Alert.AlertType.WARNING);
-        confirmation.setTitle("Confirmar Eliminación");
-        confirmation.setHeaderText("¿Estás seguro de que quieres eliminar este usuario?");
-        confirmation.setContentText("Esta acción NO se puede deshacer.\nUsuario: " + selected.getFullName());
+        if (!confirmed) return;
 
-        ButtonType btnConfirm = new ButtonType("Eliminar", ButtonBar.ButtonData.OK_DONE);
-        ButtonType btnCancel = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
-        confirmation.getButtonTypes().setAll(btnConfirm, btnCancel);
-
-        Optional<ButtonType> result = confirmation.showAndWait();
-        if (result.isEmpty() || result.get() != btnConfirm) {
-            System.out.println("User cancelled deletion.");
-            return;
-        }
-
-        System.out.println("User confirmed deletion. Proceeding to delete user.");
         boolean success = userService.deleteUser(selected.getId());
 
         if (!success) {
-            showError("Error al eliminar el usuario.");
+            DialogUtil.showError("Error al eliminar el usuario.");
             return;
         }
 
         usersList.remove(selected);
         updateStatistics();
-        showSuccess("Usuario eliminado exitosamente.");
+        DialogUtil.showSuccess("Usuario eliminado exitosamente.");
     }
 
     // =================================================================================================================
@@ -211,11 +232,9 @@ public class ManageUsersController {
     // =================================================================================================================
 
     /**
-     * Configures the cell value factories and cell factories for each table column.
+     * Configures the table columns, including custom cell factories for images and status badges.
      */
     private void setupTableColumns() {
-
-        // Image column: Displays a circular avatar.
         colImage.setCellValueFactory(cellData -> cellData.getValue().profileImagePathProperty());
         colImage.setCellFactory(col -> new TableCell<>() {
             private final ImageView imageView = new ImageView();
@@ -229,45 +248,27 @@ public class ManageUsersController {
                     return;
                 }
 
-                Image image = null;
-                try {
-                    if (imagePath != null && !imagePath.isEmpty()) {
-                        image = new Image("file:" + imagePath, 40, 40, true, true);
-                    } else {
-                        InputStream defaultImageStream = getClass().getResourceAsStream("/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png");
-                        if (defaultImageStream != null) {
-                            image = new Image(defaultImageStream, 40, 40, true, true);
-                        }
-                    }
-
-                    if (image != null && !image.isError()) {
-                        imageView.setImage(image);
-                        imageView.setClip(clip);
-                        setGraphic(imageView);
-                    } else {
-                        setGraphic(null);
-                    }
-                } catch (Exception e) {
-                    System.err.println("Error loading image for table cell: " + e.getMessage());
+                Image image = DialogUtil.loadUserImage(imagePath, 40, 40);
+                if (image != null) {
+                    imageView.setImage(image);
+                    imageView.setClip(clip);
+                    setGraphic(imageView);
+                } else {
                     setGraphic(null);
                 }
                 setAlignment(Pos.CENTER);
             }
         });
 
-        // Standard text columns.
         colName.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
         colLastName.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         colEmail.setCellValueFactory(cellData -> cellData.getValue().emailProperty());
         colPhone.setCellValueFactory(cellData -> cellData.getValue().phoneProperty());
-
-        // Numeric columns, centered.
         colOrders.setCellValueFactory(cellData -> cellData.getValue().orderCountProperty().asObject());
         colAddresses.setCellValueFactory(cellData -> cellData.getValue().addressCountProperty().asObject());
         colOrders.setStyle("-fx-alignment: CENTER;");
         colAddresses.setStyle("-fx-alignment: CENTER;");
 
-        // Status column: Displays a styled badge (Active/Inactive).
         colStatus.setCellValueFactory(cellData -> cellData.getValue().isActiveProperty());
         colStatus.setCellFactory(col -> new TableCell<>() {
             @Override
@@ -277,51 +278,53 @@ public class ManageUsersController {
                     setGraphic(null);
                     return;
                 }
-                Label badge = new Label(active ? "Activo" : "Inactivo");
-                String style = active
-                        ? "-fx-background-color: #d4edda; -fx-text-fill: #155724; -fx-padding: 5 10; -fx-background-radius: 12; -fx-font-size: 11px; -fx-font-weight: bold;"
-                        : "-fx-background-color: #f8d7da; -fx-text-fill: #721c24; -fx-padding: 5 10; -fx-background-radius: 12; -fx-font-size: 11px; -fx-font-weight: bold;";
-                badge.setStyle(style);
-                setGraphic(badge);
+                setGraphic(DialogUtil.createStatusBadge(active));
                 setAlignment(Pos.CENTER);
             }
         });
     }
 
     /**
-     * Fetches user data from the UserService, populates the observable list,
-     * and sets up the filtered list for the table.
+     * Loads the users from the service and populates the observable and filtered lists.
+     * <p>
+     * If this is the first load, creates the lists; otherwise updates the existing list.
+     * </p>
      */
     private void loadUsers() {
         System.out.println("Loading users from UserService...");
         java.util.List<UserSummaryDTO> summaryList = userService.getAllUsersSummary();
         System.out.println("Loaded " + summaryList.size() + " users.");
 
-        usersList = FXCollections.observableArrayList(summaryList);
-        filteredUsers = new FilteredList<>(usersList, p -> true);
-        tableUsers.setItems(filteredUsers);
+        if (usersList == null) {
+            usersList = FXCollections.observableArrayList(summaryList);
+            filteredUsers = new FilteredList<>(usersList, p -> true);
+            tableUsers.setItems(filteredUsers);
+        } else {
+            usersList.setAll(summaryList);
+        }
     }
 
     /**
-     * Sets up a listener on the search text field to filter the table data in real-time.
+     * Configures the search filter to update the filtered list and statistics dynamically.
      */
     private void setupSearchFilter() {
         txtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredUsers.setPredicate(user -> {
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
-                }
-                String lowerCaseFilter = newValue.toLowerCase();
-                return user.getName().toLowerCase().contains(lowerCaseFilter) ||
-                        user.getLastName().toLowerCase().contains(lowerCaseFilter) ||
-                        user.getEmail().toLowerCase().contains(lowerCaseFilter);
+                if (newValue == null || newValue.isEmpty()) return true;
+                String filter = newValue.toLowerCase();
+                return user.getName().toLowerCase().contains(filter) ||
+                        user.getLastName().toLowerCase().contains(filter) ||
+                        user.getEmail().toLowerCase().contains(filter);
             });
             updateStatistics();
         });
     }
 
     /**
-     * Sets up a listener on the table's selection model to enable/disable action buttons.
+     * Sets up the selection listener for the table.
+     * <p>
+     * Updates button states and toggle button text depending on whether a user is selected.
+     * </p>
      */
     private void setupSelectionListener() {
         tableUsers.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -339,7 +342,7 @@ public class ManageUsersController {
     }
 
     /**
-     * Recalculates and updates the user statistics labels (Total, Active, Inactive).
+     * Updates the statistics labels for total, active, and inactive users.
      */
     private void updateStatistics() {
         long total = filteredUsers.size();
@@ -349,46 +352,5 @@ public class ManageUsersController {
         lblTotalUsers.setText(String.valueOf(total));
         lblActiveUsers.setText(String.valueOf(active));
         lblInactiveUsers.setText(String.valueOf(inactive));
-    }
-
-    // =================================================================================================================
-    // Dialog and Alert Helpers
-    // =================================================================================================================
-
-    /**
-     * Displays a success information dialog.
-     * @param message The message to display.
-     */
-    private void showSuccess(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Éxito");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    /**
-     * Displays an error dialog.
-     * @param message The message to display.
-     */
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    /**
-     * Displays a general information dialog.
-     * @param title The title of the dialog window.
-     * @param message The message to display.
-     */
-    private void showInfo(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

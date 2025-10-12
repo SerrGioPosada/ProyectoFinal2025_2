@@ -28,7 +28,6 @@ import javafx.util.Duration;
  * </ul>
  * </p>
  */
-
 public class LoginController {
 
     // =================================================================================================================
@@ -189,7 +188,7 @@ public class LoginController {
                     PersonCreationData newData = new PersonCreationData.Builder()
                             .withName(name)
                             .withEmail(email)
-                            .withPassword("oauth_google_user_" + System.currentTimeMillis()) // Generate a random secure password
+                            .withPassword("oauth_google_user_" + System.currentTimeMillis())
                             .build();
                     authService.setAuthenticatedUser(personFactory.createPerson(PersonType.USER, newData));
                 }
@@ -231,7 +230,7 @@ public class LoginController {
         label.setTranslateY(35);
 
         field.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (isTogglingPassword) return; // Ignore focus changes during password visibility toggle
+            if (isTogglingPassword) return;
             String text = (field instanceof TextField) ? ((TextField) field).getText() : ((PasswordField) field).getText();
             if (newVal) {
                 animateFloatingLabel(label, field, true, prompt);

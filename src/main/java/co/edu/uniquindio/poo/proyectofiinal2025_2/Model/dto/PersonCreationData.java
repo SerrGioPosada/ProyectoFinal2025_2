@@ -16,6 +16,7 @@ import lombok.ToString;
  * allowing client code to populate only the necessary fields for a specific person type using its fluent builder.
  * </p>
  */
+
 @Getter
 @Setter
 @ToString
@@ -170,7 +171,6 @@ public class PersonCreationData {
          * @return A new, configured PersonCreationData instance.
          */
         public PersonCreationData build() {
-            System.out.println("Building PersonCreationData for user: " + this.email);
             return new PersonCreationData(this);
         }
     }
