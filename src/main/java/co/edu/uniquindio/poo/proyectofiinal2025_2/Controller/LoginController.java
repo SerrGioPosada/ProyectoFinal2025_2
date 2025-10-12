@@ -28,6 +28,7 @@ import javafx.util.Duration;
  * </ul>
  * </p>
  */
+
 public class LoginController {
 
     // =================================================================================================================
@@ -69,11 +70,9 @@ public class LoginController {
      */
     @FXML
     public void initialize() {
-        System.out.println("LoginController initializing...");
         setupEventHandlers();
         setupFloatingLabels();
         setupPasswordToggle();
-        System.out.println("LoginController initialized successfully.");
     }
 
     /**
@@ -165,7 +164,6 @@ public class LoginController {
      */
     private void handleForgotPassword() {
         System.out.println("Forgot Password clicked. (Placeholder - no action implemented)");
-        // Example for future: if (indexController != null) indexController.loadView("ForgotPassword.fxml");
     }
 
     // =================================================================================================================
@@ -298,7 +296,6 @@ public class LoginController {
     private void togglePasswordVisibility() {
         isTogglingPassword = true;
         isPasswordVisible = !isPasswordVisible;
-        System.out.println("Toggling password visibility to: " + (isPasswordVisible ? "Visible" : "Hidden"));
 
         txtPassword.setManaged(!isPasswordVisible);
         txtPassword.setVisible(!isPasswordVisible);

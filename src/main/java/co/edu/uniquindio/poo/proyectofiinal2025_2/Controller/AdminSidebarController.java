@@ -15,6 +15,7 @@ import java.util.ResourceBundle;
  * user management, shipment management, and reports views.
  * </p>
  */
+
 public class AdminSidebarController extends BaseSidebarController {
 
     // =================================================================================================================
@@ -46,7 +47,7 @@ public class AdminSidebarController extends BaseSidebarController {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url, resourceBundle); // Initialize base controller features
+        super.initialize(url, resourceBundle);
         System.out.println("AdminSidebarController initialized.");
         setupButtonActions();
     }
@@ -65,7 +66,6 @@ public class AdminSidebarController extends BaseSidebarController {
             return;
         }
         String viewName = "AdminDashboard.fxml";
-        System.out.println("Requesting IndexController to load view: " + viewName);
         indexController.loadView(viewName);
     }
 
@@ -78,8 +78,7 @@ public class AdminSidebarController extends BaseSidebarController {
             System.err.println("Cannot load manage users view: IndexController is null.");
             return;
         }
-        String viewName = "ManageUsers.fxml"; // Corrected file name
-        System.out.println("Requesting IndexController to load view: " + viewName);
+        String viewName = "ManageUsers.fxml";
         indexController.loadView(viewName);
     }
 
@@ -93,7 +92,6 @@ public class AdminSidebarController extends BaseSidebarController {
             return;
         }
         String viewName = "ManageShipmentsView.fxml";
-        System.out.println("Requesting IndexController to load view: " + viewName);
         indexController.loadView(viewName);
     }
 
@@ -107,7 +105,6 @@ public class AdminSidebarController extends BaseSidebarController {
             return;
         }
         String viewName = "ReportsView.fxml";
-        System.out.println("Requesting IndexController to load view: " + viewName);
         indexController.loadView(viewName);
     }
 

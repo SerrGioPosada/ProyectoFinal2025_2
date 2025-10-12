@@ -28,6 +28,7 @@ import java.util.Optional;
  * </ul>
  * </p>
  */
+
 public class ManageUsersController {
 
     // =================================================================================================================
@@ -73,13 +74,11 @@ public class ManageUsersController {
      */
     @FXML
     public void initialize() {
-        System.out.println("ManageUsersController initializing...");
         setupTableColumns();
         loadUsers();
         setupSearchFilter();
         setupSelectionListener();
         updateStatistics();
-        System.out.println("ManageUsersController initialized successfully.");
     }
 
     /**
@@ -111,7 +110,6 @@ public class ManageUsersController {
 
     @FXML
     private void handleAddUser() {
-        System.out.println("Add User button clicked.");
         if (indexController == null) {
             System.err.println("Cannot load signup view: IndexController is null.");
             return;
@@ -146,7 +144,6 @@ public class ManageUsersController {
 
         boolean isCurrentlyActive = selected.isActive();
         String action = isCurrentlyActive ? "inhabilitar" : "habilitar";
-        System.out.println("Toggle Status button clicked for user: " + selected.getFullName() + ". Action: " + action);
 
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
         confirmation.setTitle("Confirmar Acción");
@@ -155,7 +152,6 @@ public class ManageUsersController {
 
         Optional<ButtonType> result = confirmation.showAndWait();
         if (result.isEmpty() || result.get() != ButtonType.OK) {
-            System.out.println("User cancelled the action.");
             return;
         }
 
@@ -218,6 +214,7 @@ public class ManageUsersController {
      * Configures the cell value factories and cell factories for each table column.
      */
     private void setupTableColumns() {
+
         // Image column: Displays a circular avatar.
         colImage.setCellValueFactory(cellData -> cellData.getValue().profileImagePathProperty());
         colImage.setCellFactory(col -> new TableCell<>() {
@@ -310,7 +307,6 @@ public class ManageUsersController {
      */
     private void setupSearchFilter() {
         txtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Search filter updated. New value: '" + newValue + "'");
             filteredUsers.setPredicate(user -> {
                 if (newValue == null || newValue.isEmpty()) {
                     return true;

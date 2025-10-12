@@ -29,6 +29,7 @@ import java.util.stream.Stream;
  * </ul>
  * </p>
  */
+
 public class SignupController {
 
     // =================================================================================================================
@@ -78,11 +79,9 @@ public class SignupController {
      */
     @FXML
     public void initialize() {
-        System.out.println("SignupController initializing...");
         setupEventHandlers();
         setupValidationListeners();
         setupPasswordToggles();
-        System.out.println("SignupController initialized successfully.");
     }
 
     /**
@@ -133,7 +132,6 @@ public class SignupController {
      * Handles the main registration flow when the 'Register' button is clicked.
      */
     private void handleRegister() {
-        System.out.println("Register button clicked. Starting full form validation...");
         if (!isFormValid()) {
             showError("Please correct the errors in the form.");
             System.err.println("Registration aborted due to validation errors.");
@@ -150,7 +148,6 @@ public class SignupController {
                 .withPassword(txtPassword.getText())
                 .build();
 
-        System.out.println("Attempting to register user with email: " + data.getEmail());
         boolean success = userService.registerUser(data);
 
         if (!success) {
@@ -159,7 +156,6 @@ public class SignupController {
             return;
         }
 
-        System.out.println("Registration successful for user: " + data.getEmail());
         showSuccess("Registration successful! You can now log in.");
         // Close the window after a short delay
         new Thread(() -> {
@@ -176,7 +172,6 @@ public class SignupController {
      * Handles the Google Sign-Up label click event.
      */
     private void handleGoogleSignup() {
-        System.out.println("Google Sign-Up clicked. (Placeholder)");
         showError("Google Sign-Up is not yet implemented.");
     }
 
@@ -185,7 +180,6 @@ public class SignupController {
      * and loading the login view.
      */
     private void handleAlreadyRegistered() {
-        System.out.println("User clicked 'Already Registered'. Closing signup and loading login view.");
         closeWindow();
         if (indexController == null) return;
         Platform.runLater(() -> indexController.loadView("Login.fxml"));
@@ -263,7 +257,6 @@ public class SignupController {
         updateToggleIcon(toggleIcon, visibilityFlag.get());
         toggleIcon.setOnMouseClicked(event -> {
             visibilityFlag.set(!visibilityFlag.get());
-            System.out.println("Toggling password visibility to: " + visibilityFlag.get());
             visibleField.setVisible(visibilityFlag.get());
             visibleField.setManaged(visibilityFlag.get());
             passwordField.setVisible(!visibilityFlag.get());

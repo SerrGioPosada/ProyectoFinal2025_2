@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
  * dynamically adjusting the visibility of buttons based on the user's login status.
  * </p>
  */
+
 public class UserSidebarController extends BaseSidebarController {
 
     // =================================================================================================================
@@ -40,10 +41,8 @@ public class UserSidebarController extends BaseSidebarController {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         super.initialize(url, resourceBundle); // Initialize base controller features
-        System.out.println("UserSidebarController initializing...");
         updateButtonVisibility();
         setupButtonActions();
-        System.out.println("UserSidebarController initialized successfully.");
     }
 
     // =================================================================================================================
@@ -54,7 +53,6 @@ public class UserSidebarController extends BaseSidebarController {
      * Handles the Login button click by loading the login view.
      */
     private void handleLogin() {
-        System.out.println("Login button clicked.");
         if (indexController == null) {
             System.err.println("Cannot load login view: IndexController is null.");
             return;
@@ -66,7 +64,6 @@ public class UserSidebarController extends BaseSidebarController {
      * Handles the Sign Up button click by opening the signup modal window.
      */
     private void handleSignup() {
-        System.out.println("Signup button clicked.");
         if (indexController == null) {
             System.err.println("Cannot open signup window: IndexController is null.");
             return;

@@ -34,6 +34,7 @@ import java.util.ResourceBundle;
  * </ul>
  * </p>
  */
+
 public class IndexController implements Initializable {
 
     // =================================================================================================================
@@ -49,7 +50,7 @@ public class IndexController implements Initializable {
     @FXML
     private BorderPane rootPane;
     @FXML
-    private StackPane paneIndex; // The central content area
+    private StackPane paneIndex;
 
     // =================================================================================================================
     // Dependencies and State
@@ -71,10 +72,8 @@ public class IndexController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        System.out.println("IndexController initializing...");
         loadSidebar();
         setupTopBarEventHandlers();
-        System.out.println("IndexController initialized successfully.");
     }
 
     // =================================================================================================================
@@ -105,7 +104,6 @@ public class IndexController implements Initializable {
             injectIndexController(controller);
 
             paneIndex.getChildren().setAll(view);
-            System.out.println("View loaded successfully: " + fxmlName);
 
         } catch (IOException e) {
             System.err.println("CRITICAL: Failed to load view FXML: " + fxmlName);
@@ -118,12 +116,10 @@ public class IndexController implements Initializable {
      * This method reloads the sidebar to reflect the new user's role and loads the appropriate dashboard.
      */
     public void onLoginSuccess() {
-        System.out.println("Login successful. Executing onLoginSuccess() flow...");
-        System.out.println("Reloading sidebar for authenticated user.");
         loadSidebar();
 
         if (authService.isCurrentPersonAdmin()) {
-            System.out.println("User is an Admin. Maximizing window and loading admin dashboard.");
+
             Stage stage = (Stage) paneIndex.getScene().getWindow();
             stage.setMaximized(true);
             loadView("AdminDashboard.fxml");
@@ -131,7 +127,6 @@ public class IndexController implements Initializable {
         }
 
         // Default case for non-admin users
-        System.out.println("User is not an Admin. Loading user dashboard.");
         loadView("UserDashboard.fxml");
     }
 
@@ -140,7 +135,6 @@ public class IndexController implements Initializable {
      * This is typically used for initial user registration from the login screen.
      */
     public void openSignupWindow() {
-        System.out.println("Attempting to open Signup window as a modal dialog...");
         try {
             URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/Signup.fxml");
             if (fxmlUrl == null) {
@@ -166,9 +160,7 @@ public class IndexController implements Initializable {
             lblMenu.setVisible(true);
             lblMenuBack.setVisible(false);
 
-            System.out.println("Showing Signup window.");
             stage.showAndWait();
-            System.out.println("Signup window closed.");
 
         } catch (IOException e) {
             System.err.println("CRITICAL: Failed to load Signup window.");
@@ -228,7 +220,6 @@ public class IndexController implements Initializable {
 
             sidebar.setTranslateX(-SIDEBAR_WIDTH);
             rootPane.setLeft(sidebar);
-            System.out.println("Sidebar loaded successfully: " + fxmlFile);
 
         } catch (IOException e) {
             System.err.println("CRITICAL: Failed to load sidebar FXML.");
@@ -241,7 +232,6 @@ public class IndexController implements Initializable {
      */
     private void openSidebar() {
         if (sidebar == null) return;
-        System.out.println("Playing open-sidebar animation.");
         TranslateTransition slide = new TranslateTransition(Duration.seconds(0.35), sidebar);
         slide.setToX(0);
         slide.play();
@@ -252,7 +242,6 @@ public class IndexController implements Initializable {
      */
     private void closeSidebar() {
         if (sidebar == null) return;
-        System.out.println("Playing close-sidebar animation.");
         TranslateTransition slide = new TranslateTransition(Duration.seconds(0.35), sidebar);
         slide.setToX(-SIDEBAR_WIDTH);
         slide.play();
@@ -265,20 +254,17 @@ public class IndexController implements Initializable {
      * @param controller The controller instance of the newly loaded view.
      */
     private void injectIndexController(Object controller) {
-        // A more advanced approach would be to use a common interface like `NavigableController`.
+
         if (controller instanceof LoginController) {
             ((LoginController) controller).setIndexController(this);
-            System.out.println("Injected IndexController into LoginController.");
             return;
         }
         if (controller instanceof SignupController) {
             ((SignupController) controller).setIndexController(this);
-            System.out.println("Injected IndexController into SignupController.");
             return;
         }
         if (controller instanceof ManageUsersController) {
             ((ManageUsersController) controller).setIndexController(this);
-            System.out.println("Injected IndexController into ManageUsersController.");
         }
     }
 

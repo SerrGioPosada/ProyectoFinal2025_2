@@ -34,7 +34,7 @@ public class PersonFactory {
                         .withPhone(data.getPhone())
                         .withPassword(data.getPassword())
                         .withProfileImagePath(data.getProfileImagePath())
-                        .withIsActive(data.isActive()) // ✅ AGREGADO
+                        .withIsActive(data.isActive())
                         .build();
 
             case ADMIN:

@@ -30,6 +30,7 @@ import java.util.ResourceBundle;
  * Subclasses are expected to handle their own specific button actions.
  * </p>
  */
+
 public abstract class BaseSidebarController implements Initializable {
 
     // =================================================================================================================
@@ -91,7 +92,6 @@ public abstract class BaseSidebarController implements Initializable {
             System.err.println("Cannot open sidebar: slider component is null.");
             return;
         }
-        System.out.println("Starting open sidebar animation.");
         TranslateTransition slide = new TranslateTransition(Duration.seconds(0.4), slider);
         slide.setToX(0);
         slide.play();
@@ -105,7 +105,6 @@ public abstract class BaseSidebarController implements Initializable {
             System.err.println("Cannot close sidebar: slider component is null.");
             return;
         }
-        System.out.println("Starting close sidebar animation.");
         TranslateTransition slide = new TranslateTransition(Duration.seconds(0.4), slider);
         slide.setToX(-slider.getPrefWidth());
         slide.play();
@@ -143,7 +142,6 @@ public abstract class BaseSidebarController implements Initializable {
         imgUserImage.setClip(clip);
         addHoverAnimation(imgUserImage);
         imgUserImage.setOnMouseClicked(event -> {
-            System.out.println("Profile image clicked.");
             showProfileInformationDialog();
         });
         System.out.println("Profile image setup complete.");
@@ -178,7 +176,6 @@ public abstract class BaseSidebarController implements Initializable {
      * Creates and displays an information dialog with the current user's profile details.
      */
     private void showProfileInformationDialog() {
-        System.out.println("Showing profile information dialog...");
         Person currentPerson = authService.getCurrentPerson();
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Profile Information");
@@ -208,15 +205,12 @@ public abstract class BaseSidebarController implements Initializable {
      * @return The loaded {@link Image} object, or the default profile image if not found or if the person is not authenticable.
      */
     private Image getPersonImage(Person person) {
-        System.out.println("Attempting to get image for a person...");
 
         if (person == null) {
-            System.out.println("Person is null. Using default image.");
             return defaultProfileImage;
         }
 
         if (!(person instanceof AuthenticablePerson)) {
-            System.out.println("Person is not an AuthenticablePerson. Using default image.");
             return defaultProfileImage;
         }
 
@@ -225,7 +219,6 @@ public abstract class BaseSidebarController implements Initializable {
         System.out.println("Person is Authenticable. Profile image path: '" + imagePath + "'");
 
         if (imagePath == null || imagePath.isEmpty()) {
-            System.out.println("Image path is null or empty. Using default image.");
             return defaultProfileImage;
         }
 
@@ -249,7 +242,7 @@ public abstract class BaseSidebarController implements Initializable {
         } catch (Exception e) {
             System.err.println("Exception while loading profile image from path: " + imagePath);
             e.printStackTrace();
-            return defaultProfileImage; // Return default on any exception
+            return defaultProfileImage;
         }
     }
 }
