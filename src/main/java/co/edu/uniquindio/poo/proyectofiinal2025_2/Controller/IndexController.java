@@ -40,18 +40,22 @@ public class IndexController implements Initializable {
     // FXML Fields
     // =================================================================================================================
 
-    @FXML private ImageView exit;
-    @FXML private Label lblMenu;
-    @FXML private Label lblMenuBack;
-    @FXML private BorderPane rootPane;
-    @FXML private StackPane paneIndex;
-
+    private static final double SIDEBAR_WIDTH = 176.0;
+    private final AuthenticationService authService = AuthenticationService.getInstance();
+    @FXML
+    private ImageView exit;
+    @FXML
+    private Label lblMenu;
+    @FXML
+    private Label lblMenuBack;
+    @FXML
+    private BorderPane rootPane;
+    @FXML
+    private StackPane paneIndex;
     // =================================================================================================================
     // Dependencies and State
     // =================================================================================================================
     private AnchorPane sidebar;
-    private final AuthenticationService authService = AuthenticationService.getInstance();
-    private static final double SIDEBAR_WIDTH = 176.0;
 
     // =================================================================================================================
     // Initialization

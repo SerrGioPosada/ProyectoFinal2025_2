@@ -13,9 +13,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Circle;
 
-import java.io.InputStream;
-import java.util.Optional;
-
 /**
  * Controller for the user management view (ManageUsers.fxml), accessible by administrators.
  * <p>
@@ -35,32 +32,48 @@ public class ManageUsersController {
     // FXML Fields
     // =================================================================================================================
 
-    @FXML private TableView<UserSummaryDTO> tableUsers;
-    @FXML private TableColumn<UserSummaryDTO, String> colImage;
-    @FXML private TableColumn<UserSummaryDTO, String> colName;
-    @FXML private TableColumn<UserSummaryDTO, String> colLastName;
-    @FXML private TableColumn<UserSummaryDTO, String> colEmail;
-    @FXML private TableColumn<UserSummaryDTO, String> colPhone;
-    @FXML private TableColumn<UserSummaryDTO, Integer> colOrders;
-    @FXML private TableColumn<UserSummaryDTO, Integer> colAddresses;
-    @FXML private TableColumn<UserSummaryDTO, Boolean> colStatus;
-
-    @FXML private TextField txtSearch;
-    @FXML private Label lblTotalUsers;
-    @FXML private Label lblActiveUsers;
-    @FXML private Label lblInactiveUsers;
-
-    @FXML private Button btnAddUser;
-    @FXML private Button btnViewOrders;
-    @FXML private Button btnViewAddresses;
-    @FXML private Button btnToggleStatus;
-    @FXML private Button btnDeleteUser;
+    private final UserService userService = UserService.getInstance();
+    @FXML
+    private TableView<UserSummaryDTO> tableUsers;
+    @FXML
+    private TableColumn<UserSummaryDTO, String> colImage;
+    @FXML
+    private TableColumn<UserSummaryDTO, String> colName;
+    @FXML
+    private TableColumn<UserSummaryDTO, String> colLastName;
+    @FXML
+    private TableColumn<UserSummaryDTO, String> colEmail;
+    @FXML
+    private TableColumn<UserSummaryDTO, String> colPhone;
+    @FXML
+    private TableColumn<UserSummaryDTO, Integer> colOrders;
+    @FXML
+    private TableColumn<UserSummaryDTO, Integer> colAddresses;
+    @FXML
+    private TableColumn<UserSummaryDTO, Boolean> colStatus;
+    @FXML
+    private TextField txtSearch;
+    @FXML
+    private Label lblTotalUsers;
+    @FXML
+    private Label lblActiveUsers;
+    @FXML
+    private Label lblInactiveUsers;
+    @FXML
+    private Button btnAddUser;
+    @FXML
+    private Button btnViewOrders;
+    @FXML
+    private Button btnViewAddresses;
+    @FXML
+    private Button btnToggleStatus;
 
     // =================================================================================================================
     // Dependencies and State
     // =================================================================================================================
 
-    private final UserService userService = UserService.getInstance();
+    @FXML
+    private Button btnDeleteUser;
     private ObservableList<UserSummaryDTO> usersList;
     private FilteredList<UserSummaryDTO> filteredUsers;
     private IndexController indexController;

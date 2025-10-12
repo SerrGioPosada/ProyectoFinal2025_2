@@ -3,9 +3,10 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.NavigationUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+
 import java.net.URL;
-import java.util.ResourceBundle;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * Controller for the administrator-specific sidebar (AdminSidebar.fxml).
@@ -22,10 +23,14 @@ public class AdminSidebarController extends BaseSidebarController {
     // FXML Fields
     // =================================================================================================================
 
-    @FXML private Button btnDashboard;
-    @FXML private Button btnManageUsers;
-    @FXML private Button btnManageShipments;
-    @FXML private Button btnReports;
+    @FXML
+    private Button btnDashboard;
+    @FXML
+    private Button btnManageUsers;
+    @FXML
+    private Button btnManageShipments;
+    @FXML
+    private Button btnReports;
 
     // =================================================================================================================
     // Initialization
@@ -39,7 +44,7 @@ public class AdminSidebarController extends BaseSidebarController {
      * binds navigation logic for all admin buttons.
      * </p>
      *
-     * @param url The location used to resolve relative paths for the root object, or {@code null} if not known.
+     * @param url            The location used to resolve relative paths for the root object, or {@code null} if not known.
      * @param resourceBundle The resources used to localize the root object, or {@code null} if not used.
      */
     @Override

@@ -43,15 +43,15 @@ public abstract class BaseSidebarController implements Initializable {
     // =================================================================================================================
     // FXML Fields
     // =================================================================================================================
-
-    @FXML protected ImageView imgUserImage;
-    @FXML protected AnchorPane slider;
+    protected final AuthenticationService authService = AuthenticationService.getInstance();
+    @FXML
+    protected ImageView imgUserImage;
 
     // =================================================================================================================
     // Dependencies and State
     // =================================================================================================================
-
-    protected final AuthenticationService authService = AuthenticationService.getInstance();
+    @FXML
+    protected AnchorPane slider;
     protected IndexController indexController;
     private Image defaultProfileImage;
 
@@ -63,7 +63,7 @@ public abstract class BaseSidebarController implements Initializable {
      * Initializes the sidebar controller, configuring UI elements such as
      * the profile image and the initial animation state of the sidebar.
      *
-     * @param url The location used to resolve relative paths for the root object, or {@code null} if not known.
+     * @param url            The location used to resolve relative paths for the root object, or {@code null} if not known.
      * @param resourceBundle The resources used to localize the root object, or {@code null} if not used.
      */
     @Override

@@ -36,36 +36,55 @@ public class SignupController {
     // FXML Fields
     // =================================================================================================================
 
-    @FXML private TextField txtName;
-    @FXML private TextField txtLastName;
-    @FXML private TextField txtEmail;
-    @FXML private TextField txtPhone;
-    @FXML private PasswordField txtPassword;
-    @FXML private TextField txtPasswordVisible;
-    @FXML private PasswordField txtConfirmPassword;
-    @FXML private TextField txtConfirmPasswordVisible;
-    @FXML private Button btnRegister;
-    @FXML private Label lblError;
-    @FXML private Label lblNameError;
-    @FXML private Label lblLastNameError;
-    @FXML private Label lblEmailError;
-    @FXML private Label lblPhoneError;
-    @FXML private Label lblPasswordError;
-    @FXML private Label lblConfirmPasswordError;
-    @FXML private Label googleSignupLabel;
-    @FXML private Label lblAlreadyRegistered;
-    @FXML private ImageView imgTogglePassword;
-    @FXML private ImageView imgToggleConfirmPassword;
+    private final UserService userService = UserService.getInstance();
+    private final BooleanProperty isPasswordVisible = new SimpleBooleanProperty(false);
+    private final BooleanProperty isConfirmPasswordVisible = new SimpleBooleanProperty(false);
+    @FXML
+    private TextField txtName;
+    @FXML
+    private TextField txtLastName;
+    @FXML
+    private TextField txtEmail;
+    @FXML
+    private TextField txtPhone;
+    @FXML
+    private PasswordField txtPassword;
+    @FXML
+    private TextField txtPasswordVisible;
+    @FXML
+    private PasswordField txtConfirmPassword;
+    @FXML
+    private TextField txtConfirmPasswordVisible;
+    @FXML
+    private Button btnRegister;
+    @FXML
+    private Label lblError;
+    @FXML
+    private Label lblNameError;
+    @FXML
+    private Label lblLastNameError;
+    @FXML
+    private Label lblEmailError;
+    @FXML
+    private Label lblPhoneError;
+    @FXML
+    private Label lblPasswordError;
+    @FXML
+    private Label lblConfirmPasswordError;
+    @FXML
+    private Label googleSignupLabel;
 
     // =================================================================================================================
     // Dependencies and State
     // =================================================================================================================
 
-    private final UserService userService = UserService.getInstance();
+    @FXML
+    private Label lblAlreadyRegistered;
+    @FXML
+    private ImageView imgTogglePassword;
+    @FXML
+    private ImageView imgToggleConfirmPassword;
     private IndexController indexController;
-
-    private final BooleanProperty isPasswordVisible = new SimpleBooleanProperty(false);
-    private final BooleanProperty isConfirmPasswordVisible = new SimpleBooleanProperty(false);
 
     // =================================================================================================================
     // Initialization & Setup
@@ -246,7 +265,7 @@ public class SignupController {
     /**
      * Adds a focus listener to a field to trigger validation when it loses focus.
      *
-     * @param field The input control to validate.
+     * @param field           The input control to validate.
      * @param validationLogic A supplier that runs the validation logic and returns true/false.
      */
     private void addValidationListener(Control field, Supplier<Boolean> validationLogic) {
@@ -258,11 +277,11 @@ public class SignupController {
     /**
      * Validates a single field and shows/hides error messages accordingly.
      *
-     * @param text The field text to validate.
-     * @param errorLabel The label to display the error message.
-     * @param emptyMessage The message to display if the field is empty.
+     * @param text           The field text to validate.
+     * @param errorLabel     The label to display the error message.
+     * @param emptyMessage   The message to display if the field is empty.
      * @param invalidMessage The message to display if the field is invalid.
-     * @param validator A predicate that returns true if the value is valid.
+     * @param validator      A predicate that returns true if the value is valid.
      * @return {@code true} if the field is valid, {@code false} otherwise.
      */
     private boolean validateField(String text, Label errorLabel, String emptyMessage, String invalidMessage, java.util.function.Predicate<String> validator) {

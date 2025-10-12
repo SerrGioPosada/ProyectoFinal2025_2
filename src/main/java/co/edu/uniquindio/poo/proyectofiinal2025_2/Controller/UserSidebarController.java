@@ -20,11 +20,16 @@ public class UserSidebarController extends BaseSidebarController {
     // FXML Fields
     // =================================================================================================================
 
-    @FXML private Button btnLogin;
-    @FXML private Button btnSignup;
-    @FXML private Button btnProfile;
-    @FXML private Button btnNewShipment;
-    @FXML private Button btnOrders;
+    @FXML
+    private Button btnLogin;
+    @FXML
+    private Button btnSignup;
+    @FXML
+    private Button btnProfile;
+    @FXML
+    private Button btnNewShipment;
+    @FXML
+    private Button btnOrders;
 
     // =================================================================================================================
     // Initialization

@@ -1,8 +1,8 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PersonType;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Factory.PersonFactory;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.AuthenticationService;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.GoogleOAuthService;
@@ -34,26 +34,37 @@ public class LoginController {
     // FXML Fields
     // =================================================================================================================
 
-    @FXML private TextField txtEmail;
-    @FXML private PasswordField txtPassword;
-    @FXML private TextField txtPasswordVisible;
-    @FXML private Button btnLoginPane;
-    @FXML private Label lblError;
-    @FXML private Label googleLoginLabel;
-    @FXML private Label lblForgotPassword;
-    @FXML private Label lblEmailFloat;
-    @FXML private Label lblPasswordFloat;
-    @FXML private ImageView imgTogglePassword;
-    @FXML private CheckBox chkKeepSignedIn;
+    private final AuthenticationService authService = AuthenticationService.getInstance();
+    private final UserRepository userRepository = UserRepository.getInstance();
+    private final PersonFactory personFactory = new PersonFactory();
+    private final GoogleOAuthService googleOAuthService = new GoogleOAuthService();
+    @FXML
+    private TextField txtEmail;
+    @FXML
+    private PasswordField txtPassword;
+    @FXML
+    private TextField txtPasswordVisible;
+    @FXML
+    private Button btnLoginPane;
+    @FXML
+    private Label lblError;
+    @FXML
+    private Label googleLoginLabel;
+    @FXML
+    private Label lblForgotPassword;
 
     // =================================================================================================================
     // Dependencies and State
     // =================================================================================================================
 
-    private final AuthenticationService authService = AuthenticationService.getInstance();
-    private final UserRepository userRepository = UserRepository.getInstance();
-    private final PersonFactory personFactory = new PersonFactory();
-    private final GoogleOAuthService googleOAuthService = new GoogleOAuthService();
+    @FXML
+    private Label lblEmailFloat;
+    @FXML
+    private Label lblPasswordFloat;
+    @FXML
+    private ImageView imgTogglePassword;
+    @FXML
+    private CheckBox chkKeepSignedIn;
     private IndexController indexController;
 
     private boolean isPasswordVisible = false;
@@ -76,6 +87,7 @@ public class LoginController {
 
     /**
      * Injected by the parent controller to establish communication for navigation.
+     *
      * @param indexController The main application controller.
      */
     public void setIndexController(IndexController indexController) {
@@ -190,7 +202,7 @@ public class LoginController {
                             .withEmail(email)
                             .withPassword("oauth_google_user_" + System.currentTimeMillis())
                             .build();
-                    authService.setAuthenticatedUser(personFactory.createPerson(PersonType.USER, newData));
+                    authService.setAuthenticatedUser(PersonFactory.createPerson(PersonType.USER, newData));
                 }
         );
 
@@ -221,8 +233,8 @@ public class LoginController {
     /**
      * Attaches focus and text listeners to a field to create the floating label effect.
      *
-     * @param field The text input control (TextField or PasswordField).
-     * @param label The floating label associated with the field.
+     * @param field  The text input control (TextField or PasswordField).
+     * @param label  The floating label associated with the field.
      * @param prompt The prompt text to restore when the field is empty and unfocused.
      */
     private void setupFieldListeners(Control field, Label label, String prompt) {
