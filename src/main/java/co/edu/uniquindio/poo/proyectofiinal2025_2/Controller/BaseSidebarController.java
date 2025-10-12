@@ -19,12 +19,22 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Base controller for sidebars (Admin and User).
- * Handles:
- *  - Profile image (circular + hover animation).
- *  - Sidebar open/close animations.
+ * Abstract base controller for all sidebars in the application.
+ * <p>
+ * This class provides core functionalities shared across different sidebars, such as:
+ * <ul>
+ *     <li>Displaying and styling the user's profile image.</li>
+ *     <li>Handling animations for opening and closing the sidebar.</li>
+ *     <li>Providing a mechanism for communication with the main {@link IndexController}.</li>
+ * </ul>
+ * Subclasses are expected to handle their own specific button actions.
+ * </p>
  */
 public abstract class BaseSidebarController implements Initializable {
+
+    // =================================================================================================================
+    // FXML Fields
+    // =================================================================================================================
 
     @FXML
     protected ImageView imgUserImage;
@@ -32,126 +42,214 @@ public abstract class BaseSidebarController implements Initializable {
     @FXML
     protected AnchorPane slider;
 
+    // =================================================================================================================
+    // Dependencies and State
+    // =================================================================================================================
+
     protected final AuthenticationService authService = AuthenticationService.getInstance();
     protected IndexController indexController;
+    private Image defaultProfileImage;
 
+    // =================================================================================================================
+    // Initialization
+    // =================================================================================================================
+
+    /**
+     * Initializes the controller, setting up all UI components and event handlers.
+     *
+     * @param url The location used to resolve relative paths for the root object, or {@code null} if not known.
+     * @param resourceBundle The resources used to localize the root object, or {@code null} if not used.
+     */
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        System.out.println("Initializing BaseSidebarController...");
+        loadDefaultImage();
+        setupProfileImage();
+        setupSidebarAnimation();
+        System.out.println("BaseSidebarController initialized successfully.");
+    }
+
+    // =================================================================================================================
+    // Public API Methods
+    // =================================================================================================================
+
+    /**
+     * Sets the reference to the main IndexController to enable cross-controller communication.
+     *
+     * @param indexController The instance of the main application controller.
+     */
     public void setIndexController(IndexController indexController) {
+        System.out.println("IndexController has been set in BaseSidebarController.");
         this.indexController = indexController;
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        // === Profile Image Setup ===
-        String defaultImagePath = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png";
-        Image defaultImage = new Image(getClass().getResourceAsStream(defaultImagePath));
-
-        // Set a default image initially
-        imgUserImage.setImage(defaultImage);
-
-        // Check if an authenticable person is logged in and set their specific profile image
-        Person currentPerson = authService.getCurrentPerson();
-        if (currentPerson instanceof AuthenticablePerson) {
-            AuthenticablePerson currentAuthPerson = (AuthenticablePerson) currentPerson;
-            String userImagePath = currentAuthPerson.getProfileImagePath();
-            if (userImagePath != null && !userImagePath.isEmpty()) {
-                try {
-                    InputStream userImageStream = getClass().getResourceAsStream(userImagePath);
-                    if (userImageStream != null) {
-                        imgUserImage.setImage(new Image(userImageStream));
-                    } else {
-                        System.err.println("Could not find user profile image at path: " + userImagePath);
-                    }
-                } catch (Exception e) {
-                    System.err.println("Failed to load user profile image from path: " + userImagePath);
-                }
-            }
+    /**
+     * Opens the sidebar with a sliding animation.
+     */
+    public void openSidebar() {
+        if (slider == null) {
+            System.err.println("Cannot open sidebar: slider component is null.");
+            return;
         }
+        System.out.println("Starting open sidebar animation.");
+        TranslateTransition slide = new TranslateTransition(Duration.seconds(0.4), slider);
+        slide.setToX(0);
+        slide.play();
+    }
 
-        // Apply a circular clipping mask
-        Circle clip = new Circle(50, 50, 50);
-        imgUserImage.setClip(clip);
+    /**
+     * Closes the sidebar with a sliding animation.
+     */
+    public void closeSidebar() {
+        if (slider == null) {
+            System.err.println("Cannot close sidebar: slider component is null.");
+            return;
+        }
+        System.out.println("Starting close sidebar animation.");
+        TranslateTransition slide = new TranslateTransition(Duration.seconds(0.4), slider);
+        slide.setToX(-slider.getPrefWidth());
+        slide.play();
+    }
 
-        // Apply a hover animation
-        imgUserImage.setOnMouseEntered(e -> {
-            ScaleTransition st = new ScaleTransition(Duration.millis(200), imgUserImage);
-            st.setToX(1.1);
-            st.setToY(1.1);
-            st.play();
-        });
+    // =================================================================================================================
+    // Private Helper Methods
+    // =================================================================================================================
 
-        imgUserImage.setOnMouseExited(e -> {
-            ScaleTransition st = new ScaleTransition(Duration.millis(200), imgUserImage);
-            st.setToX(1.0);
-            st.setToY(1.0);
-            st.play();
-        });
-
-        // On click: show profile info from the authenticated person
-        imgUserImage.setOnMouseClicked(e -> {
-            Person personOnClick = authService.getCurrentPerson();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Profile Information");
-            alert.setHeaderText(null);
-
-            if (personOnClick != null) {
-                alert.setContentText("Name: " + personOnClick.getName() + "\nEmail: " + personOnClick.getEmail());
-                ImageView alertImageView = new ImageView();
-                alertImageView.setFitWidth(80);
-                alertImageView.setFitHeight(80);
-                alertImageView.setPreserveRatio(true);
-
-                Image imageToShow = defaultImage;
-
-                if (personOnClick instanceof AuthenticablePerson) {
-                    AuthenticablePerson clickedAuthPerson = (AuthenticablePerson) personOnClick;
-                    String imagePath = clickedAuthPerson.getProfileImagePath();
-                    if (imagePath != null && !imagePath.isEmpty()) {
-                        try {
-                            InputStream stream = getClass().getResourceAsStream(imagePath);
-                            if (stream != null) {
-                                imageToShow = new Image(stream);
-                            }
-                        } catch (Exception ex) {
-                            System.err.println("Failed to load image for alert dialog: " + imagePath);
-                        }
-                    }
-                }
-                alertImageView.setImage(imageToShow);
-                alert.setGraphic(alertImageView);
-
-            } else {
-                alert.setContentText("Please log in to view your profile.");
-                ImageView alertImageView = new ImageView(defaultImage);
-                alertImageView.setFitWidth(80);
-                alertImageView.setFitHeight(80);
-                alertImageView.setPreserveRatio(true);
-                alert.setGraphic(alertImageView);
+    /**
+     * Loads and caches the default profile image from the resources.
+     */
+    private void loadDefaultImage() {
+        String defaultImagePath = "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/default-userImage.png";
+        System.out.println("Loading default profile image from: " + defaultImagePath);
+        try {
+            this.defaultProfileImage = new Image(getClass().getResourceAsStream(defaultImagePath));
+            if (this.defaultProfileImage.isError()) {
+                System.err.println("CRITICAL: Default profile image failed to load. Check the path.");
             }
+        } catch (Exception e) {
+            System.err.println("CRITICAL: Exception while loading default profile image.");
+            e.printStackTrace();
+        }
+    }
 
-            alert.showAndWait();
+    /**
+     * Configures the profile image view, including loading the user-specific image,
+     * applying a circular clip, and setting up event handlers.
+     */
+    private void setupProfileImage() {
+        System.out.println("Setting up profile image view...");
+        imgUserImage.setImage(getPersonImage(authService.getCurrentPerson()));
+        Circle clip = new Circle(50, 50, 50); // Assuming the image view is 100x100
+        imgUserImage.setClip(clip);
+        addHoverAnimation(imgUserImage);
+        imgUserImage.setOnMouseClicked(event -> {
+            System.out.println("Profile image clicked.");
+            showProfileInformationDialog();
         });
+        System.out.println("Profile image setup complete.");
+    }
 
-        // === Sidebar Setup ===
+    /**
+     * Prepares the initial state of the sidebar for the slide-in animation.
+     */
+    private void setupSidebarAnimation() {
         if (slider != null) {
             slider.setTranslateX(-slider.getPrefWidth());
         }
     }
 
-    /** Opens the sidebar with a sliding animation */
-    public void openSidebar() {
-        if (slider != null) {
-            TranslateTransition slide = new TranslateTransition(Duration.seconds(0.4), slider);
-            slide.setToX(0);
-            slide.play();
-        }
+    /**
+     * Adds a scale-on-hover animation to the profile image.
+     *
+     * @param imageView The ImageView to animate.
+     */
+    private void addHoverAnimation(ImageView imageView) {
+        ScaleTransition stEnter = new ScaleTransition(Duration.millis(200), imageView);
+        stEnter.setToX(1.1);
+        stEnter.setToY(1.1);
+        ScaleTransition stExit = new ScaleTransition(Duration.millis(200), imageView);
+        stExit.setToX(1.0);
+        stExit.setToY(1.0);
+        imageView.setOnMouseEntered(e -> stEnter.play());
+        imageView.setOnMouseExited(e -> stExit.play());
     }
 
-    /** Closes the sidebar with a sliding animation */
-    public void closeSidebar() {
-        if (slider != null) {
-            TranslateTransition slide = new TranslateTransition(Duration.seconds(0.4), slider);
-            slide.setToX(-slider.getPrefWidth());
-            slide.play();
+    /**
+     * Creates and displays an information dialog with the current user's profile details.
+     */
+    private void showProfileInformationDialog() {
+        System.out.println("Showing profile information dialog...");
+        Person currentPerson = authService.getCurrentPerson();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Profile Information");
+        alert.setHeaderText(null);
+
+        if (currentPerson == null) {
+            System.out.println("No user logged in. Showing default info in dialog.");
+            alert.setContentText("Please log in to view your profile.");
+            alert.setGraphic(new ImageView(defaultProfileImage));
+            alert.showAndWait();
+            return;
+        }
+
+        alert.setContentText("Name: " + currentPerson.getName() + "\nEmail: " + currentPerson.getEmail());
+        ImageView alertImageView = new ImageView(getPersonImage(currentPerson));
+        alertImageView.setFitWidth(80);
+        alertImageView.setFitHeight(80);
+        alertImageView.setPreserveRatio(true);
+        alert.setGraphic(alertImageView);
+        alert.showAndWait();
+    }
+
+    /**
+     * Safely retrieves the profile image for a given person.
+     *
+     * @param person The person whose image is to be loaded.
+     * @return The loaded {@link Image} object, or the default profile image if not found or if the person is not authenticable.
+     */
+    private Image getPersonImage(Person person) {
+        System.out.println("Attempting to get image for a person...");
+
+        if (person == null) {
+            System.out.println("Person is null. Using default image.");
+            return defaultProfileImage;
+        }
+
+        if (!(person instanceof AuthenticablePerson)) {
+            System.out.println("Person is not an AuthenticablePerson. Using default image.");
+            return defaultProfileImage;
+        }
+
+        AuthenticablePerson authPerson = (AuthenticablePerson) person;
+        String imagePath = authPerson.getProfileImagePath();
+        System.out.println("Person is Authenticable. Profile image path: '" + imagePath + "'");
+
+        if (imagePath == null || imagePath.isEmpty()) {
+            System.out.println("Image path is null or empty. Using default image.");
+            return defaultProfileImage;
+        }
+
+        try {
+            InputStream stream = getClass().getResourceAsStream(imagePath);
+            if (stream == null) {
+                System.err.println("Could not find resource stream for path: " + imagePath + ". Falling back to default.");
+                return defaultProfileImage;
+            }
+
+            System.out.println("Image stream found. Loading image from path.");
+            Image loadedImage = new Image(stream);
+
+            if (loadedImage.isError()) {
+                System.err.println("Error loading image from stream for path: " + imagePath + ". Falling back to default.");
+                return defaultProfileImage;
+            }
+
+            return loadedImage;
+
+        } catch (Exception e) {
+            System.err.println("Exception while loading profile image from path: " + imagePath);
+            e.printStackTrace();
+            return defaultProfileImage; // Return default on any exception
         }
     }
 }

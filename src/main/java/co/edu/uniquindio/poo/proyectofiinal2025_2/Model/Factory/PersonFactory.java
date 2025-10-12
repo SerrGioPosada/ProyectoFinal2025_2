@@ -34,6 +34,7 @@ public class PersonFactory {
                         .withPhone(data.getPhone())
                         .withPassword(data.getPassword())
                         .withProfileImagePath(data.getProfileImagePath())
+                        .withIsActive(data.isActive()) // ✅ AGREGADO
                         .build();
 
             case ADMIN:
@@ -44,7 +45,7 @@ public class PersonFactory {
                         .withEmail(data.getEmail())
                         .withPhone(data.getPhone())
                         .withPassword(data.getPassword())
-                        .withProfileImagePath(data.getProfileImagePath()) // Now part of AuthenticablePerson
+                        .withProfileImagePath(data.getProfileImagePath())
                         .withEmployeeId(data.getEmployeeId())
                         .withPermissionLevel(data.getPermissionLevel())
                         .build();
@@ -57,7 +58,7 @@ public class PersonFactory {
                         .withEmail(data.getEmail())
                         .withPhone(data.getPhone())
                         .withPassword(data.getPassword())
-                        .withProfileImagePath(data.getProfileImagePath()) // Now part of AuthenticablePerson
+                        .withProfileImagePath(data.getProfileImagePath())
                         .withDocumentId(data.getDocumentId())
                         .withAvailability(data.getAvailability())
                         .withAssignedVehicle(data.getAssignedVehicle())

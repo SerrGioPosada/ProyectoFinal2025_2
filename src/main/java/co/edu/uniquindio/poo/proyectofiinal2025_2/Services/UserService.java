@@ -169,4 +169,118 @@ public class UserService {
             return null;
         }
     }
+
+    // ===========================
+    // User Management Operations
+    // ===========================
+
+    /**
+     * Retrieves all users as UserSummaryDTO objects for display purposes.
+     * @return List of UserSummaryDTO containing user summary information.
+     */
+    public java.util.List<co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO> getAllUsersSummary() {
+        java.util.List<User> allUsers = userRepository.getUsers();
+        System.out.println("UserService: Retrieved " + allUsers.size() + " users from repository");
+
+        java.util.List<co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO> summaries =
+                allUsers.stream()
+                        .map(user -> {
+                            System.out.println("  - Processing user: " + user.getEmail());
+                            return new co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO(
+                                    user.getId(),
+                                    user.getName() != null ? user.getName() : "",
+                                    user.getLastName() != null ? user.getLastName() : "",
+                                    user.getEmail() != null ? user.getEmail() : "",
+                                    user.getPhone() != null ? user.getPhone() : "",
+                                    user.getOrders() != null ? user.getOrders().size() : 0,
+                                    user.getFrequentAddresses() != null ? user.getFrequentAddresses().size() : 0,
+                                    user.getProfileImagePath(),
+                                    user.isActive()
+                            );
+                        })
+                        .collect(java.util.stream.Collectors.toList());
+
+        System.out.println("UserService: Created " + summaries.size() + " UserSummaryDTO objects");
+        return summaries;
+    }
+
+    /**
+     * Deletes a user permanently from the system.
+     * @param userId The ID of the user to delete.
+     * @return true if deletion was successful, false otherwise.
+     */
+    public boolean deleteUser(String userId) {
+        try {
+            java.util.Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isPresent()) {
+                userRepository.removeUser(userId);
+                System.out.println("User deleted successfully: " + userOpt.get().getEmail());
+                return true;
+            }
+            System.err.println("User not found for deletion: " + userId);
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error deleting user: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Disables a user account (soft delete).
+     * The user cannot log in but their data is preserved.
+     * @param userId The ID of the user to disable.
+     * @return true if successful, false otherwise.
+     */
+    public boolean disableUser(String userId) {
+        try {
+            java.util.Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                user.setActive(false);
+                userRepository.addUser(user); // Update in repository
+                System.out.println("User disabled successfully: " + user.getEmail());
+                return true;
+            }
+            System.err.println("User not found for disabling: " + userId);
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error disabling user: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Enables a previously disabled user account.
+     * @param userId The ID of the user to enable.
+     * @return true if successful, false otherwise.
+     */
+    public boolean enableUser(String userId) {
+        try {
+            java.util.Optional<User> userOpt = userRepository.findById(userId);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                user.setActive(true);
+                userRepository.addUser(user); // Update in repository
+                System.out.println("User enabled successfully: " + user.getEmail());
+                return true;
+            }
+            System.err.println("User not found for enabling: " + userId);
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error enabling user: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Gets a user by ID.
+     * @param userId The user ID to search for.
+     * @return Optional containing the user if found.
+     */
+    public java.util.Optional<User> getUserById(String userId) {
+        return userRepository.findById(userId);
+    }
 }

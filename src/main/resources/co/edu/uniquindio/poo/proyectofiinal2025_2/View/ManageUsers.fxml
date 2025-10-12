@@ -1,14 +1,124 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.ManageUsersController"
-            prefHeight="400.0" prefWidth="600.0">
+            style="-fx-background-color: #f8f9fa;"
+            prefHeight="700.0" prefWidth="1000.0">
+
+    <!-- Header Section -->
+    <VBox spacing="20" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0">
+
+        <!-- Title and Actions Bar -->
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="Gestión de Usuarios" styleClass="page-title">
+                <font>
+                    <Font name="System Bold" size="28"/>
+                </font>
+            </Label>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Search Field -->
+            <TextField fx:id="txtSearch" promptText="Buscar por nombre o email..."
+                       prefWidth="250" styleClass="search-field">
+                <padding>
+                    <Insets top="8" right="12" bottom="8" left="12"/>
+                </padding>
+            </TextField>
+
+            <!-- Add New User Button -->
+            <Button fx:id="btnAddUser" text="+ Nuevo Usuario" styleClass="btn-primary"
+                    onAction="#handleAddUser">
+                <padding>
+                    <Insets top="10" right="20" bottom="10" left="20"/>
+                </padding>
+            </Button>
+        </HBox>
+
+        <!-- Stats Cards -->
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <VBox styleClass="stat-card" spacing="5" prefWidth="200">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+                <Label text="Total Usuarios" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                <Label fx:id="lblTotalUsers" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            </VBox>
+
+            <VBox styleClass="stat-card" spacing="5" prefWidth="200">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+                <Label text="Usuarios Activos" style="-fx-text-fill: #28a745; -fx-font-size: 12px;"/>
+                <Label fx:id="lblActiveUsers" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
+            </VBox>
+
+            <VBox styleClass="stat-card" spacing="5" prefWidth="200">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+                <Label text="Usuarios Inactivos" style="-fx-text-fill: #dc3545; -fx-font-size: 12px;"/>
+                <Label fx:id="lblInactiveUsers" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #dc3545;"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- Table Section -->
+    <VBox spacing="15" AnchorPane.topAnchor="200.0" AnchorPane.leftAnchor="30.0"
+          AnchorPane.rightAnchor="30.0" AnchorPane.bottomAnchor="100.0">
+
+        <TableView fx:id="tableUsers" VBox.vgrow="ALWAYS" styleClass="custom-table">
+            <columns>
+                <TableColumn fx:id="colImage" text="" prefWidth="60" minWidth="60" maxWidth="60" sortable="false" resizable="false"/>
+                <TableColumn fx:id="colName" text="Nombre" prefWidth="120" minWidth="100"/>
+                <TableColumn fx:id="colLastName" text="Apellido" prefWidth="120" minWidth="100"/>
+                <TableColumn fx:id="colEmail" text="Correo Electrónico" prefWidth="200" minWidth="150"/>
+                <TableColumn fx:id="colPhone" text="Teléfono" prefWidth="110" minWidth="100"/>
+                <TableColumn fx:id="colOrders" text="Pedidos" prefWidth="80" minWidth="70"/>
+                <TableColumn fx:id="colAddresses" text="Direcciones" prefWidth="90" minWidth="80"/>
+                <TableColumn fx:id="colStatus" text="Estado" prefWidth="100" minWidth="90"/>
+            </columns>
+        </TableView>
+    </VBox>
+
+    <!-- Action Buttons (appear when user is selected) -->
+    <HBox spacing="15" alignment="CENTER_RIGHT"
+          AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="30.0">
+
+        <Button fx:id="btnViewOrders" text="Ver Pedidos" styleClass="btn-info"
+                onAction="#handleViewOrders" disable="true">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+        </Button>
+
+        <Button fx:id="btnViewAddresses" text="Ver Direcciones" styleClass="btn-info"
+                onAction="#handleViewAddresses" disable="true">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+        </Button>
+
+        <Button fx:id="btnToggleStatus" text="Inhabilitar" styleClass="btn-warning"
+                onAction="#handleToggleStatus" disable="true">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+        </Button>
+
+        <Button fx:id="btnDeleteUser" text="Eliminar Usuario" styleClass="btn-danger"
+                onAction="#handleDeleteUser" disable="true">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+        </Button>
+    </HBox>
 
 </AnchorPane>

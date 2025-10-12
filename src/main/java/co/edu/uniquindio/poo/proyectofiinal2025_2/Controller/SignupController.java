@@ -3,19 +3,37 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
+import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
- * Controller for the Signup view (Signup.fxml).
- * Handles user registration with real-time validation on focus lost.
+ * Controller for the user registration view (Signup.fxml).
+ * <p>
+ * This class handles the user interface for creating a new account. Its responsibilities include:
+ * <ul>
+ *     <li>Capturing user input for name, email, password, etc.</li>
+ *     <li>Performing real-time validation on input fields as the user loses focus.</li>
+ *     <li>Orchestrating the final registration process via the {@link UserService}.</li>
+ *     <li>Providing clear feedback to the user (e.g., validation errors, success messages).</li>
+ *     <li>Managing UI effects like password visibility toggles.</li>
+ * </ul>
+ * </p>
  */
 public class SignupController {
+
+    // =================================================================================================================
+    // FXML Fields
+    // =================================================================================================================
 
     @FXML private TextField txtName;
     @FXML private TextField txtLastName;
@@ -38,412 +56,303 @@ public class SignupController {
     @FXML private ImageView imgTogglePassword;
     @FXML private ImageView imgToggleConfirmPassword;
 
+    // =================================================================================================================
+    // Dependencies and State
+    // =================================================================================================================
+
     private final UserService userService = UserService.getInstance();
-    private boolean isPasswordVisible = false;
-    private boolean isConfirmPasswordVisible = false;
     private IndexController indexController;
 
-    // Regex patterns para validaciones
+    private final BooleanProperty isPasswordVisible = new SimpleBooleanProperty(false);
+    private final BooleanProperty isConfirmPasswordVisible = new SimpleBooleanProperty(false);
+
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^[0-9]{10}$");
 
+    // =================================================================================================================
+    // Initialization & Setup
+    // =================================================================================================================
+
     /**
-     * Permite al IndexController pasarse a sí mismo al SignupController
+     * Initializes the controller after its root element has been completely processed.
+     */
+    @FXML
+    public void initialize() {
+        System.out.println("SignupController initializing...");
+        setupEventHandlers();
+        setupValidationListeners();
+        setupPasswordToggles();
+        System.out.println("SignupController initialized successfully.");
+    }
+
+    /**
+     * Injected by the parent controller to establish communication for navigation.
+     * @param indexController The main application controller.
      */
     public void setIndexController(IndexController indexController) {
+        System.out.println("IndexController has been set in SignupController.");
         this.indexController = indexController;
     }
 
-    @FXML
-    public void initialize() {
-        setupEventHandlers();
-        setupValidations();
-        setupPasswordToggles();
-        setupWindowCloseHandler();
+    /**
+     * Binds the action events of the view's interactive elements to their corresponding handler methods.
+     */
+    private void setupEventHandlers() {
+        btnRegister.setOnAction(event -> handleRegister());
+        googleSignupLabel.setOnMouseClicked(event -> handleGoogleSignup());
+        lblAlreadyRegistered.setOnMouseClicked(event -> handleAlreadyRegistered());
     }
 
     /**
-     * Configura el handler para cuando se cierra la ventana
+     * Attaches focus-lost listeners to all input fields to trigger real-time validation.
      */
-    private void setupWindowCloseHandler() {
-        Platform.runLater(() -> {
-            if (btnRegister != null && btnRegister.getScene() != null) {
-                Stage stage = (Stage) btnRegister.getScene().getWindow();
-                stage.setOnCloseRequest(event -> {
-                    System.out.println("Registro cancelado por el usuario");
-                });
+    private void setupValidationListeners() {
+        addValidationListener(txtName, this::validateName);
+        addValidationListener(txtLastName, this::validateLastName);
+        addValidationListener(txtEmail, this::validateEmail);
+        addValidationListener(txtPhone, this::validatePhone);
+        addValidationListener(txtPassword, this::validatePassword);
+        addValidationListener(txtPasswordVisible, this::validatePassword);
+        addValidationListener(txtConfirmPassword, this::validateConfirmPassword);
+        addValidationListener(txtConfirmPasswordVisible, this::validateConfirmPassword);
+    }
+
+    /**
+     * Configures the password and confirm password fields to toggle visibility.
+     */
+    private void setupPasswordToggles() {
+        setupPasswordToggle(txtPassword, txtPasswordVisible, imgTogglePassword, isPasswordVisible);
+        setupPasswordToggle(txtConfirmPassword, txtConfirmPasswordVisible, imgToggleConfirmPassword, isConfirmPasswordVisible);
+    }
+
+    // =================================================================================================================
+    // Core Registration Logic & Event Handlers
+    // =================================================================================================================
+
+    /**
+     * Handles the main registration flow when the 'Register' button is clicked.
+     */
+    private void handleRegister() {
+        System.out.println("Register button clicked. Starting full form validation...");
+        if (!isFormValid()) {
+            showError("Please correct the errors in the form.");
+            System.err.println("Registration aborted due to validation errors.");
+            return;
+        }
+
+        System.out.println("Form is valid. Creating user data object...");
+        PersonCreationData data = new PersonCreationData.Builder()
+                .withId(UUID.randomUUID().toString())
+                .withName(txtName.getText().trim())
+                .withLastName(txtLastName.getText().trim())
+                .withEmail(txtEmail.getText().trim())
+                .withPhone(txtPhone.getText().trim())
+                .withPassword(txtPassword.getText())
+                .build();
+
+        System.out.println("Attempting to register user with email: " + data.getEmail());
+        boolean success = userService.registerUser(data);
+
+        if (!success) {
+            System.err.println("Registration failed: Email already exists.");
+            showError("This email address is already registered.");
+            return;
+        }
+
+        System.out.println("Registration successful for user: " + data.getEmail());
+        showSuccess("Registration successful! You can now log in.");
+        // Close the window after a short delay
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+                Platform.runLater(this::closeWindow);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
+    }
+
+    /**
+     * Handles the Google Sign-Up label click event.
+     */
+    private void handleGoogleSignup() {
+        System.out.println("Google Sign-Up clicked. (Placeholder)");
+        showError("Google Sign-Up is not yet implemented.");
+    }
+
+    /**
+     * Handles the 'Already Registered' label click event, closing the signup window
+     * and loading the login view.
+     */
+    private void handleAlreadyRegistered() {
+        System.out.println("User clicked 'Already Registered'. Closing signup and loading login view.");
+        closeWindow();
+        if (indexController == null) return;
+        Platform.runLater(() -> indexController.loadView("Login.fxml"));
+    }
+
+    // =================================================================================================================
+    // Field Validation Logic
+    // =================================================================================================================
+
+    /**
+     * Runs all validation methods and returns true only if all are successful.
+     * @return {@code true} if all fields are valid, {@code false} otherwise.
+     */
+    private boolean isFormValid() {
+        // The order matters. It ensures all validation messages are shown at once.
+        return Stream.of(
+                validateName(),
+                validateLastName(),
+                validateEmail(),
+                validatePhone(),
+                validatePassword(),
+                validateConfirmPassword()
+        ).allMatch(isValid -> isValid);
+    }
+
+    private boolean validateName() {
+        return validateField(txtName.getText(), lblNameError, "Name is required.", "Name must be at least 2 characters.", name -> name.length() >= 2);
+    }
+
+    private boolean validateLastName() {
+        return validateField(txtLastName.getText(), lblLastNameError, "Last name is required.", "Last name must be at least 2 characters.", lastName -> lastName.length() >= 2);
+    }
+
+    private boolean validateEmail() {
+        return validateField(txtEmail.getText(), lblEmailError, "Email is required.", "Invalid email format (e.g., user@domain.com).", email -> EMAIL_PATTERN.matcher(email).matches());
+    }
+
+    private boolean validatePhone() {
+        return validateField(txtPhone.getText(), lblPhoneError, "Phone number is required.", "Phone number must be 10 digits.", phone -> PHONE_PATTERN.matcher(phone).matches());
+    }
+
+    private boolean validatePassword() {
+        String password = isPasswordVisible.get() ? txtPasswordVisible.getText() : txtPassword.getText();
+        return validateField(password, lblPasswordError, "Password is required.", "Password must be at least 6 characters.", pass -> pass.length() >= 6);
+    }
+
+    private boolean validateConfirmPassword() {
+        String password = isPasswordVisible.get() ? txtPasswordVisible.getText() : txtPassword.getText();
+        String confirmPassword = isConfirmPasswordVisible.get() ? txtConfirmPasswordVisible.getText() : txtConfirmPassword.getText();
+        return validateField(confirmPassword, lblConfirmPasswordError, "Password confirmation is required.", "Passwords do not match.", pass -> pass.equals(password));
+    }
+
+    // =================================================================================================================
+    // UI Helper Methods
+    // =================================================================================================================
+
+    /**
+     * A generic helper to attach a focus-lost validation listener to a text field.
+     * @param field The text field to listen to.
+     * @param validationLogic The validation method to execute.
+     */
+    private void addValidationListener(Control field, Supplier<Boolean> validationLogic) {
+        field.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) { // When focus is lost
+                validationLogic.get();
             }
         });
     }
 
     /**
-     * Configura los event handlers de botones y labels
+     * A generic helper to configure the visibility toggle for a pair of password fields.
      */
-    private void setupEventHandlers() {
-        if (btnRegister != null) {
-            btnRegister.setOnAction(event -> handleRegister());
-        }
-        if (googleSignupLabel != null) {
-            googleSignupLabel.setOnMouseClicked(event -> handleGoogleSignup());
-        }
-        if (lblAlreadyRegistered != null) {
-            lblAlreadyRegistered.setOnMouseClicked(event -> handleAlreadyRegistered());
+    private void setupPasswordToggle(PasswordField passwordField, TextField visibleField, ImageView toggleIcon, BooleanProperty visibilityFlag) {
+        passwordField.textProperty().bindBidirectional(visibleField.textProperty());
+        updateToggleIcon(toggleIcon, visibilityFlag.get());
+        toggleIcon.setOnMouseClicked(event -> {
+            visibilityFlag.set(!visibilityFlag.get());
+            System.out.println("Toggling password visibility to: " + visibilityFlag.get());
+            visibleField.setVisible(visibilityFlag.get());
+            visibleField.setManaged(visibilityFlag.get());
+            passwordField.setVisible(!visibilityFlag.get());
+            passwordField.setManaged(!visibilityFlag.get());
+            updateToggleIcon(toggleIcon, visibilityFlag.get());
+        });
+    }
+
+    /**
+     * Updates a toggle icon based on the visibility state.
+     */
+    private void updateToggleIcon(ImageView iconView, boolean isVisible) {
+        String iconPath = isVisible
+                ? "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/eye-open.png"
+                : "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/eye-closed.png";
+        try {
+            iconView.setImage(new Image(getClass().getResourceAsStream(iconPath)));
+        } catch (Exception e) {
+            System.err.println("Error loading toggle icon: " + e.getMessage());
         }
     }
 
     /**
-     * Configura las validaciones en tiempo real (al perder el focus)
+     * A generic validation helper that shows or hides an error label based on a predicate.
      */
-    private void setupValidations() {
-        if (txtName != null && lblNameError != null) {
-            txtName.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                if (!newVal) {
-                    validateName();
-                }
-            });
+    private boolean validateField(String text, Label errorLabel, String emptyMessage, String invalidMessage, java.util.function.Predicate<String> validator) {
+        String trimmedText = text.trim();
+        if (trimmedText.isEmpty()) {
+            showFieldError(errorLabel, emptyMessage);
+            return false;
         }
-
-        if (txtLastName != null && lblLastNameError != null) {
-            txtLastName.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                if (!newVal) {
-                    validateLastName();
-                }
-            });
+        if (!validator.test(trimmedText)) {
+            showFieldError(errorLabel, invalidMessage);
+            return false;
         }
-
-        if (txtEmail != null && lblEmailError != null) {
-            txtEmail.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                if (!newVal) {
-                    validateEmail();
-                }
-            });
-        }
-
-        if (txtPhone != null && lblPhoneError != null) {
-            txtPhone.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                if (!newVal) {
-                    validatePhone();
-                }
-            });
-        }
-
-        if (txtPassword != null && lblPasswordError != null) {
-            txtPassword.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                if (!newVal) {
-                    validatePassword();
-                }
-            });
-        }
-
-        if (txtPasswordVisible != null && lblPasswordError != null) {
-            txtPasswordVisible.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                if (!newVal) {
-                    validatePassword();
-                }
-            });
-        }
-
-        if (txtConfirmPassword != null && lblConfirmPasswordError != null) {
-            txtConfirmPassword.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                if (!newVal) {
-                    validateConfirmPassword();
-                }
-            });
-        }
-
-        if (txtConfirmPasswordVisible != null && lblConfirmPasswordError != null) {
-            txtConfirmPasswordVisible.focusedProperty().addListener((obs, oldVal, newVal) -> {
-                if (!newVal) {
-                    validateConfirmPassword();
-                }
-            });
-        }
+        hideFieldError(errorLabel);
+        return true;
     }
 
     /**
-     * Configura los toggles de contraseña con imágenes
+     * Displays a specific field validation error message.
      */
-    private void setupPasswordToggles() {
-        if (txtPassword != null && txtPasswordVisible != null) {
-            txtPassword.textProperty().bindBidirectional(txtPasswordVisible.textProperty());
-        }
-        if (txtConfirmPassword != null && txtConfirmPasswordVisible != null) {
-            txtConfirmPassword.textProperty().bindBidirectional(txtConfirmPasswordVisible.textProperty());
-        }
-
-        updatePasswordToggleIcon();
-        updateConfirmPasswordToggleIcon();
-
-        if (imgTogglePassword != null) {
-            imgTogglePassword.setOnMouseClicked(event -> togglePassword());
-        }
-
-        if (imgToggleConfirmPassword != null) {
-            imgToggleConfirmPassword.setOnMouseClicked(event -> toggleConfirmPassword());
-        }
-    }
-
-    private void updatePasswordToggleIcon() {
-        if (imgTogglePassword != null) {
-            try {
-                String iconPath = isPasswordVisible
-                        ? "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/eye-open.png"
-                        : "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/eye-closed.png";
-
-                Image icon = new Image(getClass().getResourceAsStream(iconPath));
-                imgTogglePassword.setImage(icon);
-            } catch (Exception e) {
-                System.err.println("Error cargando icono del ojo: " + e.getMessage());
-            }
-        }
-    }
-
-    private void updateConfirmPasswordToggleIcon() {
-        if (imgToggleConfirmPassword != null) {
-            try {
-                String iconPath = isConfirmPasswordVisible
-                        ? "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/eye-open.png"
-                        : "/co/edu/uniquindio/poo/proyectofiinal2025_2/Images/eye-closed.png";
-
-                Image icon = new Image(getClass().getResourceAsStream(iconPath));
-                imgToggleConfirmPassword.setImage(icon);
-            } catch (Exception e) {
-                System.err.println("Error cargando icono del ojo: " + e.getMessage());
-            }
-        }
-    }
-
-    private void togglePassword() {
-        isPasswordVisible = !isPasswordVisible;
-
-        if (isPasswordVisible) {
-            txtPasswordVisible.setVisible(true);
-            txtPasswordVisible.setManaged(true);
-            txtPassword.setVisible(false);
-            txtPassword.setManaged(false);
-        } else {
-            txtPassword.setVisible(true);
-            txtPassword.setManaged(true);
-            txtPasswordVisible.setVisible(false);
-            txtPasswordVisible.setManaged(false);
-        }
-
-        updatePasswordToggleIcon();
-    }
-
-    private void toggleConfirmPassword() {
-        isConfirmPasswordVisible = !isConfirmPasswordVisible;
-
-        if (isConfirmPasswordVisible) {
-            txtConfirmPasswordVisible.setVisible(true);
-            txtConfirmPasswordVisible.setManaged(true);
-            txtConfirmPassword.setVisible(false);
-            txtConfirmPassword.setManaged(false);
-        } else {
-            txtConfirmPassword.setVisible(true);
-            txtConfirmPassword.setManaged(true);
-            txtConfirmPasswordVisible.setVisible(false);
-            txtConfirmPasswordVisible.setManaged(false);
-        }
-
-        updateConfirmPasswordToggleIcon();
-    }
-
-    private boolean validateName() {
-        String name = txtName.getText().trim();
-        if (name.isEmpty()) {
-            showFieldError(lblNameError, "El nombre es obligatorio");
-            return false;
-        }
-        if (name.length() < 2) {
-            showFieldError(lblNameError, "El nombre debe tener al menos 2 caracteres");
-            return false;
-        }
-        hideFieldError(lblNameError);
-        return true;
-    }
-
-    private boolean validateLastName() {
-        String lastName = txtLastName.getText().trim();
-        if (lastName.isEmpty()) {
-            showFieldError(lblLastNameError, "El apellido es obligatorio");
-            return false;
-        }
-        if (lastName.length() < 2) {
-            showFieldError(lblLastNameError, "El apellido debe tener al menos 2 caracteres");
-            return false;
-        }
-        hideFieldError(lblLastNameError);
-        return true;
-    }
-
-    private boolean validateEmail() {
-        String email = txtEmail.getText().trim();
-        if (email.isEmpty()) {
-            showFieldError(lblEmailError, "El correo electrónico es obligatorio");
-            return false;
-        }
-        if (!EMAIL_PATTERN.matcher(email).matches()) {
-            showFieldError(lblEmailError, "Formato de correo inválido (ejemplo@dominio.com)");
-            return false;
-        }
-        hideFieldError(lblEmailError);
-        return true;
-    }
-
-    private boolean validatePhone() {
-        String phone = txtPhone.getText().trim();
-        if (phone.isEmpty()) {
-            showFieldError(lblPhoneError, "El teléfono es obligatorio");
-            return false;
-        }
-        if (!PHONE_PATTERN.matcher(phone).matches()) {
-            showFieldError(lblPhoneError, "El teléfono debe tener exactamente 10 dígitos");
-            return false;
-        }
-        hideFieldError(lblPhoneError);
-        return true;
-    }
-
-    private boolean validatePassword() {
-        String password = isPasswordVisible ? txtPasswordVisible.getText() : txtPassword.getText();
-        if (password.isEmpty()) {
-            showFieldError(lblPasswordError, "La contraseña es obligatoria");
-            return false;
-        }
-        if (password.length() < 6) {
-            showFieldError(lblPasswordError, "La contraseña debe tener al menos 6 caracteres");
-            return false;
-        }
-        hideFieldError(lblPasswordError);
-        return true;
-    }
-
-    private boolean validateConfirmPassword() {
-        String password = isPasswordVisible ? txtPasswordVisible.getText() : txtPassword.getText();
-        String confirmPassword = isConfirmPasswordVisible ? txtConfirmPasswordVisible.getText() : txtConfirmPassword.getText();
-
-        if (confirmPassword.isEmpty()) {
-            showFieldError(lblConfirmPasswordError, "Debes confirmar tu contraseña");
-            return false;
-        }
-        if (!password.equals(confirmPassword)) {
-            showFieldError(lblConfirmPasswordError, "Las contraseñas no coinciden");
-            return false;
-        }
-        hideFieldError(lblConfirmPasswordError);
-        return true;
-    }
-
     private void showFieldError(Label errorLabel, String message) {
-        if (errorLabel != null) {
-            errorLabel.setText(message);
-            errorLabel.setVisible(true);
-            errorLabel.setManaged(true);
-
-            autoHideLabel(errorLabel, 5000);
-        }
+        if (errorLabel == null) return;
+        errorLabel.setText(message);
+        errorLabel.setVisible(true);
+        errorLabel.setManaged(true);
     }
 
+    /**
+     * Hides a specific field validation error message.
+     */
     private void hideFieldError(Label errorLabel) {
-        if (errorLabel != null) {
-            errorLabel.setVisible(false);
-            errorLabel.setManaged(false);
-        }
+        if (errorLabel == null) return;
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
     }
 
-    private void handleRegister() {
-        boolean isNameValid = validateName();
-        boolean isLastNameValid = validateLastName();
-        boolean isEmailValid = validateEmail();
-        boolean isPhoneValid = validatePhone();
-        boolean isPasswordValid = validatePassword();
-        boolean isConfirmPasswordValid = validateConfirmPassword();
-
-        if (!isNameValid || !isLastNameValid || !isEmailValid ||
-                !isPhoneValid || !isPasswordValid || !isConfirmPasswordValid) {
-            showError("Por favor, corrige los errores en el formulario");
-            return;
-        }
-
-        PersonCreationData data = new PersonCreationData();
-        data.setId(java.util.UUID.randomUUID().toString()); // ✅ GENERA EL ID AQUÍ
-        data.setName(txtName.getText().trim());
-        data.setLastName(txtLastName.getText().trim());
-        data.setEmail(txtEmail.getText().trim());
-        data.setPhone(txtPhone.getText().trim());
-        data.setPassword(txtPassword.getText());
-
-        boolean success = userService.registerUser(data);
-
-        if (success) {
-            showSuccess("¡Registro exitoso! Ahora puedes iniciar sesión");
-            new Thread(() -> {
-                try {
-                    Thread.sleep(2000);
-                    Platform.runLater(this::closeWindow);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-        } else {
-            showError("Este correo electrónico ya está registrado");
-        }
-    }
-
-    private void handleGoogleSignup() {
-        showError("Registro con Google - Funcionalidad próximamente");
-    }
-
-    private void handleAlreadyRegistered() {
-        System.out.println("Usuario decidió iniciar sesión en lugar de registrarse");
-        closeWindow();
-
-        if (indexController != null) {
-            Platform.runLater(() -> indexController.loadView("Login.fxml"));
-        }
-    }
-
+    /**
+     * Displays a general error message at the bottom of the form.
+     */
     private void showError(String message) {
-        if (lblError != null) {
-            lblError.setText(message);
-            lblError.setVisible(true);
-            lblError.setManaged(true);
-            lblError.setStyle("-fx-text-fill: #ff6b6b;");
-
-            autoHideLabel(lblError, 5000);
-        }
+        showMessage(message, "#ff6b6b"); // Red for error
     }
 
+    /**
+     * Displays a general success message at the bottom of the form.
+     */
     private void showSuccess(String message) {
-        if (lblError != null) {
-            lblError.setText(message);
-            lblError.setVisible(true);
-            lblError.setManaged(true);
-            lblError.setStyle("-fx-text-fill: #51cf66;");
-        }
+        showMessage(message, "#51cf66"); // Green for success
     }
 
-    private void autoHideLabel(Label label, long delayMs) {
-        new Thread(() -> {
-            try {
-                Thread.sleep(delayMs);
-                Platform.runLater(() -> {
-                    if (label != null) {
-                        label.setVisible(false);
-                        label.setManaged(false);
-                    }
-                });
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
+    /**
+     * Displays a message in the main error label with a specific color.
+     */
+    private void showMessage(String message, String color) {
+        if (lblError == null) return;
+        lblError.setText(message);
+        lblError.setStyle("-fx-text-fill: " + color + ";");
+        lblError.setVisible(true);
+        lblError.setManaged(true);
     }
 
+    /**
+     * Closes the current window.
+     */
     private void closeWindow() {
-        if (btnRegister != null && btnRegister.getScene() != null) {
-            Stage stage = (Stage) btnRegister.getScene().getWindow();
-            stage.close();
-        }
+        if (btnRegister == null || btnRegister.getScene() == null || btnRegister.getScene().getWindow() == null) return;
+        Stage stage = (Stage) btnRegister.getScene().getWindow();
+        stage.close();
     }
 }

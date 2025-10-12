@@ -31,10 +31,10 @@
                       AnchorPane.topAnchor="131.0">
 
                     <children>
-                        <Button fx:id="btnDashboard" text="Dashboard" styleClass="sidebar-button"/>
-                        <Button fx:id="btnManageUsers" text="Manage Users" styleClass="sidebar-button"/>
-                        <Button fx:id="btnManageShipments" text="Manage Shipments" styleClass="sidebar-button"/>
-                        <Button fx:id="btnReports" text="Reports" styleClass="sidebar-button"/>
+                        <Button fx:id="btnDashboard" text="Panel de Control" styleClass="sidebar-button"/>
+                        <Button fx:id="btnManageUsers" text="Gestionar Usuarios" styleClass="sidebar-button"/>
+                        <Button fx:id="btnManageShipments" text="Gestionar Envíos" styleClass="sidebar-button"/>
+                        <Button fx:id="btnReports" text="Reportes" styleClass="sidebar-button"/>
                     </children>
                 </VBox>
 

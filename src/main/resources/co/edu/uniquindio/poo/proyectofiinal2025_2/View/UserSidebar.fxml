@@ -32,10 +32,10 @@
                       spacing="5">
 
                     <children>
-                        <Button fx:id="btnLogin" text="INICIAR SESIÓN" styleClass="sidebar-button"/>
-                        <Button fx:id="btnSignup" text="REGISTRARSE" styleClass="sidebar-button"/>
-                        <Button fx:id="btnOrders" text="Órdenes" styleClass="sidebar-button"/>
-                        <Button fx:id="btnProfile" text="Perfil" styleClass="sidebar-button"/>
+                        <Button fx:id="btnLogin" text="Iniciar Sesión" styleClass="sidebar-button"/>
+                        <Button fx:id="btnSignup" text="Registrarse" styleClass="sidebar-button"/>
+                        <Button fx:id="btnOrders" text="Mis Envíos" styleClass="sidebar-button"/>
+                        <Button fx:id="btnProfile" text="Mi Perfil" styleClass="sidebar-button"/>
                         <Button fx:id="btnNewShipment" text="Nuevo Envío" styleClass="sidebar-button"/>
                         <Button fx:id="btnLogout" text="Cerrar Sesión" styleClass="sidebar-button"/>
                     </children>

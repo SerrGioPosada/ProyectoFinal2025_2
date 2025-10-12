@@ -4,6 +4,7 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Admin;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.AuthenticablePerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Person;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.AdminRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
@@ -56,6 +57,7 @@ public class AuthenticationService {
      */
     public void logout() {
         this.currentPerson = null;
+        System.out.println("User logged out successfully");
     }
 
     /**
@@ -68,6 +70,16 @@ public class AuthenticationService {
     }
 
     /**
+     * Returns the authenticated user as an AuthenticablePerson.
+     * This is useful for accessing common authentication properties.
+     *
+     * @return The authenticated person, or null if not logged in.
+     */
+    public AuthenticablePerson getAuthenticatedUser() {
+        return (AuthenticablePerson) currentPerson;
+    }
+
+    /**
      * Manually sets the authenticated person for the current session.
      * This is useful for external authentication flows like OAuth (e.g., Google Sign-In)
      * where the authentication is verified externally.
@@ -76,6 +88,8 @@ public class AuthenticationService {
      */
     public void setAuthenticatedUser(Person person) {
         this.currentPerson = person;
+        System.out.println("Authenticated user set: " +
+                (person instanceof AuthenticablePerson ? ((AuthenticablePerson) person).getEmail() : "Unknown"));
     }
 
     /**
@@ -101,6 +115,15 @@ public class AuthenticationService {
     }
 
     /**
+     * Checks if the currently logged-in person is a regular user.
+     *
+     * @return true if the current person is an instance of User, false otherwise.
+     */
+    public boolean isCurrentPersonUser() {
+        return currentPerson instanceof User;
+    }
+
+    /**
      * Checks if the currently logged-in person is a delivery person.
      *
      * @return true if the current person is an instance of DeliveryPerson, false otherwise.
@@ -110,39 +133,96 @@ public class AuthenticationService {
     }
 
     // ===========================
-    // Person Management & Authentication
+    // Authentication
     // ===========================
 
     /**
      * Attempts to log in a person with the given credentials using secure password checking.
-     * <p>It checks for a match in the Admin, User, and DeliveryPerson repositories.</p>
+     * <p>It checks for a match in the Admin, User, and DeliveryPerson repositories.
+     * For Users, it also verifies that the account is active (not disabled).</p>
      *
      * @param email             The email address to check.
      * @param plainTextPassword The plain text password to verify against the stored hash.
      * @return true if login is successful, false otherwise.
      */
     public boolean login(String email, String plainTextPassword) {
-        return tryAuthenticate(() -> adminRepository.findByEmail(email), plainTextPassword) ||
-                tryAuthenticate(() -> userRepository.findByEmail(email), plainTextPassword) ||
-                tryAuthenticate(() -> deliveryPersonRepository.findDeliveryPersonByEmail(email), plainTextPassword);
+        System.out.println("Attempting login for: " + email);
+
+        // Try Admin login first (admins don't have isActive check)
+        if (tryAuthenticateAdmin(email, plainTextPassword)) {
+            return true;
+        }
+
+        // Try User login (with isActive verification)
+        if (tryAuthenticateUser(email, plainTextPassword)) {
+            return true;
+        }
+
+        // Try DeliveryPerson login
+        if (tryAuthenticateDeliveryPerson(email, plainTextPassword)) {
+            return true;
+        }
+
+        System.out.println("Login failed for: " + email);
+        return false;
     }
 
     /**
-     * A generic helper method to authenticate a person from an Optional.
-     *
-     * @param supplier         The Optional containing the person to authenticate.
-     * @param plainTextPassword The plain text password to verify.
-     * @param <T>               A type that extends AuthenticablePerson.
-     * @return true if authentication is successful, false otherwise.
+     * Attempts to authenticate as an Admin.
      */
-    private <T extends AuthenticablePerson> boolean tryAuthenticate(java.util.function.Supplier<Optional<T>> supplier, String plainTextPassword) {
-        Optional<T> personOpt = supplier.get();
-        if (personOpt.isPresent()) {
-            T person = personOpt.get();
-            if (PasswordUtility.checkPassword(plainTextPassword, person.getPassword())) {
-                this.currentPerson = (Person) person;
+    private boolean tryAuthenticateAdmin(String email, String plainTextPassword) {
+        Optional<Admin> adminOpt = adminRepository.findByEmail(email);
+        if (adminOpt.isPresent()) {
+            Admin admin = adminOpt.get();
+            if (PasswordUtility.checkPassword(plainTextPassword, admin.getPassword())) {
+                this.currentPerson = admin;
+                System.out.println("✅ Admin logged in successfully: " + email);
                 return true;
             }
+            System.out.println("❌ Invalid password for admin: " + email);
+        }
+        return false;
+    }
+
+    /**
+     * Attempts to authenticate as a User.
+     * ✅ Verifies that the user account is active before allowing login.
+     */
+    private boolean tryAuthenticateUser(String email, String plainTextPassword) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+
+            // ✅ Check if account is active
+            if (!user.isActive()) {
+                System.out.println("❌ Login failed: User account is disabled - " + email);
+                return false;
+            }
+
+            // Check password
+            if (PasswordUtility.checkPassword(plainTextPassword, user.getPassword())) {
+                this.currentPerson = user;
+                System.out.println("✅ User logged in successfully: " + email);
+                return true;
+            }
+            System.out.println("❌ Invalid password for user: " + email);
+        }
+        return false;
+    }
+
+    /**
+     * Attempts to authenticate as a DeliveryPerson.
+     */
+    private boolean tryAuthenticateDeliveryPerson(String email, String plainTextPassword) {
+        Optional<DeliveryPerson> deliveryOpt = deliveryPersonRepository.findDeliveryPersonByEmail(email);
+        if (deliveryOpt.isPresent()) {
+            DeliveryPerson deliveryPerson = deliveryOpt.get();
+            if (PasswordUtility.checkPassword(plainTextPassword, deliveryPerson.getPassword())) {
+                this.currentPerson = deliveryPerson;
+                System.out.println("✅ Delivery person logged in successfully: " + email);
+                return true;
+            }
+            System.out.println("❌ Invalid password for delivery person: " + email);
         }
         return false;
     }
