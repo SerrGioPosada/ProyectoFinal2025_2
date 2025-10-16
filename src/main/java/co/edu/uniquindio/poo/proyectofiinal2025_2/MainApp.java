@@ -27,7 +27,7 @@ public class MainApp extends Application {
         AdminSeeder.seedDefaultAdmin();
 
         System.out.println("\n╔════════════════════════════════════════╗");
-        System.out.println("║      Cargando Interfaz Gráfica!        ║");
+        System.out.println("║      ¡Cargando Interfaz Gráfica!        ║");
         System.out.println("╚════════════════════════════════════════╝\n");
 
         // ===========================================
