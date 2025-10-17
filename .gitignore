@@ -45,3 +45,9 @@ build/
 .idea/copilot.data.migration.agent.xml
 /.idea
 .idea/copilot.data.migration.ask.xml
+
+### Claude Code ###
+CLAUDE.md
+
+### Data Files ###
+data/
