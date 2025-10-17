@@ -1,6 +1,7 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.AuthenticationService;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -76,11 +77,11 @@ public class IndexController implements Initializable {
      * @param fxmlName The FXML filename to load (e.g., "Login.fxml").
      */
     public void loadView(String fxmlName) {
-        System.out.println("Loading view: " + fxmlName);
+        Logger.info("Loading view: " + fxmlName);
         try {
             URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/" + fxmlName);
             if (fxmlUrl == null) {
-                System.err.println("Cannot find FXML resource: " + fxmlName + ". Showing placeholder.");
+                Logger.error("Cannot find FXML resource: " + fxmlName + ". Showing placeholder.");
                 showPlaceholder(fxmlName.replace(".fxml", ""));
                 return;
             }
@@ -95,8 +96,7 @@ public class IndexController implements Initializable {
             paneIndex.getChildren().setAll(view);
 
         } catch (IOException e) {
-            System.err.println("Failed to load view FXML: " + fxmlName);
-            e.printStackTrace();
+            Logger.error("Failed to load view FXML: " + fxmlName, e);
         }
     }
 
@@ -124,7 +124,7 @@ public class IndexController implements Initializable {
         try {
             URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/Signup.fxml");
             if (fxmlUrl == null) {
-                System.err.println("Cannot find FXML file: Signup.fxml");
+                Logger.error("Cannot find FXML file: Signup.fxml");
                 return;
             }
 
@@ -147,8 +147,7 @@ public class IndexController implements Initializable {
             stage.showAndWait();
 
         } catch (IOException e) {
-            System.err.println("Failed to load Signup window.");
-            e.printStackTrace();
+            Logger.error("Failed to load Signup window.", e);
         }
     }
 
@@ -187,7 +186,7 @@ public class IndexController implements Initializable {
      */
     private void setupTopBarEventHandlers() {
         exit.setOnMouseClicked(event -> {
-            System.out.println("Exit clicked, closing app.");
+            Logger.info("Exit clicked, closing app.");
             System.exit(0);
         });
 
@@ -211,11 +210,11 @@ public class IndexController implements Initializable {
      */
     private void loadSidebar() {
         String fxmlFile = authService.isCurrentPersonAdmin() ? "AdminSidebar.fxml" : "UserSidebar.fxml";
-        System.out.println("Loading sidebar: " + fxmlFile);
+        Logger.info("Loading sidebar: " + fxmlFile);
         try {
             URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/" + fxmlFile);
             if (fxmlUrl == null) {
-                System.err.println("Cannot find sidebar FXML: " + fxmlFile);
+                Logger.error("Cannot find sidebar FXML: " + fxmlFile);
                 return;
             }
 
@@ -229,8 +228,7 @@ public class IndexController implements Initializable {
             rootPane.setLeft(sidebar);
 
         } catch (IOException e) {
-            System.err.println("Failed to load sidebar FXML.");
-            e.printStackTrace();
+            Logger.error("Failed to load sidebar FXML.", e);
         }
     }
 

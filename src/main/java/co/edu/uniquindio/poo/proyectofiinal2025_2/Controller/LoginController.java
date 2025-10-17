@@ -6,6 +6,7 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.AuthenticationService;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.GoogleOAuthService;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.StringUtil;
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
@@ -122,7 +123,7 @@ public class LoginController {
         String password = isPasswordVisible ? txtPasswordVisible.getText() : txtPassword.getText();
         System.out.println("Attempting traditional login for email: " + email);
 
-        if (email.isEmpty() || password.isEmpty()) {
+        if (StringUtil.isNullOrEmpty(email) || StringUtil.isNullOrEmpty(password)) {
             showError("Email and password cannot be empty.");
             return;
         }

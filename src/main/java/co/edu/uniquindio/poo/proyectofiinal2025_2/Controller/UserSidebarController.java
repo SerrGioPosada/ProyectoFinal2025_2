@@ -1,5 +1,6 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
@@ -55,7 +56,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void handleLogin() {
         if (indexController == null) {
-            System.err.println("Cannot load login view: IndexController is null.");
+            Logger.error("Cannot load login view: IndexController is null.");
             return;
         }
         indexController.loadView("Login.fxml");
@@ -66,7 +67,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void handleSignup() {
         if (indexController == null) {
-            System.err.println("Cannot open signup window: IndexController is null.");
+            Logger.error("Cannot open signup window: IndexController is null.");
             return;
         }
         indexController.openSignupWindow();
@@ -76,7 +77,7 @@ public class UserSidebarController extends BaseSidebarController {
      * Handles the Profile button click.
      */
     private void handleProfile() {
-        System.out.println("Profile button clicked.");
+        Logger.info("Profile button clicked.");
         indexController.loadView("ProfileView.fxml");
     }
 
@@ -84,7 +85,7 @@ public class UserSidebarController extends BaseSidebarController {
      * Handles the New Shipment button click.
      */
     private void handleNewShipment() {
-        System.out.println("New Shipment button clicked.");
+        Logger.info("New Shipment button clicked.");
         indexController.loadView("CreateShipment.fxml");
     }
 
@@ -92,7 +93,7 @@ public class UserSidebarController extends BaseSidebarController {
      * Handles the Orders button click.
      */
     private void handleOrders() {
-        System.out.println("Orders button clicked.");
+        Logger.info("Orders button clicked.");
         indexController.loadView("MyShipments.fxml");
     }
 
@@ -116,7 +117,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void updateButtonVisibility() {
         boolean isLoggedIn = authService.isPersonLoggedIn();
-        System.out.println("Updating button visibility. User is logged in: " + isLoggedIn);
+        Logger.info("Updating button visibility. User is logged in: " + isLoggedIn);
 
         // Buttons visible when logged OUT
         setButtonVisibility(btnLogin, !isLoggedIn);

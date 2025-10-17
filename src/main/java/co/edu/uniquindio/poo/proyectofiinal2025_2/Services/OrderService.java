@@ -6,9 +6,9 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.OrderStatus;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.OrderRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.ShipmentRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * <p>Orchestrates the entire order management process, acting as the central service for the Order aggregate.</p>
@@ -45,7 +45,7 @@ public class OrderService {
 
         // 1. Create the Order in its initial state using the manual builder
         Order newOrder = new Order.Builder()
-                .withId(UUID.randomUUID().toString())
+                .withId(IdGenerationUtil.generateId())
                 .withUserId(userId)
                 .withOrigin(origin)
                 .withDestination(destination)

@@ -2,9 +2,10 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.ValidationService;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController.FXUtil;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController.MessageUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.ValidationUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -13,7 +14,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -161,7 +161,7 @@ public class SignupController {
         }
 
         PersonCreationData data = new PersonCreationData.Builder()
-                .withId(UUID.randomUUID().toString())
+                .withId(IdGenerationUtil.generateId())
                 .withName(txtName.getText().trim())
                 .withLastName(txtLastName.getText().trim())
                 .withEmail(txtEmail.getText().trim())
@@ -232,30 +232,30 @@ public class SignupController {
     }
 
     private boolean validateName() {
-        return validateField(txtName.getText(), lblNameError, "Name is required.", "Name must be at least 2 characters.", ValidationService::isValidName);
+        return validateField(txtName.getText(), lblNameError, "Name is required.", "Name must be at least 2 characters.", ValidationUtil::isValidName);
     }
 
     private boolean validateLastName() {
-        return validateField(txtLastName.getText(), lblLastNameError, "Last name is required.", "Last name must be at least 2 characters.", ValidationService::isValidName);
+        return validateField(txtLastName.getText(), lblLastNameError, "Last name is required.", "Last name must be at least 2 characters.", ValidationUtil::isValidName);
     }
 
     private boolean validateEmail() {
-        return validateField(txtEmail.getText(), lblEmailError, "Email is required.", "Invalid email format.", ValidationService::isValidEmail);
+        return validateField(txtEmail.getText(), lblEmailError, "Email is required.", "Invalid email format.", ValidationUtil::isValidEmail);
     }
 
     private boolean validatePhone() {
-        return validateField(txtPhone.getText(), lblPhoneError, "Phone number is required.", "Phone number must be 10 digits.", ValidationService::isValidPhone);
+        return validateField(txtPhone.getText(), lblPhoneError, "Phone number is required.", "Phone number must be 10 digits.", ValidationUtil::isValidPhone);
     }
 
     private boolean validatePassword() {
         String password = isPasswordVisible.get() ? txtPasswordVisible.getText() : txtPassword.getText();
-        return validateField(password, lblPasswordError, "Password is required.", "Password must be at least 6 characters.", ValidationService::isValidPassword);
+        return validateField(password, lblPasswordError, "Password is required.", "Password must be at least 6 characters.", ValidationUtil::isValidPassword);
     }
 
     private boolean validateConfirmPassword() {
         String password = isPasswordVisible.get() ? txtPasswordVisible.getText() : txtPassword.getText();
         String confirmPassword = isConfirmPasswordVisible.get() ? txtConfirmPasswordVisible.getText() : txtConfirmPassword.getText();
-        return validateField(confirmPassword, lblConfirmPasswordError, "Password confirmation is required.", "Passwords do not match.", value -> ValidationService.passwordsMatch(password, value));
+        return validateField(confirmPassword, lblConfirmPasswordError, "Password confirmation is required.", "Passwords do not match.", value -> ValidationUtil.passwordsMatch(password, value));
     }
 
     // =================================================================================================================

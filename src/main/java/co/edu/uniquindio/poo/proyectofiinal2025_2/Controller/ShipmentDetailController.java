@@ -9,6 +9,5 @@ public class ShipmentDetailController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // TODO: Implement controller logic
     }
 }

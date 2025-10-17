@@ -4,9 +4,9 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.ShipmentStatus;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Shipment;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.ShipmentRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * <p>Manages the business logic related to shipments.</p>
@@ -36,7 +36,7 @@ public class ShipmentService {
      */
     public String createShipmentForOrder(Order order) {
         Shipment newShipment = new Shipment.Builder()
-                .withId(UUID.randomUUID().toString())
+                .withId(IdGenerationUtil.generateId())
                 .withOrderId(order.getId())
                 .withOrigin(order.getOrigin())
                 .withDestination(order.getDestination())

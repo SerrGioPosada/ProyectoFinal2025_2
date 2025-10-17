@@ -1,6 +1,6 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2;
 
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.AdminSeeder;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Seeder.AdminSeeder;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

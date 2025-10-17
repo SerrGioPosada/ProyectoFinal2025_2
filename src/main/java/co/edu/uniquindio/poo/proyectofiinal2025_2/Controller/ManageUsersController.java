@@ -3,6 +3,8 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController.DialogUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.StringUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -104,7 +106,7 @@ public class ManageUsersController {
      * @param indexController The main {@link IndexController} instance.
      */
     public void setIndexController(IndexController indexController) {
-        System.out.println("IndexController has been set in ManageUsersController.");
+        Logger.info("IndexController has been set in ManageUsersController.");
         this.indexController = indexController;
     }
 
@@ -120,7 +122,7 @@ public class ManageUsersController {
      * </p>
      */
     public void refreshUsers() {
-        System.out.println("Refreshing user data...");
+        Logger.info("Refreshing user data...");
         loadUsers();
         updateStatistics();
     }
@@ -135,7 +137,7 @@ public class ManageUsersController {
     @FXML
     private void handleAddUser() {
         if (indexController == null) {
-            System.err.println("Cannot load signup view: IndexController is null.");
+            Logger.error("Cannot load signup view: IndexController is null.");
             return;
         }
         indexController.loadView("Signup.fxml");
@@ -152,7 +154,7 @@ public class ManageUsersController {
         UserSummaryDTO selected = tableUsers.getSelectionModel().getSelectedItem();
         if (selected == null) return;
 
-        System.out.println("View Orders button clicked for user: " + selected.getFullName());
+        Logger.info("View Orders button clicked for user: " + selected.getFullName());
         DialogUtil.showInfo("Función en Desarrollo", "El historial de pedidos para " + selected.getFullName() + " estará disponible pronto.");
     }
 
@@ -167,7 +169,7 @@ public class ManageUsersController {
         UserSummaryDTO selected = tableUsers.getSelectionModel().getSelectedItem();
         if (selected == null) return;
 
-        System.out.println("View Addresses button clicked for user: " + selected.getFullName());
+        Logger.info("View Addresses button clicked for user: " + selected.getFullName());
         DialogUtil.showInfo("Función en Desarrollo", "La libreta de direcciones para " + selected.getFullName() + " estará disponible pronto.");
     }
 
@@ -304,9 +306,9 @@ public class ManageUsersController {
      * </p>
      */
     private void loadUsers() {
-        System.out.println("Loading users from UserService...");
+        Logger.info("Loading users from UserService...");
         java.util.List<UserSummaryDTO> summaryList = userService.getAllUsersSummary();
-        System.out.println("Loaded " + summaryList.size() + " users.");
+        Logger.info("Loaded " + summaryList.size() + " users.");
 
         if (usersList == null) {
             usersList = FXCollections.observableArrayList(summaryList);
@@ -323,7 +325,7 @@ public class ManageUsersController {
     private void setupSearchFilter() {
         txtSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredUsers.setPredicate(user -> {
-                if (newValue == null || newValue.isEmpty()) return true;
+                if (StringUtil.isNullOrEmpty(newValue)) return true;
                 String filter = newValue.toLowerCase();
                 return user.getName().toLowerCase().contains(filter) ||
                         user.getLastName().toLowerCase().contains(filter) ||

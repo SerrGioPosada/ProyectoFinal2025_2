@@ -1,6 +1,7 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.StringUtil;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
@@ -150,7 +151,7 @@ public class GoogleOAuthService {
             sendResponseToUser(socket, code != null);
             socket.close();
 
-            if (code == null || code.isEmpty()) {
+            if (StringUtil.isNullOrEmpty(code)) {
                 throw new IOException("No authorization code received");
             }
 

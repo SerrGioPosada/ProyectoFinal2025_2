@@ -1,14 +1,14 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Shipment;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Adapter.LocalDateTimeAdapter;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilRepository.GsonProvider;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilRepository.JsonFileHandler;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilRepository.RepositoryPaths;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.*;
 import java.lang.reflect.Type;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,11 +22,7 @@ import java.util.Optional;
 public class ShipmentRepository {
 
     // --- Attributes for Persistence ---
-    private static final String FILE_PATH = "data/shipments.json";
-    private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-            .create();
-
+    private final Gson gson = GsonProvider.createGson();
     private static ShipmentRepository instance;
     private final Map<String, Shipment> shipmentsById;
 
@@ -58,33 +54,28 @@ public class ShipmentRepository {
      * Saves the current list of shipments to the shipments.json file.
      */
     private void saveToFile() {
-        try (Writer writer = new FileWriter(FILE_PATH)) {
-            gson.toJson(shipmentsById.values(), writer);
-        } catch (IOException e) {
-            System.err.println("Error saving shipments to file: " + e.getMessage());
-            e.printStackTrace();
-        }
+        List<Shipment> shipmentList = new ArrayList<>(shipmentsById.values());
+        JsonFileHandler.saveToFile(RepositoryPaths.SHIPMENTS_PATH, shipmentList, gson);
     }
 
     /**
      * Loads the list of shipments from the shipments.json file when the application starts.
      */
     private void loadFromFile() {
-        File file = new File(FILE_PATH);
-        if (file.exists() && file.length() > 0) {
-            try (Reader reader = new FileReader(file)) {
-                Type listType = new TypeToken<ArrayList<Shipment>>() {}.getType();
-                List<Shipment> loadedShipments = gson.fromJson(reader, listType);
-                if (loadedShipments != null) {
-                    for (Shipment shipment : loadedShipments) {
-                        shipmentsById.put(shipment.getId(), shipment);
-                    }
-                }
-            } catch (IOException e) {
-                System.err.println("Error loading shipments from file: " + e.getMessage());
-                e.printStackTrace();
+        Type listType = new TypeToken<ArrayList<Shipment>>() {}.getType();
+        Optional<List<Shipment>> loadedShipments = JsonFileHandler.loadFromFile(
+                RepositoryPaths.SHIPMENTS_PATH,
+                listType,
+                gson
+        );
+
+        loadedShipments.ifPresent(shipments -> {
+            Logger.info("Loading " + shipments.size() + " shipments from file...");
+            for (Shipment shipment : shipments) {
+                shipmentsById.put(shipment.getId(), shipment);
             }
-        }
+            Logger.info("Successfully loaded " + shipmentsById.size() + " shipments");
+        });
     }
 
     // ======================

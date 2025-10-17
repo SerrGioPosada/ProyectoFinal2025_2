@@ -6,12 +6,14 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.UserSummaryDTO;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.CollectionUtil;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.PasswordUtility;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.StringUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -62,8 +64,8 @@ public class UserService {
                 return false;
             }
 
-            if (data.getId() == null || data.getId().trim().isEmpty()) {
-                data.setId(UUID.randomUUID().toString());
+            if (StringUtil.isNullOrEmpty(data.getId())) {
+                data.setId(IdGenerationUtil.generateId());
                 Logger.debug("Generated new ID in service: " + data.getId());
             }
 
@@ -74,13 +76,13 @@ public class UserService {
                 return false;
             }
 
-            if (newUser.getId() == null || newUser.getId().trim().isEmpty()) {
-                String generatedId = UUID.randomUUID().toString();
+            if (StringUtil.isNullOrEmpty(newUser.getId())) {
+                String generatedId = IdGenerationUtil.generateId();
                 newUser.setId(generatedId);
                 Logger.debug("Generated new ID for user: " + generatedId);
             }
 
-            if (newUser.getEmail() == null || newUser.getEmail().trim().isEmpty()) {
+            if (StringUtil.isNullOrEmpty(newUser.getEmail())) {
                 Logger.error("User email is null or empty after factory creation");
                 return false;
             }
@@ -116,7 +118,7 @@ public class UserService {
             }
 
             PersonCreationData data = new PersonCreationData();
-            data.setId(UUID.randomUUID().toString());
+            data.setId(IdGenerationUtil.generateId());
             data.setName(name);
             data.setEmail(email);
             data.setPassword("oauth_google_user_" + System.currentTimeMillis());
@@ -170,12 +172,12 @@ public class UserService {
     private UserSummaryDTO convertToSummaryDTO(User user) {
         return new UserSummaryDTO(
                 user.getId(),
-                user.getName() != null ? user.getName() : "",
-                user.getLastName() != null ? user.getLastName() : "",
-                user.getEmail() != null ? user.getEmail() : "",
-                user.getPhone() != null ? user.getPhone() : "",
-                user.getOrders() != null ? user.getOrders().size() : 0,
-                user.getFrequentAddresses() != null ? user.getFrequentAddresses().size() : 0,
+                StringUtil.defaultIfNull(user.getName(), ""),
+                StringUtil.defaultIfNull(user.getLastName(), ""),
+                StringUtil.defaultIfNull(user.getEmail(), ""),
+                StringUtil.defaultIfNull(user.getPhone(), ""),
+                CollectionUtil.safeSize(user.getOrders()),
+                CollectionUtil.safeSize(user.getFrequentAddresses()),
                 user.getProfileImagePath(),
                 user.isActive()
         );

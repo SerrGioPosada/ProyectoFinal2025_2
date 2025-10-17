@@ -1,6 +1,7 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController.NavigationUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
@@ -92,7 +93,7 @@ public class AdminSidebarController extends BaseSidebarController {
         if (button != null) {
             button.setOnAction(event -> NavigationUtil.navigate(indexController, viewName, getClass()));
         } else {
-            System.err.println("[AdminSidebarController] Warning: Tried to bind navigation to a null button for view: " + viewName);
+            Logger.warn("[AdminSidebarController] Warning: Tried to bind navigation to a null button for view: " + viewName);
         }
     }
 }

@@ -6,9 +6,9 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.PaymentMethod;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PaymentStatus;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.InvoiceRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.PaymentRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * <p>Provides business logic services related to payment processing.</p>
@@ -49,7 +49,7 @@ public class PaymentService {
         boolean paymentSuccessful = true;
 
         Payment newPayment = new Payment.Builder()
-                .withId(UUID.randomUUID().toString())
+                .withId(IdGenerationUtil.generateId())
                 .withInvoiceId(invoiceId)
                 .withAmount(invoice.getTotalAmount())
                 .withDate(LocalDateTime.now())

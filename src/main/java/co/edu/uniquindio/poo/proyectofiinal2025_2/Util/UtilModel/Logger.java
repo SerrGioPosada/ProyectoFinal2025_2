@@ -37,6 +37,16 @@ public class Logger {
     }
 
     /**
+     * Logs a warning message (alias for warn).
+     * Use this for potentially harmful situations that are not errors.
+     *
+     * @param message The warning message to log.
+     */
+    public static void warning(String message) {
+        warn(message);
+    }
+
+    /**
      * Logs an error message.
      * Use this for error events that might still allow the application to continue running.
      *

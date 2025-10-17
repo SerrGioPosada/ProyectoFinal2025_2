@@ -6,11 +6,11 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Tariff;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.InvoiceRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.TariffRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * <p>Provides business logic services related to invoice creation and management.</p>
@@ -69,9 +69,9 @@ public class InvoiceService {
 
         // Create the immutable invoice object using the manual builder
         Invoice newInvoice = new Invoice.Builder()
-                .withId(UUID.randomUUID().toString())
+                .withId(IdGenerationUtil.generateId())
                 .withOrderId(order.getId())
-                .withInvoiceNumber("INV-" + System.currentTimeMillis()) // Simple unique invoice number
+                .withInvoiceNumber(IdGenerationUtil.generateInvoiceNumber())
                 .withIssuedAt(LocalDateTime.now())
                 .withTotalAmount(totalAmount)
                 .withLineItems(lineItems)

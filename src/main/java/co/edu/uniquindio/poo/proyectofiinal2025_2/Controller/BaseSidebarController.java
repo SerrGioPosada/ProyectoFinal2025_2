@@ -7,6 +7,8 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController.AnimationU
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController.ImageUtil;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController.NavigationUtil;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.StringUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.image.Image;
@@ -179,7 +181,7 @@ public abstract class BaseSidebarController implements Initializable {
         }
 
         String path = authPerson.getProfileImagePath();
-        if (path == null || path.isEmpty()) return defaultProfileImage;
+        if (StringUtil.isNullOrEmpty(path)) return defaultProfileImage;
 
         Image img = ImageUtil.safeLoad(path);
         return (img != null) ? img : defaultProfileImage;
@@ -195,7 +197,7 @@ public abstract class BaseSidebarController implements Initializable {
      * @param msg The message to be printed to the standard output.
      */
     protected void log(String msg) {
-        System.out.println("[BaseSidebar] " + msg);
+        Logger.info("[BaseSidebar] " + msg);
     }
 
     /**
@@ -204,6 +206,6 @@ public abstract class BaseSidebarController implements Initializable {
      * @param msg The error message to print.
      */
     protected void logError(String msg) {
-        System.err.println("[BaseSidebar:ERROR] " + msg);
+        Logger.error("[BaseSidebar:ERROR] " + msg);
     }
 }
