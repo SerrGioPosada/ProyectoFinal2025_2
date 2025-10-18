@@ -25,10 +25,20 @@ public class DeliveryPersonService {
     private final DeliveryPersonRepository deliveryPersonRepository;
 
     /**
+     * Package-private constructor for testing and dependency injection.
+     *
+     * @param deliveryPersonRepository The DeliveryPersonRepository instance to use.
+     */
+    DeliveryPersonService(DeliveryPersonRepository deliveryPersonRepository) {
+        this.deliveryPersonRepository = deliveryPersonRepository;
+    }
+
+    /**
      * Private constructor to enforce Singleton pattern.
+     * Delegates to the dependency injection constructor.
      */
     private DeliveryPersonService() {
-        this.deliveryPersonRepository = DeliveryPersonRepository.getInstance();
+        this(DeliveryPersonRepository.getInstance());
     }
 
     /**
@@ -41,6 +51,15 @@ public class DeliveryPersonService {
             instance = new DeliveryPersonService();
         }
         return instance;
+    }
+
+    /**
+     * Allows setting a custom instance for testing purposes.
+     *
+     * @param customInstance The custom DeliveryPersonService instance.
+     */
+    static void setInstance(DeliveryPersonService customInstance) {
+        instance = customInstance;
     }
 
     /**

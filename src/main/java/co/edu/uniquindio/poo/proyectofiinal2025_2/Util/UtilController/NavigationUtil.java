@@ -1,6 +1,7 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.IndexController;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 
 public class NavigationUtil {
 
@@ -13,15 +14,15 @@ public class NavigationUtil {
      */
     public static void navigate(IndexController indexController, String viewName, Class<?> context) {
         if (indexController == null) {
-            System.err.println("Cannot load view '" + viewName + "': IndexController is null. (" + context.getSimpleName() + ")");
+            Logger.error("Cannot load view '" + viewName + "': IndexController is null. (" + context.getSimpleName() + ")");
             return;
         }
 
         try {
-            System.out.println("Navigating to view: " + viewName + " [" + context.getSimpleName() + "]");
+            Logger.info("Navigating to view: " + viewName + " [" + context.getSimpleName() + "]");
             indexController.loadView(viewName);
         } catch (Exception e) {
-            System.err.println("Error loading view '" + viewName + "': " + e.getMessage());
+            Logger.error("Error loading view '" + viewName + "': " + e.getMessage(), e);
         }
     }
 }

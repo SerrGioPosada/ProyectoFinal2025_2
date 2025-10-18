@@ -121,8 +121,7 @@ public class GoogleOAuthService {
             Desktop.getDesktop().browse(URI.create(url));
             Logger.info("Browser opened for authentication");
         } else {
-            Logger.warn("Desktop not supported. Please open this URL in your browser:");
-            System.out.println(url);
+            Logger.warn("Desktop not supported. Please open this URL in your browser: " + url);
         }
     }
 

@@ -1,5 +1,6 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController;
 
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Circle;
@@ -24,7 +25,7 @@ public class ImageUtil {
             Image image = new Image(stream);
             return image.isError() ? null : image;
         } catch (Exception e) {
-            System.err.println("[ImageUtil:ERROR] Failed to load image: " + e.getMessage());
+            Logger.error("[ImageUtil] Failed to load image: " + e.getMessage(), e);
             return null;
         }
     }
@@ -37,7 +38,7 @@ public class ImageUtil {
      */
     public static Image loadDefaultImage(String path) {
         Image img = safeLoad(path);
-        if (img == null) System.err.println("[ImageUtil] Default image not found at " + path);
+        if (img == null) Logger.warn("[ImageUtil] Default image not found at " + path);
         return img;
     }
 

@@ -21,10 +21,27 @@ public class OrderService {
     private final InvoiceService invoiceService;
     private final ShipmentService shipmentService;
 
+    /**
+     * Constructor with dependency injection for repositories and services.
+     *
+     * @param orderRepository The OrderRepository instance.
+     * @param invoiceService The InvoiceService instance.
+     * @param shipmentService The ShipmentService instance.
+     */
+    public OrderService(OrderRepository orderRepository, InvoiceService invoiceService,
+                       ShipmentService shipmentService) {
+        this.orderRepository = orderRepository;
+        this.invoiceService = invoiceService;
+        this.shipmentService = shipmentService;
+    }
+
+    /**
+     * Default constructor that uses singleton instances.
+     * This provides backward compatibility and ease of use.
+     */
     public OrderService() {
-        this.orderRepository = OrderRepository.getInstance();
-        this.invoiceService = new InvoiceService();
-        this.shipmentService = new ShipmentService(ShipmentRepository.getInstance());
+        this(OrderRepository.getInstance(), new InvoiceService(),
+             new ShipmentService(ShipmentRepository.getInstance()));
     }
 
     // ===========================

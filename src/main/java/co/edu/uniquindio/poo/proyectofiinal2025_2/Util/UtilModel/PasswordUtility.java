@@ -33,7 +33,7 @@ public final class PasswordUtility {
      * @return A salted and hashed password string ready for storage.
      */
     public static String hashPassword(String plainTextPassword) {
-        System.out.println("Hashing a new password...");
+        Logger.debug("Hashing a new password...");
         return BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
     }
 
@@ -45,13 +45,13 @@ public final class PasswordUtility {
      * @return {@code true} if the password matches the hash, {@code false} otherwise.
      */
     public static boolean checkPassword(String plainTextPassword, String hashedPassword) {
-        System.out.println("Verifying password...");
+        Logger.debug("Verifying password...");
         if (plainTextPassword == null || hashedPassword == null) {
-            System.err.println("Password check failed: plain text or hashed password is null.");
+            Logger.error("Password check failed: plain text or hashed password is null.");
             return false;
         }
         boolean match = BCrypt.checkpw(plainTextPassword, hashedPassword);
-        System.out.println("Password verification result: " + (match ? "SUCCESS" : "FAILURE"));
+        Logger.debug("Password verification result: " + (match ? "SUCCESS" : "FAILURE"));
         return match;
     }
 }

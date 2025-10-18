@@ -2,6 +2,7 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.AuthenticablePerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Person;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
@@ -130,7 +131,7 @@ public final class DialogUtil {
             );
             return (defaultStream != null) ? new Image(defaultStream, width, height, true, true) : null;
         } catch (Exception e) {
-            System.err.println("[DialogUtil] Failed to load user image: " + e.getMessage());
+            Logger.error("[DialogUtil] Failed to load user image: " + e.getMessage(), e);
             return null;
         }
     }

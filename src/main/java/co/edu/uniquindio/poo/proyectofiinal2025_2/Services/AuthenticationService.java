@@ -27,12 +27,27 @@ public class AuthenticationService {
     private Person currentPerson;
 
     /**
+     * Package-private constructor for testing and dependency injection.
+     * Allows injecting custom repository implementations.
+     *
+     * @param adminRepository The AdminRepository instance to use.
+     * @param userRepository The UserRepository instance to use.
+     * @param deliveryPersonRepository The DeliveryPersonRepository instance to use.
+     */
+    AuthenticationService(AdminRepository adminRepository, UserRepository userRepository,
+                          DeliveryPersonRepository deliveryPersonRepository) {
+        this.adminRepository = adminRepository;
+        this.userRepository = userRepository;
+        this.deliveryPersonRepository = deliveryPersonRepository;
+    }
+
+    /**
      * Private constructor to enforce the Singleton pattern and initialize repositories.
+     * Delegates to the dependency injection constructor with singleton repositories.
      */
     private AuthenticationService() {
-        this.adminRepository = AdminRepository.getInstance();
-        this.userRepository = UserRepository.getInstance();
-        this.deliveryPersonRepository = DeliveryPersonRepository.getInstance();
+        this(AdminRepository.getInstance(), UserRepository.getInstance(),
+             DeliveryPersonRepository.getInstance());
     }
 
     /**
@@ -45,6 +60,16 @@ public class AuthenticationService {
             instance = new AuthenticationService();
         }
         return instance;
+    }
+
+    /**
+     * Allows setting a custom instance for testing purposes.
+     * WARNING: This should only be used in test environments.
+     *
+     * @param customInstance The custom AuthenticationService instance.
+     */
+    static void setInstance(AuthenticationService customInstance) {
+        instance = customInstance;
     }
 
     /**

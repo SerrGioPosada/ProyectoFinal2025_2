@@ -23,11 +23,22 @@ public class InvoiceService {
     private final TariffService tariffService;
 
     /**
-     * Constructs a new InvoiceService with its dependencies.
+     * Constructor with dependency injection for repositories and services.
+     *
+     * @param invoiceRepository The InvoiceRepository instance.
+     * @param tariffService The TariffService instance.
+     */
+    public InvoiceService(InvoiceRepository invoiceRepository, TariffService tariffService) {
+        this.invoiceRepository = invoiceRepository;
+        this.tariffService = tariffService;
+    }
+
+    /**
+     * Default constructor that uses singleton instances.
+     * This provides backward compatibility and ease of use.
      */
     public InvoiceService() {
-        this.invoiceRepository = InvoiceRepository.getInstance();
-        this.tariffService = new TariffService(TariffRepository.getInstance());
+        this(InvoiceRepository.getInstance(), new TariffService(TariffRepository.getInstance()));
     }
 
     /**

@@ -1,5 +1,6 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilController;
 
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -53,7 +54,7 @@ public class FXUtil {
         try {
             iconView.setImage(new Image(resourceClass.getResourceAsStream(iconPath)));
         } catch (Exception e) {
-            System.err.println("Error loading toggle icon: " + e.getMessage());
+            Logger.error("Error loading toggle icon: " + e.getMessage(), e);
         }
     }
 
@@ -73,8 +74,7 @@ public class FXUtil {
             FXMLLoader loader = new FXMLLoader(resourceClass.getResource(fxmlPath));
             return loader.load();
         } catch (IOException e) {
-            System.err.println("Error loading FXML '" + fxmlPath + "': " + e.getMessage());
-            e.printStackTrace();
+            Logger.error("Error loading FXML '" + fxmlPath + "': " + e.getMessage(), e);
             return null;
         }
     }
@@ -93,8 +93,7 @@ public class FXUtil {
             loader.setController(controller);
             return loader.load();
         } catch (IOException e) {
-            System.err.println("Error loading FXML '" + fxmlPath + "': " + e.getMessage());
-            e.printStackTrace();
+            Logger.error("Error loading FXML '" + fxmlPath + "': " + e.getMessage(), e);
             return null;
         }
     }

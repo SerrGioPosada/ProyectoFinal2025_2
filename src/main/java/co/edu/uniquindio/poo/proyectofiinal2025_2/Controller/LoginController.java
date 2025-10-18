@@ -1,11 +1,9 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Controller;
 
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PersonType;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Factory.PersonFactory;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto.PersonCreationData;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.AuthenticationService;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.GoogleOAuthService;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Services.UserService;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.StringUtil;
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
@@ -36,8 +34,7 @@ public class LoginController {
     // =================================================================================================================
 
     private final AuthenticationService authService = AuthenticationService.getInstance();
-    private final UserRepository userRepository = UserRepository.getInstance();
-    private final PersonFactory personFactory = new PersonFactory();
+    private final UserService userService = UserService.getInstance();
     private final GoogleOAuthService googleOAuthService = new GoogleOAuthService();
     @FXML
     private TextField txtEmail;
@@ -92,7 +89,7 @@ public class LoginController {
      * @param indexController The main application controller.
      */
     public void setIndexController(IndexController indexController) {
-        System.out.println("IndexController has been set in LoginController.");
+        Logger.debug("IndexController has been set in LoginController.");
         this.indexController = indexController;
     }
 
@@ -121,23 +118,25 @@ public class LoginController {
     private void handleTraditionalLogin() {
         String email = txtEmail.getText();
         String password = isPasswordVisible ? txtPasswordVisible.getText() : txtPassword.getText();
-        System.out.println("Attempting traditional login for email: " + email);
+        Logger.info("Attempting traditional login for email: " + email);
 
         if (StringUtil.isNullOrEmpty(email) || StringUtil.isNullOrEmpty(password)) {
+            Logger.warn("Login attempt with empty credentials");
             showError("Email and password cannot be empty.");
             return;
         }
 
         boolean loginSuccess = authService.login(email, password);
-        System.out.println("Login result: " + (loginSuccess ? "SUCCESS" : "FAILURE"));
+        Logger.info("Login result: " + (loginSuccess ? "SUCCESS" : "FAILURE"));
 
         if (!loginSuccess) {
+            Logger.warn("Login failed for email: " + email);
             showError("Invalid email or password. Please try again.");
             return;
         }
 
         if (indexController == null) {
-            System.err.println("CRITICAL: Login was successful, but IndexController is null. Cannot navigate.");
+            Logger.error("CRITICAL: Login was successful, but IndexController is null. Cannot navigate.");
             return;
         }
 
@@ -148,7 +147,7 @@ public class LoginController {
      * Initiates the Google Sign-In flow when the corresponding label is clicked.
      */
     private void handleGoogleLogin() {
-        System.out.println("Initiating Google Sign-In flow...");
+        Logger.info("Initiating Google Sign-In flow...");
         if (googleLoginLabel != null) {
             googleLoginLabel.setDisable(true); // Prevent multiple clicks
         }
@@ -156,17 +155,16 @@ public class LoginController {
 
         googleOAuthService.authenticate()
                 .thenAccept(userInfo -> Platform.runLater(() -> {
-                    System.out.println("Google Sign-In successful. Processing user info...");
+                    Logger.info("Google Sign-In successful. Processing user info...");
                     processExternalUser(userInfo.getName(), userInfo.getEmail());
                     if (googleLoginLabel != null) googleLoginLabel.setDisable(false);
                 }))
                 .exceptionally(ex -> {
                     Platform.runLater(() -> {
-                        System.err.println("Google Sign-In flow failed.");
+                        Logger.error("Google Sign-In flow failed.", (Exception) ex);
                         showError("Google Sign-In failed: " + ex.getMessage());
                         if (googleLoginLabel != null) googleLoginLabel.setDisable(false);
                     });
-                    ex.printStackTrace();
                     return null;
                 });
     }
@@ -175,7 +173,7 @@ public class LoginController {
      * Handles the 'Forgot Password' label click event.
      */
     private void handleForgotPassword() {
-        System.out.println("Forgot Password clicked. (Placeholder - no action implemented)");
+        Logger.debug("Forgot Password clicked. (Placeholder - no action implemented)");
     }
 
     // =================================================================================================================
@@ -190,25 +188,21 @@ public class LoginController {
      * @param email The user's email from the external provider.
      */
     private void processExternalUser(String name, String email) {
-        System.out.println("Processing external user: " + email);
-        userRepository.findByEmail(email).ifPresentOrElse(
-                existingUser -> {
-                    System.out.println("User already exists. Setting as authenticated.");
-                    authService.setAuthenticatedUser(existingUser);
-                },
-                () -> {
-                    System.out.println("User does not exist. Creating new user account...");
-                    PersonCreationData newData = new PersonCreationData.Builder()
-                            .withName(name)
-                            .withEmail(email)
-                            .withPassword("oauth_google_user_" + System.currentTimeMillis())
-                            .build();
-                    authService.setAuthenticatedUser(PersonFactory.createPerson(PersonType.USER, newData));
-                }
-        );
+        Logger.info("Processing external user: " + email);
+
+        // Use UserService to handle OAuth user registration/retrieval
+        var user = userService.registerOAuthUser(name, email);
+
+        if (user != null) {
+            authService.setAuthenticatedUser(user);
+        } else {
+            Logger.error("Failed to register/retrieve OAuth user");
+            showError("Failed to process Google Sign-In");
+            return;
+        }
 
         if (indexController == null) {
-            System.err.println("CRITICAL: External login was successful, but IndexController is null. Cannot navigate.");
+            Logger.error("CRITICAL: External login was successful, but IndexController is null. Cannot navigate.");
             return;
         }
         indexController.onLoginSuccess();
@@ -331,7 +325,7 @@ public class LoginController {
         try {
             imgTogglePassword.setImage(new Image(getClass().getResourceAsStream(iconPath)));
         } catch (Exception e) {
-            System.err.println("Error loading password toggle icon: " + e.getMessage());
+            Logger.error("Error loading password toggle icon: " + e.getMessage(), e);
         }
     }
 
@@ -345,7 +339,7 @@ public class LoginController {
      * @param message The error message to display.
      */
     private void showError(String message) {
-        System.err.println("UI_ERROR: " + message);
+        Logger.warn("UI_ERROR: " + message);
         if (lblError == null) return;
 
         lblError.setText(message);
@@ -361,7 +355,7 @@ public class LoginController {
                 });
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                e.printStackTrace();
+                Logger.error("Error in showError thread", e);
             }
         }).start();
     }

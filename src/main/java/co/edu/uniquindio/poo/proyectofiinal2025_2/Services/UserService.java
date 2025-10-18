@@ -27,10 +27,21 @@ public class UserService {
     private final UserRepository userRepository;
 
     /**
+     * Package-private constructor for testing and dependency injection.
+     * Allows injecting a custom UserRepository implementation.
+     *
+     * @param userRepository The UserRepository instance to use.
+     */
+    UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    /**
      * Private constructor to enforce the Singleton pattern.
+     * Delegates to the dependency injection constructor with the singleton repository.
      */
     private UserService() {
-        this.userRepository = UserRepository.getInstance();
+        this(UserRepository.getInstance());
     }
 
     /**
@@ -43,6 +54,16 @@ public class UserService {
             instance = new UserService();
         }
         return instance;
+    }
+
+    /**
+     * Allows setting a custom instance for testing purposes.
+     * WARNING: This should only be used in test environments.
+     *
+     * @param customInstance The custom UserService instance.
+     */
+    static void setInstance(UserService customInstance) {
+        instance = customInstance;
     }
 
     /**

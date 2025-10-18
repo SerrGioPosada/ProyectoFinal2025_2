@@ -1,6 +1,7 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Seeder.AdminSeeder;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -19,16 +20,16 @@ public class MainApp extends Application {
         // INICIALIZACIÓN DE DATOS
         // ===========================================
 
-        System.out.println("╔════════════════════════════════════════╗");
-        System.out.println("║   Inicializando Mi Proyecto Final      ║");
-        System.out.println("╚════════════════════════════════════════╝\n");
+        Logger.info("╔════════════════════════════════════════╗");
+        Logger.info("║   Inicializando Mi Proyecto Final      ║");
+        Logger.info("╚════════════════════════════════════════╝");
 
         // Crear administrador por defecto si no existe
         AdminSeeder.seedDefaultAdmin();
 
-        System.out.println("\n╔════════════════════════════════════════╗");
-        System.out.println("║      ¡Cargando Interfaz Gráfica!        ║");
-        System.out.println("╚════════════════════════════════════════╝\n");
+        Logger.info("╔════════════════════════════════════════╗");
+        Logger.info("║      ¡Cargando Interfaz Gráfica!        ║");
+        Logger.info("╚════════════════════════════════════════╝");
 
         // ===========================================
         // CARGA DE LA INTERFAZ
@@ -48,7 +49,7 @@ public class MainApp extends Application {
         // Mostrar ventana
         stage.show();
 
-        System.out.println(" Aplicación iniciada correctamente\n");
+        Logger.info("Aplicación iniciada correctamente");
     }
 
     public static void main(String[] args) {

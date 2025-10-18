@@ -21,10 +21,26 @@ public class PaymentService {
     private final InvoiceRepository invoiceRepository;
     private final OrderService orderService;
 
+    /**
+     * Constructor with dependency injection for repositories and services.
+     *
+     * @param paymentRepository The PaymentRepository instance.
+     * @param invoiceRepository The InvoiceRepository instance.
+     * @param orderService The OrderService instance.
+     */
+    public PaymentService(PaymentRepository paymentRepository, InvoiceRepository invoiceRepository,
+                         OrderService orderService) {
+        this.paymentRepository = paymentRepository;
+        this.invoiceRepository = invoiceRepository;
+        this.orderService = orderService;
+    }
+
+    /**
+     * Default constructor that uses singleton instances.
+     * This provides backward compatibility and ease of use.
+     */
     public PaymentService() {
-        this.paymentRepository = PaymentRepository.getInstance();
-        this.invoiceRepository = InvoiceRepository.getInstance();
-        this.orderService = new OrderService(); // In a real DI framework, this would be injected
+        this(PaymentRepository.getInstance(), InvoiceRepository.getInstance(), new OrderService());
     }
 
     // ===========================
