@@ -6,9 +6,9 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.PaymentMethod;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PaymentStatus;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.InvoiceRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.PaymentRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * <p>Provides business logic services related to payment processing.</p>
@@ -21,10 +21,26 @@ public class PaymentService {
     private final InvoiceRepository invoiceRepository;
     private final OrderService orderService;
 
+    /**
+     * Constructor with dependency injection for repositories and services.
+     *
+     * @param paymentRepository The PaymentRepository instance.
+     * @param invoiceRepository The InvoiceRepository instance.
+     * @param orderService The OrderService instance.
+     */
+    public PaymentService(PaymentRepository paymentRepository, InvoiceRepository invoiceRepository,
+                         OrderService orderService) {
+        this.paymentRepository = paymentRepository;
+        this.invoiceRepository = invoiceRepository;
+        this.orderService = orderService;
+    }
+
+    /**
+     * Default constructor that uses singleton instances.
+     * This provides backward compatibility and ease of use.
+     */
     public PaymentService() {
-        this.paymentRepository = PaymentRepository.getInstance();
-        this.invoiceRepository = InvoiceRepository.getInstance();
-        this.orderService = new OrderService(); // In a real DI framework, this would be injected
+        this(PaymentRepository.getInstance(), InvoiceRepository.getInstance(), new OrderService());
     }
 
     // ===========================
@@ -49,7 +65,7 @@ public class PaymentService {
         boolean paymentSuccessful = true;
 
         Payment newPayment = new Payment.Builder()
-                .withId(UUID.randomUUID().toString())
+                .withId(IdGenerationUtil.generateId())
                 .withInvoiceId(invoiceId)
                 .withAmount(invoice.getTotalAmount())
                 .withDate(LocalDateTime.now())

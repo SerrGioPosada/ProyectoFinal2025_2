@@ -22,6 +22,7 @@ public class User extends AuthenticablePerson {
     private List<Address> frequentAddresses;
     private List<PaymentMethod> paymentMethods;
     private List<Order> orders;
+    private boolean isActive; // ✅ Campo para habilitar/inhabilitar cuenta
 
     /**
      * Default constructor.
@@ -32,6 +33,7 @@ public class User extends AuthenticablePerson {
         this.frequentAddresses = new ArrayList<>();
         this.paymentMethods = new ArrayList<>();
         this.orders = new ArrayList<>();
+        this.isActive = true; // ✅ Por defecto, las cuentas están activas
     }
 
     /**
@@ -40,9 +42,10 @@ public class User extends AuthenticablePerson {
      */
     protected User(Builder builder) {
         super(builder);
-        this.frequentAddresses = new ArrayList<>(); // Always initialize lists
+        this.frequentAddresses = new ArrayList<>();
         this.paymentMethods = new ArrayList<>();
         this.orders = new ArrayList<>();
+        this.isActive = builder.isActive; // ✅ Obtener del builder
     }
 
     // ======================================
@@ -53,6 +56,18 @@ public class User extends AuthenticablePerson {
      * Concrete builder for creating User instances.
      */
     public static class Builder extends AuthenticablePerson.Builder<Builder> {
+
+        private boolean isActive = true; // ✅ Campo en el builder
+
+        /**
+         * Sets whether the user account is active.
+         * @param isActive true if active, false if disabled.
+         * @return The builder instance for chaining.
+         */
+        public Builder withIsActive(boolean isActive) {
+            this.isActive = isActive;
+            return this;
+        }
 
         /**
          * Returns the concrete builder instance (part of the CRTP pattern).
@@ -111,5 +126,21 @@ public class User extends AuthenticablePerson {
             this.orders = new ArrayList<>();
         }
         this.orders.add(order);
+    }
+
+    /**
+     * Checks if the user account is active.
+     * @return true if active, false if disabled.
+     */
+    public boolean isActive() {
+        return isActive;
+    }
+
+    /**
+     * Sets the active status of the user account.
+     * @param active true to enable, false to disable.
+     */
+    public void setActive(boolean active) {
+        this.isActive = active;
     }
 }

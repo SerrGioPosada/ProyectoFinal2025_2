@@ -10,20 +10,23 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * A Data Transfer Object (DTO) that acts as a Parameter Object for creating
- * any type of person (User, Admin, DeliveryPerson).
+ * A Data Transfer Object (DTO) that serves as a Parameter Object for creating any type of person.
  * <p>
- * It holds a superset of all possible attributes required by the PersonFactory,
- * allowing client code to populate only the necessary fields for a specific
- * person type.
+ * It holds a superset of all possible attributes required by the {@link co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Factory.PersonFactory},
+ * allowing client code to populate only the necessary fields for a specific person type using its fluent builder.
+ * </p>
  */
+
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 public class PersonCreationData {
 
-    // --- Common Attributes for all Persons ---
+    // =================================================================================================================
+    // Common Attributes
+    // =================================================================================================================
+
     private String id;
     private String name;
     private String lastName;
@@ -31,15 +34,19 @@ public class PersonCreationData {
     private String phone;
     private String password;
     private String profileImagePath;
+    private boolean isActive = true; // Defaults to active
 
-    // --- User-specific Attribute ---
+    // =================================================================================================================
+    // Admin-specific Attributes
+    // =================================================================================================================
 
-
-    // --- Admin-specific Attributes ---
     private String employeeId;
     private PermissionLevel permissionLevel;
 
-    // --- DeliveryPerson-specific Attributes ---
+    // =================================================================================================================
+    // DeliveryPerson-specific Attributes
+    // =================================================================================================================
+
     private String documentId;
     private AvailabilityStatus availability;
     private Vehicle assignedVehicle;
@@ -57,6 +64,7 @@ public class PersonCreationData {
         this.phone = builder.phone;
         this.password = builder.password;
         this.profileImagePath = builder.profileImagePath;
+        this.isActive = builder.isActive;
         this.employeeId = builder.employeeId;
         this.permissionLevel = builder.permissionLevel;
         this.documentId = builder.documentId;
@@ -80,6 +88,7 @@ public class PersonCreationData {
         private String phone;
         private String password;
         private String profileImagePath;
+        private boolean isActive = true; // Default value
         private String employeeId;
         private PermissionLevel permissionLevel;
         private String documentId;
@@ -122,6 +131,11 @@ public class PersonCreationData {
             return this;
         }
 
+        public Builder withIsActive(boolean isActive) {
+            this.isActive = isActive;
+            return this;
+        }
+
         public Builder withEmployeeId(String employeeId) {
             this.employeeId = employeeId;
             return this;
@@ -153,8 +167,8 @@ public class PersonCreationData {
         }
 
         /**
-         * Creates a new PersonCreationData instance from the builder's properties.
-         * @return A new PersonCreationData instance.
+         * Constructs and returns a new {@code PersonCreationData} instance based on the builder's current state.
+         * @return A new, configured PersonCreationData instance.
          */
         public PersonCreationData build() {
             return new PersonCreationData(this);

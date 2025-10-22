@@ -6,9 +6,9 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.OrderStatus;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.OrderRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.ShipmentRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * <p>Orchestrates the entire order management process, acting as the central service for the Order aggregate.</p>
@@ -21,10 +21,27 @@ public class OrderService {
     private final InvoiceService invoiceService;
     private final ShipmentService shipmentService;
 
+    /**
+     * Constructor with dependency injection for repositories and services.
+     *
+     * @param orderRepository The OrderRepository instance.
+     * @param invoiceService The InvoiceService instance.
+     * @param shipmentService The ShipmentService instance.
+     */
+    public OrderService(OrderRepository orderRepository, InvoiceService invoiceService,
+                       ShipmentService shipmentService) {
+        this.orderRepository = orderRepository;
+        this.invoiceService = invoiceService;
+        this.shipmentService = shipmentService;
+    }
+
+    /**
+     * Default constructor that uses singleton instances.
+     * This provides backward compatibility and ease of use.
+     */
     public OrderService() {
-        this.orderRepository = OrderRepository.getInstance();
-        this.invoiceService = new InvoiceService();
-        this.shipmentService = new ShipmentService(ShipmentRepository.getInstance());
+        this(OrderRepository.getInstance(), new InvoiceService(),
+             new ShipmentService());
     }
 
     // ===========================
@@ -45,7 +62,7 @@ public class OrderService {
 
         // 1. Create the Order in its initial state using the manual builder
         Order newOrder = new Order.Builder()
-                .withId(UUID.randomUUID().toString())
+                .withId(IdGenerationUtil.generateId())
                 .withUserId(userId)
                 .withOrigin(origin)
                 .withDestination(destination)

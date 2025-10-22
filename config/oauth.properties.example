@@ -1,0 +1,12 @@
+# Google OAuth2 Configuration Template
+#
+# Instructions:
+# 1. Copy this file to 'oauth.properties' in the same directory
+# 2. Replace the placeholder values with your actual Google OAuth credentials
+# 3. Get your credentials from: https://console.cloud.google.com/apis/credentials
+#
+# IMPORTANT: Never commit the actual 'oauth.properties' file to Git!
+
+google.client.id=YOUR_GOOGLE_CLIENT_ID_HERE
+google.client.secret=YOUR_GOOGLE_CLIENT_SECRET_HERE
+google.redirect.port=8888

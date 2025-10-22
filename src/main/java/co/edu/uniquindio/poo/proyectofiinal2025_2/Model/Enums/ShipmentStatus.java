@@ -12,10 +12,39 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums;
  * </ul>
  */
 public enum ShipmentStatus {
-    PENDING_ASSIGNMENT,
-    IN_TRANSIT,
-    OUT_FOR_DELIVERY,
-    DELIVERED,
-    RETURNED,
-    CANCELLED
+    PENDING_ASSIGNMENT("Pendiente de Asignación", "#FFA726"),
+    IN_TRANSIT("En Tránsito", "#42A5F5"),
+    OUT_FOR_DELIVERY("En Reparto", "#66BB6A"),
+    DELIVERED("Entregado", "#4CAF50"),
+    RETURNED("Devuelto", "#FF9800"),
+    CANCELLED("Cancelado", "#EF5350");
+
+    private final String displayName;
+    private final String color;
+
+    /**
+     * Constructor for ShipmentStatus enum.
+     * @param displayName The display name in Spanish for the UI
+     * @param color The color code for visual representation
+     */
+    ShipmentStatus(String displayName, String color) {
+        this.displayName = displayName;
+        this.color = color;
+    }
+
+    /**
+     * Gets the display name in Spanish.
+     * @return The display name
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    /**
+     * Gets the color code.
+     * @return The color code
+     */
+    public String getColor() {
+        return color;
+    }
 }

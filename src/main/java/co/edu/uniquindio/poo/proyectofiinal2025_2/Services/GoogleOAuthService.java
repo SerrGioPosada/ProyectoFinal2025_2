@@ -1,5 +1,8 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.ConfigLoader;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.StringUtil;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
@@ -16,74 +19,84 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Service to handle Google OAuth2 authentication for desktop applications.
- * This implementation uses a simple HTTP server instead of Jetty to avoid module conflicts.
+ * This implementation uses a simple HTTP server to handle the OAuth callback.
  */
 public class GoogleOAuthService {
 
-    private static final String CLIENT_ID = "307704039867-2piv7j9num96kuai0j2e3gja7e6ud0i8.apps.googleusercontent.com";
-    private static final String CLIENT_SECRET = "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";
-    private static final int LOCAL_PORT = 8888;
+    // OAuth credentials loaded from config/oauth.properties
+    private static final String CLIENT_ID = ConfigLoader.getGoogleClientId();
+    private static final String CLIENT_SECRET = ConfigLoader.getGoogleClientSecret();
+    private static final int LOCAL_PORT = ConfigLoader.getGoogleRedirectPort();
     private static final String REDIRECT_URI = "http://localhost:" + LOCAL_PORT;
 
     private static final String AUTH_URI = "https://accounts.google.com/o/oauth2/v2/auth";
     private static final String TOKEN_URI = "https://oauth2.googleapis.com/token";
     private static final String USER_INFO_URI = "https://www.googleapis.com/oauth2/v2/userinfo";
 
+    private static final int TIMEOUT_MS = 120000;
+    private static final String ENCODING = "UTF-8";
+
     private final NetHttpTransport httpTransport;
     private final JsonFactory jsonFactory;
 
+    /**
+     * Constructs a new GoogleOAuthService with default HTTP transport and JSON factory.
+     */
     public GoogleOAuthService() {
         this.httpTransport = new NetHttpTransport();
         this.jsonFactory = JacksonFactory.getDefaultInstance();
     }
 
     /**
-     * Initiates the Google OAuth2 flow and returns user information.
+     * Initiates the Google OAuth2 flow and returns user information asynchronously.
+     * This method will open the system's default browser for user authentication.
+     *
+     * @return A CompletableFuture containing the GoogleUserInfo if successful.
      */
     public CompletableFuture<GoogleUserInfo> authenticate() {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                // 1. Crear el flujo de autorización
-                AuthorizationCodeFlow flow = createFlow();
+                Logger.info("Starting Google OAuth2 authentication flow");
 
-                // 2. Generar URL de autorización
+                AuthorizationCodeFlow flow = createFlow();
                 String authUrl = flow.newAuthorizationUrl()
                         .setRedirectUri(REDIRECT_URI)
                         .build();
 
-                // 3. Abrir navegador
                 openBrowser(authUrl);
 
-                // 4. Esperar el código de autorización
                 String authCode = waitForAuthorizationCode();
+                Logger.info("Authorization code received");
 
-                // 5. Intercambiar código por token
                 TokenResponse tokenResponse = flow.newTokenRequest(authCode)
                         .setRedirectUri(REDIRECT_URI)
                         .execute();
 
-                // 6. Obtener información del usuario
                 GoogleUserInfo userInfo = fetchUserInfo(tokenResponse.getAccessToken());
+                Logger.info("Google authentication successful for: " + userInfo.getEmail());
 
                 return userInfo;
 
             } catch (Exception e) {
+                Logger.error("Google authentication failed: " + e.getMessage(), e);
                 throw new RuntimeException("Google authentication failed: " + e.getMessage(), e);
             }
         });
     }
 
     /**
-     * Creates the Google Authorization Code Flow.
+     * Creates the Google Authorization Code Flow with required scopes.
+     *
+     * @return The configured AuthorizationCodeFlow.
      */
     private AuthorizationCodeFlow createFlow() {
         return new AuthorizationCodeFlow.Builder(
@@ -100,68 +113,46 @@ public class GoogleOAuthService {
 
     /**
      * Opens the system's default browser with the authorization URL.
+     * If Desktop is not supported, prints the URL to console.
+     *
+     * @param url The authorization URL to open.
+     * @throws IOException if unable to open the browser.
      */
     private void openBrowser(String url) throws IOException {
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             Desktop.getDesktop().browse(URI.create(url));
+            Logger.info("Browser opened for authentication");
         } else {
-            System.out.println("Please open this URL in your browser:");
-            System.out.println(url);
+            Logger.warn("Desktop not supported. Please open this URL in your browser: " + url);
         }
     }
 
     /**
-     * Starts a simple HTTP server and waits for the authorization code.
+     * Starts a simple HTTP server and waits for the authorization code from the OAuth callback.
+     * The server will timeout after 2 minutes if no response is received.
+     *
+     * @return The authorization code extracted from the callback.
+     * @throws IOException if the server fails or no code is received.
      */
     private String waitForAuthorizationCode() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(LOCAL_PORT)) {
-            serverSocket.setSoTimeout(120000); // 2 minutos timeout
+            serverSocket.setSoTimeout(TIMEOUT_MS);
+            Logger.info("Waiting for OAuth callback on port " + LOCAL_PORT);
 
             Socket socket = serverSocket.accept();
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(socket.getInputStream())
             );
 
-            // Leer la primera línea de la petición HTTP
             String request = reader.readLine();
-            System.out.println("Request recibida: " + request); // Debug
+            Logger.debug("Request received: " + request);
 
-            // Extraer el código de autorización
-            String code = null;
-            if (request != null && request.contains("code=")) {
-                // Formato: GET /?code=XXXXX&scope=... HTTP/1.1
-                int start = request.indexOf("code=") + 5;
-                int end = request.indexOf("&", start);
-                if (end == -1) {
-                    end = request.indexOf(" ", start);
-                }
-                if (end == -1) {
-                    end = request.length();
-                }
-                code = request.substring(start, end);
+            String code = extractAuthorizationCode(request);
 
-                // Decodificar URL si es necesario
-                code = java.net.URLDecoder.decode(code, "UTF-8");
-                System.out.println("Code extraído: " + code); // Debug
-            }
-
-            // Enviar respuesta al navegador
-            String htmlResponse = code != null
-                    ? "<html><body style='font-family: Arial; text-align: center; padding: 50px;'><h1 style='color: green;'>✓ Login Successful!</h1><p>You can close this window and return to the application.</p></body></html>"
-                    : "<html><body style='font-family: Arial; text-align: center; padding: 50px;'><h1 style='color: red;'>✗ Login Failed</h1><p>No authorization code received.</p></body></html>";
-
-            String httpResponse = "HTTP/1.1 200 OK\r\n" +
-                    "Content-Type: text/html; charset=UTF-8\r\n" +
-                    "Connection: close\r\n" +
-                    "\r\n" +
-                    htmlResponse;
-
-            OutputStream os = socket.getOutputStream();
-            os.write(httpResponse.getBytes("UTF-8"));
-            os.flush();
+            sendResponseToUser(socket, code != null);
             socket.close();
 
-            if (code == null || code.isEmpty()) {
+            if (StringUtil.isNullOrEmpty(code)) {
                 throw new IOException("No authorization code received");
             }
 
@@ -170,7 +161,86 @@ public class GoogleOAuthService {
     }
 
     /**
+     * Extracts the authorization code from the HTTP request.
+     *
+     * @param request The HTTP request line.
+     * @return The extracted authorization code, or null if not found.
+     * @throws IOException if URL decoding fails.
+     */
+    private String extractAuthorizationCode(String request) throws IOException {
+        if (request == null || !request.contains("code=")) {
+            return null;
+        }
+
+        int start = request.indexOf("code=") + 5;
+        int end = request.indexOf("&", start);
+        if (end == -1) {
+            end = request.indexOf(" ", start);
+        }
+        if (end == -1) {
+            end = request.length();
+        }
+
+        String code = request.substring(start, end);
+        code = URLDecoder.decode(code, ENCODING);
+        Logger.debug("Authorization code extracted: " + code.substring(0, Math.min(10, code.length())) + "...");
+
+        return code;
+    }
+
+    /**
+     * Sends an HTML response to the user's browser indicating success or failure.
+     *
+     * @param socket  The socket connection to the browser.
+     * @param success Whether the authentication was successful.
+     * @throws IOException if unable to send the response.
+     */
+    private void sendResponseToUser(Socket socket, boolean success) throws IOException {
+        String htmlResponse = success
+                ? buildSuccessResponse()
+                : buildErrorResponse();
+
+        String httpResponse = "HTTP/1.1 200 OK\r\n" +
+                "Content-Type: text/html; charset=UTF-8\r\n" +
+                "Connection: close\r\n" +
+                "\r\n" +
+                htmlResponse;
+
+        OutputStream os = socket.getOutputStream();
+        os.write(httpResponse.getBytes(ENCODING));
+        os.flush();
+    }
+
+    /**
+     * Builds the HTML success response.
+     *
+     * @return HTML string for successful authentication.
+     */
+    private String buildSuccessResponse() {
+        return "<html><body style='font-family: Arial; text-align: center; padding: 50px;'>" +
+                "<h1 style='color: green;'>Login Successful!</h1>" +
+                "<p>You can close this window and return to the application.</p>" +
+                "</body></html>";
+    }
+
+    /**
+     * Builds the HTML error response.
+     *
+     * @return HTML string for failed authentication.
+     */
+    private String buildErrorResponse() {
+        return "<html><body style='font-family: Arial; text-align: center; padding: 50px;'>" +
+                "<h1 style='color: red;'>Login Failed</h1>" +
+                "<p>No authorization code received.</p>" +
+                "</body></html>";
+    }
+
+    /**
      * Fetches user information from Google using the access token.
+     *
+     * @param accessToken The OAuth2 access token.
+     * @return GoogleUserInfo containing email, name, and picture URL.
+     * @throws IOException if the HTTP request fails.
      */
     private GoogleUserInfo fetchUserInfo(String accessToken) throws IOException {
         java.net.URL url = new java.net.URL(USER_INFO_URI + "?access_token=" + accessToken);
@@ -178,7 +248,7 @@ public class GoogleOAuthService {
         conn.setRequestMethod("GET");
 
         if (conn.getResponseCode() != 200) {
-            throw new IOException("Failed to fetch user info: " + conn.getResponseCode());
+            throw new IOException("Failed to fetch user info: HTTP " + conn.getResponseCode());
         }
 
         BufferedReader reader = new BufferedReader(
@@ -191,7 +261,6 @@ public class GoogleOAuthService {
         }
         reader.close();
 
-        // Parsear JSON usando Gson
         JsonObject jsonObject = JsonParser.parseString(jsonResponse.toString()).getAsJsonObject();
 
         String email = jsonObject.has("email") ? jsonObject.get("email").getAsString() : "";
@@ -202,27 +271,49 @@ public class GoogleOAuthService {
     }
 
     /**
-     * Data class to hold Google user information.
+     * Data class to hold Google user information retrieved from OAuth.
      */
     public static class GoogleUserInfo {
         private final String email;
         private final String name;
         private final String picture;
 
+        /**
+         * Constructs a GoogleUserInfo with the provided details.
+         *
+         * @param email   The user's email address.
+         * @param name    The user's full name.
+         * @param picture The URL of the user's profile picture.
+         */
         public GoogleUserInfo(String email, String name, String picture) {
             this.email = email;
             this.name = name;
             this.picture = picture;
         }
 
+        /**
+         * Gets the user's email address.
+         *
+         * @return The email address.
+         */
         public String getEmail() {
             return email;
         }
 
+        /**
+         * Gets the user's full name.
+         *
+         * @return The full name.
+         */
         public String getName() {
             return name;
         }
 
+        /**
+         * Gets the URL of the user's profile picture.
+         *
+         * @return The picture URL.
+         */
         public String getPicture() {
             return picture;
         }

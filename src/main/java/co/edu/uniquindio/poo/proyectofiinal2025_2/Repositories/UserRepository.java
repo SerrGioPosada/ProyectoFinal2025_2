@@ -1,14 +1,15 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.Adapter.LocalDateTimeAdapter;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilRepository.GsonProvider;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilRepository.JsonFileHandler;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilRepository.RepositoryPaths;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilRepository.RepositoryValidator;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.*;
 import java.lang.reflect.Type;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,16 +22,20 @@ import java.util.Optional;
  */
 public class UserRepository {
 
-    // --- Attributes for Persistence ---
-    private static final String FILE_PATH = "data/users.json";
-    private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-            .create();
+    // =================================================================================================================
+    // CONSTANTS AND FIELDS
+    // =================================================================================================================
+
+    private final Gson gson = GsonProvider.createGsonWithPrettyPrinting();
 
     private static UserRepository instance;
 
     private final Map<String, User> usersById;
     private final Map<String, User> usersByEmail;
+
+    // =================================================================================================================
+    // CONSTRUCTOR (Singleton)
+    // =================================================================================================================
 
     /**
      * Private constructor that loads data from the file upon initialization.
@@ -39,6 +44,7 @@ public class UserRepository {
         this.usersById = new HashMap<>();
         this.usersByEmail = new HashMap<>();
         loadFromFile();
+        Logger.info("UserRepository initialized. Users loaded: " + usersById.size());
     }
 
     /**
@@ -53,47 +59,48 @@ public class UserRepository {
         return instance;
     }
 
-    // ======================
-    // Private file handling methods
-    // ======================
+    // =================================================================================================================
+    // FILE I/O OPERATIONS
+    // =================================================================================================================
 
     /**
      * Saves the current list of users to the users.json file.
+     * This method ensures that the parent directory exists before writing the file.
      */
     private void saveToFile() {
-        try (Writer writer = new FileWriter(FILE_PATH)) {
-            gson.toJson(usersById.values(), writer);
-        } catch (IOException e) {
-            System.err.println("Error saving users to file: " + e.getMessage());
-            e.printStackTrace();
-        }
+        List<User> userList = new ArrayList<>(usersById.values());
+        JsonFileHandler.saveToFile(RepositoryPaths.USERS_PATH, userList, gson);
     }
 
     /**
      * Loads the list of users from the users.json file when the application starts.
+     * This method is now more robust against parsing errors.
      */
     private void loadFromFile() {
-        File file = new File(FILE_PATH);
-        if (file.exists() && file.length() > 0) {
-            try (Reader reader = new FileReader(file)) {
-                Type listType = new TypeToken<ArrayList<User>>() {}.getType();
-                List<User> loadedUsers = gson.fromJson(reader, listType);
-                if (loadedUsers != null) {
-                    for (User user : loadedUsers) {
-                        usersById.put(user.getId(), user);
-                        usersByEmail.put(user.getEmail().toLowerCase(), user);
-                    }
+        Type listType = new TypeToken<ArrayList<User>>() {}.getType();
+        Optional<List<User>> loadedUsers = JsonFileHandler.loadFromFile(
+                RepositoryPaths.USERS_PATH,
+                listType,
+                gson
+        );
+
+        loadedUsers.ifPresent(users -> {
+            Logger.info("Loading " + users.size() + " users from file...");
+            for (User user : users) {
+                if (RepositoryValidator.validateEntityWithIdAndEmail(user, user.getId(), user.getEmail(), "User")) {
+                    usersById.put(user.getId(), user);
+                    usersByEmail.put(user.getEmail().toLowerCase(), user);
+                } else {
+                    Logger.warning("Warning: Skipping corrupt user entry in JSON file");
                 }
-            } catch (IOException e) {
-                System.err.println("Error loading users from file: " + e.getMessage());
-                e.printStackTrace();
             }
-        }
+            Logger.info("Successfully loaded " + usersById.size() + " users");
+        });
     }
 
-    // ======================
-    // Handling methods
-    // ======================
+    // =================================================================================================================
+    // CRUD OPERATIONS
+    // =================================================================================================================
 
     /**
      * Adds a new user to the repository.
@@ -102,8 +109,17 @@ public class UserRepository {
      * @param user the user to add to the repository
      */
     public void addUser(User user) {
+        if (!RepositoryValidator.validateEntityWithIdAndEmail(user, user.getId(), user.getEmail(), "User")) {
+            return;
+        }
+
+        Logger.info("Adding user: " + user.getEmail() + " (ID: " + user.getId() + ")");
+
         usersById.put(user.getId(), user);
         usersByEmail.put(user.getEmail().toLowerCase(), user);
+
+        Logger.info("Total users in memory: " + usersById.size());
+
         saveToFile();
     }
 
@@ -114,17 +130,22 @@ public class UserRepository {
      * @param userId the ID of the user to remove.
      */
     public void removeUser(String userId) {
+        if (!RepositoryValidator.validateId(userId, "User")) {
+            return;
+        }
+
         User userToRemove = usersById.get(userId);
         if (userToRemove != null) {
+            Logger.info("Removing user: " + userToRemove.getEmail());
             usersById.remove(userId);
             usersByEmail.remove(userToRemove.getEmail().toLowerCase());
             saveToFile();
         }
     }
 
-    // ======================
-    // Query Methods
-    // ======================
+    // =================================================================================================================
+    // QUERY METHODS
+    // =================================================================================================================
 
     /**
      * Retrieves all users stored in the repository.
@@ -142,6 +163,9 @@ public class UserRepository {
      * @return an {@link Optional} containing the user if found, or an empty Optional.
      */
     public Optional<User> findByEmail(String email) {
+        if (!RepositoryValidator.validateEmail(email, "User")) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(usersByEmail.get(email.toLowerCase()));
     }
 
@@ -152,6 +176,20 @@ public class UserRepository {
      * @return an {@link Optional} containing the user if found, or an empty Optional.
      */
     public Optional<User> findById(String id) {
+        if (!RepositoryValidator.validateId(id, "User")) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(usersById.get(id));
+    }
+
+    /**
+     * For debugging: prints all users currently in memory
+     */
+    public void printAllUsers() {
+        Logger.info("=== Current Users in Memory ===");
+        usersById.values().forEach(user ->
+                Logger.info("- " + user.getEmail() + " (ID: " + user.getId() + ")")
+        );
+        Logger.info("Total: " + usersById.size() + " users");
     }
 }
