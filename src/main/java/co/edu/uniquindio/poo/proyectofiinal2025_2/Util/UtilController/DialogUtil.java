@@ -41,6 +41,22 @@ public final class DialogUtil {
         showAlert(Alert.AlertType.INFORMATION, title, null, message);
     }
 
+    public static void showWarning(String title, String message) {
+        showAlert(Alert.AlertType.WARNING, title, null, message);
+    }
+
+    public static void showError(String title, String message) {
+        showAlert(Alert.AlertType.ERROR, title, null, message);
+    }
+
+    public static void showSuccess(String title, String message) {
+        showAlert(Alert.AlertType.INFORMATION, title, null, message);
+    }
+
+    public static boolean showConfirmation(String title, String message) {
+        return showConfirmation(title, null, message);
+    }
+
     public static boolean showConfirmation(String title, String header, String message) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);

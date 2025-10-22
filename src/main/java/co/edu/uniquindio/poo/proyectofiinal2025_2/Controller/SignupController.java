@@ -116,6 +116,115 @@ public class SignupController {
         btnRegister.setOnAction(event -> handleRegister());
         googleSignupLabel.setOnMouseClicked(event -> handleGoogleSignup());
         lblAlreadyRegistered.setOnMouseClicked(event -> handleAlreadyRegistered());
+
+        // Add Enter key support for registration with smart navigation
+        setupSmartEnterNavigation();
+    }
+
+    /**
+     * Sets up smart Enter key navigation between fields.
+     * If current field is filled, moves to next empty field.
+     * If all fields are filled, submits the form.
+     */
+    private void setupSmartEnterNavigation() {
+        if (txtName != null) {
+            txtName.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    if (!txtName.getText().isEmpty()) {
+                        txtLastName.requestFocus();
+                    }
+                }
+            });
+        }
+
+        if (txtLastName != null) {
+            txtLastName.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    if (!txtLastName.getText().isEmpty()) {
+                        txtEmail.requestFocus();
+                    }
+                }
+            });
+        }
+
+        if (txtEmail != null) {
+            txtEmail.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    if (!txtEmail.getText().isEmpty()) {
+                        txtPhone.requestFocus();
+                    }
+                }
+            });
+        }
+
+        if (txtPhone != null) {
+            txtPhone.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    if (!txtPhone.getText().isEmpty()) {
+                        if (isPasswordVisible.get()) {
+                            txtPasswordVisible.requestFocus();
+                        } else {
+                            txtPassword.requestFocus();
+                        }
+                    }
+                }
+            });
+        }
+
+        if (txtPassword != null) {
+            txtPassword.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    if (!txtPassword.getText().isEmpty()) {
+                        txtConfirmPassword.requestFocus();
+                    }
+                }
+            });
+        }
+
+        if (txtPasswordVisible != null) {
+            txtPasswordVisible.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    if (!txtPasswordVisible.getText().isEmpty()) {
+                        txtConfirmPasswordVisible.requestFocus();
+                    }
+                }
+            });
+        }
+
+        if (txtConfirmPassword != null) {
+            txtConfirmPassword.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    // Check if all fields are filled
+                    if (areAllFieldsFilled()) {
+                        handleRegister();
+                    }
+                }
+            });
+        }
+
+        if (txtConfirmPasswordVisible != null) {
+            txtConfirmPasswordVisible.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    // Check if all fields are filled
+                    if (areAllFieldsFilled()) {
+                        handleRegister();
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Checks if all required fields are filled.
+     */
+    private boolean areAllFieldsFilled() {
+        return !txtName.getText().isEmpty() &&
+               !txtLastName.getText().isEmpty() &&
+               !txtEmail.getText().isEmpty() &&
+               !txtPhone.getText().isEmpty() &&
+               (isPasswordVisible.get() ?
+                   !txtPasswordVisible.getText().isEmpty() && !txtConfirmPasswordVisible.getText().isEmpty() :
+                   !txtPassword.getText().isEmpty() && !txtConfirmPassword.getText().isEmpty());
     }
 
     /**

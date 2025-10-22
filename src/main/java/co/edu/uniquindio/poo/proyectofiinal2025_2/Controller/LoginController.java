@@ -106,6 +106,46 @@ public class LoginController {
         if (lblForgotPassword != null) {
             lblForgotPassword.setOnMouseClicked(event -> handleForgotPassword());
         }
+
+        // Add Enter key support for login with smart navigation
+        if (txtEmail != null) {
+            txtEmail.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    // If email is empty, stay; if password is empty, move to password
+                    if (StringUtil.isNullOrEmpty(txtEmail.getText())) {
+                        return;
+                    }
+                    // Move to password field
+                    if (isPasswordVisible) {
+                        txtPasswordVisible.requestFocus();
+                    } else {
+                        txtPassword.requestFocus();
+                    }
+                }
+            });
+        }
+        if (txtPassword != null) {
+            txtPassword.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    // If both fields are filled, submit; otherwise stay
+                    if (!StringUtil.isNullOrEmpty(txtEmail.getText()) &&
+                        !StringUtil.isNullOrEmpty(txtPassword.getText())) {
+                        handleTraditionalLogin();
+                    }
+                }
+            });
+        }
+        if (txtPasswordVisible != null) {
+            txtPasswordVisible.setOnKeyPressed(event -> {
+                if (event.getCode().toString().equals("ENTER")) {
+                    // If both fields are filled, submit; otherwise stay
+                    if (!StringUtil.isNullOrEmpty(txtEmail.getText()) &&
+                        !StringUtil.isNullOrEmpty(txtPasswordVisible.getText())) {
+                        handleTraditionalLogin();
+                    }
+                }
+            });
+        }
     }
 
     // =================================================================================================================
@@ -171,9 +211,16 @@ public class LoginController {
 
     /**
      * Handles the 'Forgot Password' label click event.
+     * Navigates to the ForgotPassword view.
      */
     private void handleForgotPassword() {
-        Logger.debug("Forgot Password clicked. (Placeholder - no action implemented)");
+        Logger.info("Navigating to Forgot Password view");
+
+        if (indexController != null) {
+            indexController.loadView("ForgotPassword.fxml");
+        } else {
+            Logger.error("IndexController not set - cannot navigate to Forgot Password");
+        }
     }
 
     // =================================================================================================================

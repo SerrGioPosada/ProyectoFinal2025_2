@@ -1,5 +1,6 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.ConfigLoader;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.StringUtil;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
@@ -31,9 +32,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public class GoogleOAuthService {
 
-    private static final String CLIENT_ID = "307704039867-2piv7j9num96kuai0j2e3gja7e6ud0i8.apps.googleusercontent.com";
-    private static final String CLIENT_SECRET = "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";
-    private static final int LOCAL_PORT = 8888;
+    // OAuth credentials loaded from config/oauth.properties
+    private static final String CLIENT_ID = ConfigLoader.getGoogleClientId();
+    private static final String CLIENT_SECRET = ConfigLoader.getGoogleClientSecret();
+    private static final int LOCAL_PORT = ConfigLoader.getGoogleRedirectPort();
     private static final String REDIRECT_URI = "http://localhost:" + LOCAL_PORT;
 
     private static final String AUTH_URI = "https://accounts.google.com/o/oauth2/v2/auth";

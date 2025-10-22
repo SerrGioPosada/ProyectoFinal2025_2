@@ -101,11 +101,54 @@ public class IndexController implements Initializable {
     }
 
     /**
+     * Loads a view with a user filter applied (for ShipmentManagement).
+     *
+     * @param fxmlName  The FXML filename to load.
+     * @param userEmail The user email to filter by.
+     */
+    public void loadViewWithUserFilter(String fxmlName, String userEmail) {
+        Logger.info("Loading view: " + fxmlName + " with user filter: " + userEmail);
+        try {
+            URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/" + fxmlName);
+            if (fxmlUrl == null) {
+                Logger.error("Cannot find FXML resource: " + fxmlName + ". Showing placeholder.");
+                showPlaceholder(fxmlName.replace(".fxml", ""));
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Node view = loader.load();
+
+            // Inject IndexController to child if needed
+            Object controller = loader.getController();
+            injectIndexController(controller);
+
+            // If it's ShipmentManagementController, apply the user filter
+            if (controller instanceof ShipmentManagementController shipmentController) {
+                shipmentController.applyUserFilter(userEmail);
+            }
+
+            paneIndex.getChildren().setAll(view);
+
+        } catch (IOException e) {
+            Logger.error("Failed to load view FXML: " + fxmlName, e);
+        }
+    }
+
+    /**
      * Called after successful login.
      * Reloads the sidebar and opens the appropriate dashboard.
      */
     public void onLoginSuccess() {
         loadSidebar();
+
+        // Reinitialize menu button states after loading sidebar
+        if (lblMenuBack != null && lblMenu != null) {
+            lblMenu.setVisible(true);
+            lblMenu.setMouseTransparent(false);
+            lblMenuBack.setVisible(false);
+            lblMenuBack.setMouseTransparent(true);
+        }
 
         if (authService.isCurrentPersonAdmin()) {
             Stage stage = (Stage) paneIndex.getScene().getWindow();
@@ -142,7 +185,9 @@ public class IndexController implements Initializable {
 
             closeSidebar();
             lblMenu.setVisible(true);
+            lblMenu.setMouseTransparent(false);
             lblMenuBack.setVisible(false);
+            lblMenuBack.setMouseTransparent(true);
 
             stage.showAndWait();
 
@@ -190,17 +235,24 @@ public class IndexController implements Initializable {
             System.exit(0);
         });
 
+        // Initialize menu buttons - lblMenuBack should be invisible and non-interactive
         lblMenuBack.setVisible(false);
+        lblMenuBack.setMouseTransparent(true);
+        lblMenu.setMouseTransparent(false);
 
         lblMenu.setOnMouseClicked(event -> {
             lblMenu.setVisible(false);
+            lblMenu.setMouseTransparent(true);
             lblMenuBack.setVisible(true);
+            lblMenuBack.setMouseTransparent(false);
             openSidebar();
         });
 
         lblMenuBack.setOnMouseClicked(event -> {
             lblMenu.setVisible(true);
+            lblMenu.setMouseTransparent(false);
             lblMenuBack.setVisible(false);
+            lblMenuBack.setMouseTransparent(true);
             closeSidebar();
         });
     }
@@ -240,7 +292,13 @@ public class IndexController implements Initializable {
     private void injectIndexController(Object controller) {
         if (controller instanceof LoginController login) login.setIndexController(this);
         else if (controller instanceof SignupController signup) signup.setIndexController(this);
+        else if (controller instanceof ForgotPasswordController forgotPassword) forgotPassword.setIndexController(this);
         else if (controller instanceof ManageUsersController manage) manage.setIndexController(this);
+        else if (controller instanceof AdminProfileController adminProfile) adminProfile.setIndexController(this);
+        else if (controller instanceof UserProfileController userProfile) userProfile.setIndexController(this);
+        else if (controller instanceof EditUserDataController editUserData) editUserData.setIndexController(this);
+        else if (controller instanceof ChangePasswordController changePassword) changePassword.setIndexController(this);
+        else if (controller instanceof ManageAddressesController manageAddresses) manageAddresses.setIndexController(this);
     }
 
     /**
@@ -264,5 +322,40 @@ public class IndexController implements Initializable {
     public void setCenterContent(Parent content) {
         if (paneIndex == null || content == null) return;
         paneIndex.getChildren().setAll(content);
+    }
+
+    /**
+     * Reloads the entire application to its initial state.
+     * This method should be called after logout to avoid stacking instances.
+     */
+    public void reloadApplication() {
+        try {
+            Logger.info("Reloading application to initial state after logout.");
+
+            // Get the current stage
+            Stage stage = (Stage) paneIndex.getScene().getWindow();
+
+            // Load Index.fxml fresh
+            URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/proyectofiinal2025_2/View/Index.fxml");
+            if (fxmlUrl == null) {
+                Logger.error("Cannot find Index.fxml for reload");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            // Create new scene and set it to the stage
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+
+            // Reset window state if needed
+            stage.setMaximized(false);
+
+            Logger.info("Application reloaded successfully.");
+
+        } catch (IOException e) {
+            Logger.error("Failed to reload application", e);
+        }
     }
 }

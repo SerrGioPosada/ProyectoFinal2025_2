@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
+<AnchorPane fx:id="rootPane" xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="co.edu.uniquindio.poo.proyectofiinal2025_2.Controller.ManageUsersController"
             style="-fx-background-color: #f8f9fa;"
@@ -44,15 +44,15 @@
 
         <!-- Stats Cards -->
         <HBox spacing="20" alignment="CENTER_LEFT">
-            <VBox styleClass="stat-card" spacing="5" prefWidth="200">
+            <VBox styleClass="info-card" spacing="5" prefWidth="200">
                 <padding>
                     <Insets top="15" right="15" bottom="15" left="15"/>
                 </padding>
                 <Label text="Total Usuarios" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
-                <Label fx:id="lblTotalUsers" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+                <Label fx:id="lblTotalUsers" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
             </VBox>
 
-            <VBox styleClass="stat-card" spacing="5" prefWidth="200">
+            <VBox styleClass="info-card" spacing="5" prefWidth="200">
                 <padding>
                     <Insets top="15" right="15" bottom="15" left="15"/>
                 </padding>
@@ -60,7 +60,7 @@
                 <Label fx:id="lblActiveUsers" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
             </VBox>
 
-            <VBox styleClass="stat-card" spacing="5" prefWidth="200">
+            <VBox styleClass="info-card" spacing="5" prefWidth="200">
                 <padding>
                     <Insets top="15" right="15" bottom="15" left="15"/>
                 </padding>

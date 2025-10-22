@@ -35,6 +35,8 @@
                         <Button fx:id="btnManageUsers" text="Gestionar Usuarios" styleClass="sidebar-button"/>
                         <Button fx:id="btnManageShipments" text="Gestionar Envíos" styleClass="sidebar-button"/>
                         <Button fx:id="btnReports" text="Reportes" styleClass="sidebar-button"/>
+                        <Button fx:id="btnProfile" text="Mi Perfil" styleClass="sidebar-button"/>
+                        <Button fx:id="btnLogout" text="Cerrar Sesión" styleClass="sidebar-button"/>
                     </children>
                 </VBox>
 

@@ -41,7 +41,7 @@ public class OrderService {
      */
     public OrderService() {
         this(OrderRepository.getInstance(), new InvoiceService(),
-             new ShipmentService(ShipmentRepository.getInstance()));
+             new ShipmentService());
     }
 
     // ===========================

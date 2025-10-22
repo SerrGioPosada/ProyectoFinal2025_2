@@ -31,6 +31,10 @@ public class UserSidebarController extends BaseSidebarController {
     private Button btnNewShipment;
     @FXML
     private Button btnOrders;
+    @FXML
+    private Button btnTrackShipment;
+    @FXML
+    private Button btnLogout;
 
     // =================================================================================================================
     // Initialization
@@ -78,7 +82,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void handleProfile() {
         Logger.info("Profile button clicked.");
-        indexController.loadView("ProfileView.fxml");
+        indexController.loadView("UserProfile.fxml");
     }
 
     /**
@@ -97,6 +101,23 @@ public class UserSidebarController extends BaseSidebarController {
         indexController.loadView("MyShipments.fxml");
     }
 
+    /**
+     * Handles the Track Shipment button click.
+     */
+    private void handleTrackShipment() {
+        Logger.info("Track Shipment button clicked.");
+        indexController.loadView("TrackShipment.fxml");
+    }
+
+    /**
+     * Handles the Logout button click - logs out the user and reloads the application.
+     */
+    private void handleLogout() {
+        Logger.info("Logout button clicked.");
+        authService.logout();
+        indexController.reloadApplication();
+    }
+
     // =================================================================================================================
     // Private Helper Methods
     // =================================================================================================================
@@ -110,6 +131,8 @@ public class UserSidebarController extends BaseSidebarController {
         btnProfile.setOnAction(event -> handleProfile());
         btnNewShipment.setOnAction(event -> handleNewShipment());
         btnOrders.setOnAction(event -> handleOrders());
+        btnTrackShipment.setOnAction(event -> handleTrackShipment());
+        btnLogout.setOnAction(event -> handleLogout());
     }
 
     /**
@@ -127,6 +150,8 @@ public class UserSidebarController extends BaseSidebarController {
         setButtonVisibility(btnProfile, isLoggedIn);
         setButtonVisibility(btnNewShipment, isLoggedIn);
         setButtonVisibility(btnOrders, isLoggedIn);
+        setButtonVisibility(btnTrackShipment, isLoggedIn);
+        setButtonVisibility(btnLogout, isLoggedIn);
     }
 
     /**

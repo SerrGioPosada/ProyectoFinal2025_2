@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
 
 /**
@@ -35,6 +36,8 @@ public class ManageUsersController {
     // =================================================================================================================
 
     private final UserService userService = UserService.getInstance();
+    @FXML
+    private AnchorPane rootPane;
     @FXML
     private TableView<UserSummaryDTO> tableUsers;
     @FXML
@@ -97,6 +100,7 @@ public class ManageUsersController {
         loadUsers();
         setupSearchFilter();
         setupSelectionListener();
+        setupClickOutsideListener();
         updateStatistics();
     }
 
@@ -146,7 +150,7 @@ public class ManageUsersController {
     /**
      * Handles the "View Orders" button click.
      * <p>
-     * Currently shows a placeholder dialog indicating the feature is in development.
+     * Navigates to ShipmentManagement view with a filter applied for the selected user's shipments.
      * </p>
      */
     @FXML
@@ -155,7 +159,11 @@ public class ManageUsersController {
         if (selected == null) return;
 
         Logger.info("View Orders button clicked for user: " + selected.getFullName());
-        DialogUtil.showInfo("Función en Desarrollo", "El historial de pedidos para " + selected.getFullName() + " estará disponible pronto.");
+
+        // Navigate to ShipmentManagement and pass the user email for filtering
+        if (indexController != null) {
+            indexController.loadViewWithUserFilter("ShipmentManagement.fxml", selected.getEmail());
+        }
     }
 
     /**
@@ -208,6 +216,10 @@ public class ManageUsersController {
         selected.setActive(!isCurrentlyActive);
         tableUsers.refresh();
         updateStatistics();
+
+        // Update button text to reflect new state
+        btnToggleStatus.setText(selected.isActive() ? "Inhabilitar" : "Habilitar");
+
         DialogUtil.showSuccess("Usuario " + (isCurrentlyActive ? "inhabilitado" : "habilitado") + " exitosamente.");
     }
 
@@ -354,6 +366,33 @@ public class ManageUsersController {
                 btnToggleStatus.setText(newSelection.isActive() ? "Inhabilitar" : "Habilitar");
             }
         });
+    }
+
+    /**
+     * Sets up listener to deselect table rows when clicking outside the table.
+     */
+    private void setupClickOutsideListener() {
+        if (rootPane != null) {
+            rootPane.setOnMouseClicked(event -> {
+                // Check if the click target is not the table or any of its children
+                if (!isNodeOrChildOf(event.getTarget(), tableUsers)) {
+                    tableUsers.getSelectionModel().clearSelection();
+                }
+            });
+        }
+    }
+
+    /**
+     * Checks if a node is the target or a child of the target.
+     */
+    private boolean isNodeOrChildOf(Object target, javafx.scene.Node node) {
+        if (!(target instanceof javafx.scene.Node)) return false;
+        javafx.scene.Node current = (javafx.scene.Node) target;
+        while (current != null) {
+            if (current == node) return true;
+            current = current.getParent();
+        }
+        return false;
     }
 
     /**

@@ -25,49 +25,43 @@ public class PersonFactory {
      * @throws IllegalArgumentException if the person type is invalid.
      */
     public static Person createPerson(PersonType type, PersonCreationData data) {
-        switch (type) {
-            case USER:
-                return new User.Builder()
-                        .withId(data.getId())
-                        .withName(data.getName())
-                        .withLastName(data.getLastName())
-                        .withEmail(data.getEmail())
-                        .withPhone(data.getPhone())
-                        .withPassword(data.getPassword())
-                        .withProfileImagePath(data.getProfileImagePath())
-                        .withIsActive(data.isActive())
-                        .build();
+        return switch (type) {
+            case USER -> new User.Builder()
+                    .withId(data.getId())
+                    .withName(data.getName())
+                    .withLastName(data.getLastName())
+                    .withEmail(data.getEmail())
+                    .withPhone(data.getPhone())
+                    .withPassword(data.getPassword())
+                    .withProfileImagePath(data.getProfileImagePath())
+                    .withIsActive(data.isActive())
+                    .build();
 
-            case ADMIN:
-                return new Admin.Builder()
-                        .withId(data.getId())
-                        .withName(data.getName())
-                        .withLastName(data.getLastName())
-                        .withEmail(data.getEmail())
-                        .withPhone(data.getPhone())
-                        .withPassword(data.getPassword())
-                        .withProfileImagePath(data.getProfileImagePath())
-                        .withEmployeeId(data.getEmployeeId())
-                        .withPermissionLevel(data.getPermissionLevel())
-                        .build();
+            case ADMIN -> new Admin.Builder()
+                    .withId(data.getId())
+                    .withName(data.getName())
+                    .withLastName(data.getLastName())
+                    .withEmail(data.getEmail())
+                    .withPhone(data.getPhone())
+                    .withPassword(data.getPassword())
+                    .withProfileImagePath(data.getProfileImagePath())
+                    .withEmployeeId(data.getEmployeeId())
+                    .withPermissionLevel(data.getPermissionLevel())
+                    .build();
 
-            case DELIVERY_PERSON:
-                return new DeliveryPerson.Builder()
-                        .withId(data.getId())
-                        .withName(data.getName())
-                        .withLastName(data.getLastName())
-                        .withEmail(data.getEmail())
-                        .withPhone(data.getPhone())
-                        .withPassword(data.getPassword())
-                        .withProfileImagePath(data.getProfileImagePath())
-                        .withDocumentId(data.getDocumentId())
-                        .withAvailability(data.getAvailability())
-                        .withAssignedVehicle(data.getAssignedVehicle())
-                        .withCoverageArea(data.getCoverageArea())
-                        .build();
-
-            default:
-                throw new IllegalArgumentException("Invalid PersonType: " + type);
-        }
+            case DELIVERY_PERSON -> new DeliveryPerson.Builder()
+                    .withId(data.getId())
+                    .withName(data.getName())
+                    .withLastName(data.getLastName())
+                    .withEmail(data.getEmail())
+                    .withPhone(data.getPhone())
+                    .withPassword(data.getPassword())
+                    .withProfileImagePath(data.getProfileImagePath())
+                    .withDocumentId(data.getDocumentId())
+                    .withAvailability(data.getAvailability())
+                    .withAssignedVehicle(data.getAssignedVehicle())
+                    .withCoverageArea(data.getCoverageArea())
+                    .build();
+        };
     }
 }

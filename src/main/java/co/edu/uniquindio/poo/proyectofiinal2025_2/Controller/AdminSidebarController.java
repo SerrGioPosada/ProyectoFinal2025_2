@@ -32,6 +32,10 @@ public class AdminSidebarController extends BaseSidebarController {
     private Button btnManageShipments;
     @FXML
     private Button btnReports;
+    @FXML
+    private Button btnProfile;
+    @FXML
+    private Button btnLogout;
 
     // =================================================================================================================
     // Initialization
@@ -69,11 +73,26 @@ public class AdminSidebarController extends BaseSidebarController {
         Map<Button, String> navigationMap = Map.of(
                 btnDashboard, "AdminDashboard.fxml",
                 btnManageUsers, "ManageUsers.fxml",
-                btnManageShipments, "ManageShipments.fxml",
-                btnReports, "Reports.fxml"
+                btnManageShipments, "ShipmentManagement.fxml",
+                btnReports, "Reports.fxml",
+                btnProfile, "AdminProfile.fxml"
         );
 
         navigationMap.forEach(this::bindNavigation);
+
+        // Logout button has special behavior (doesn't navigate to a view)
+        if (btnLogout != null) {
+            btnLogout.setOnAction(event -> handleLogout());
+        }
+    }
+
+    /**
+     * Handles the Logout button click - logs out the admin and reloads the application.
+     */
+    private void handleLogout() {
+        Logger.info("Logout button clicked.");
+        authService.logout();
+        indexController.reloadApplication();
     }
 
     // =================================================================================================================
