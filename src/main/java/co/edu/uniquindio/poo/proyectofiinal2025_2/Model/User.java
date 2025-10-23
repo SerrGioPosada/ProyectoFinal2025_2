@@ -1,91 +1,101 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
-import javafx.scene.image.Image;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Represents a customer in the system, extending the {@link AuthenticablePerson} class.
  * <p>
- * A user is a customer with a profile image, and manages lists of
- * addresses, payment methods, and orders.
+ * A user manages lists of addresses, payment methods, and orders.
+ * The profile image is inherited from AuthenticablePerson.
  * </p>
  */
+@Getter
+@Setter
+@ToString(callSuper = true)
 public class User extends AuthenticablePerson {
 
-    private Image profileImage;
-    private List<Address> frequentAddresses; // Renamed from addresses
+    private List<Address> frequentAddresses;
     private List<PaymentMethod> paymentMethods;
     private List<Order> orders;
+    private boolean isActive; // ✅ Campo para habilitar/inhabilitar cuenta
 
     /**
-     * Constructs a new user with the provided data.
-     *
-     * @param id           the unique identifier for the user
-     * @param name         first name of the user
-     * @param lastName     last name of the user
-     * @param email        email address of the user
-     * @param phone        phone number of the user
-     * @param password     password for the user account (will be hashed)
-     * @param profileImage profile image of the user
+     * Default constructor.
+     * Initializes lists to avoid NullPointerExceptions.
      */
-    public User(String id, String name, String lastName, String email, String phone,
-                String password, Image profileImage) {
-        super(id, name, lastName, email, phone, password);
-        this.profileImage = profileImage;
+    public User() {
+        super();
         this.frequentAddresses = new ArrayList<>();
         this.paymentMethods = new ArrayList<>();
         this.orders = new ArrayList<>();
+        this.isActive = true; // ✅ Por defecto, las cuentas están activas
     }
 
-    // ======================
-    // Getters
-    // ======================
-
-    public Image getProfileImage() {
-        return profileImage;
+    /**
+     * Protected constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    protected User(Builder builder) {
+        super(builder);
+        this.frequentAddresses = new ArrayList<>();
+        this.paymentMethods = new ArrayList<>();
+        this.orders = new ArrayList<>();
+        this.isActive = builder.isActive; // ✅ Obtener del builder
     }
 
-    public List<Address> getFrequentAddresses() {
-        return frequentAddresses;
+    // ======================================
+    //               BUILDER
+    // ======================================
+
+    /**
+     * Concrete builder for creating User instances.
+     */
+    public static class Builder extends AuthenticablePerson.Builder<Builder> {
+
+        private boolean isActive = true; // ✅ Campo en el builder
+
+        /**
+         * Sets whether the user account is active.
+         * @param isActive true if active, false if disabled.
+         * @return The builder instance for chaining.
+         */
+        public Builder withIsActive(boolean isActive) {
+            this.isActive = isActive;
+            return this;
+        }
+
+        /**
+         * Returns the concrete builder instance (part of the CRTP pattern).
+         * @return The concrete builder instance.
+         */
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        /**
+         * Creates a new User instance from the builder's properties.
+         * @return A new User instance.
+         */
+        @Override
+        public User build() {
+            return new User(this);
+        }
     }
 
-    public List<PaymentMethod> getPaymentMethods() {
-        return paymentMethods;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    // ======================
-    // Setters
-    // ======================
-
-    public void setProfileImage(Image profileImage) {
-        this.profileImage = profileImage;
-    }
-
-    public void setFrequentAddresses(List<Address> frequentAddresses) {
-        this.frequentAddresses = frequentAddresses;
-    }
-
-    public void setPaymentMethods(List<PaymentMethod> paymentMethods) {
-        this.paymentMethods = paymentMethods;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
-    }
-
-    // ======================
-    // Utility methods
-    // ======================
+    // ======================================
+    //           UTILITY METHODS
+    // ======================================
 
     /**
      * Adds a new frequent address to the user's list.
      *
-     * @param address address to add
+     * @param address The Address object to add.
      */
     public void addFrequentAddress(Address address) {
         if (this.frequentAddresses == null) {
@@ -95,34 +105,42 @@ public class User extends AuthenticablePerson {
     }
 
     /**
-     * Adds a new payment method to the user.
+     * Adds a new payment method to the user's list.
      *
-     * @param method payment method to add
+     * @param method The PaymentMethod object to add.
      */
     public void addPaymentMethod(PaymentMethod method) {
+        if (this.paymentMethods == null) {
+            this.paymentMethods = new ArrayList<>();
+        }
         this.paymentMethods.add(method);
     }
 
     /**
-     * Adds a new order to the user.
+     * Adds a new order to the user's list.
      *
-     * @param order order to add
+     * @param order The Order object to add.
      */
     public void addOrder(Order order) {
+        if (this.orders == null) {
+            this.orders = new ArrayList<>();
+        }
         this.orders.add(order);
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id='" + getId() + '\'' +
-                ", name='" + getName() + '\'' +
-                ", lastName='" + getLastName() + '\'' +
-                ", email='" + getEmail() + '\'' +
-                ", phone='" + getPhone() + '\'' +
-                ", frequentAddresses=" + (frequentAddresses != null ? frequentAddresses.size() : "0") +
-                ", paymentMethods=" + paymentMethods.size() +
-                ", orders=" + orders.size() +
-                '}';
+    /**
+     * Checks if the user account is active.
+     * @return true if active, false if disabled.
+     */
+    public boolean isActive() {
+        return isActive;
+    }
+
+    /**
+     * Sets the active status of the user account.
+     * @param active true to enable, false to disable.
+     */
+    public void setActive(boolean active) {
+        this.isActive = active;
     }
 }

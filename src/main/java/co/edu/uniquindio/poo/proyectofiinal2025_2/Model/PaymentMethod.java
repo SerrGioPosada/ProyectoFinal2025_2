@@ -2,12 +2,18 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PaymentMethodType;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PaymentProvider;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Represents a payment method that a user can register.
  * It contains the type (e.g., Credit Card, Cash),
  * and the provider (e.g., Visa, PayPal).
  */
+@Getter
+@Setter
+@ToString
 public class PaymentMethod {
 
     private String id;                       // Unique identifier for the payment method
@@ -16,7 +22,13 @@ public class PaymentMethod {
     private String accountNumber;            // For cards/accounts (masked for security)
 
     /**
-     * Constructs a new PaymentMethod.
+     * Default constructor.
+     */
+    public PaymentMethod() {
+    }
+
+    /**
+     * Constructs a new PaymentMethod with the specified details.
      *
      * @param id            unique identifier for this payment method
      * @param type          type of payment method (enum)
@@ -30,57 +42,56 @@ public class PaymentMethod {
         this.accountNumber = accountNumber;
     }
 
-    // ======================
-    // Getters
-    // ======================
-
-    public String getId() {
-        return id;
+    /**
+     * Private constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    private PaymentMethod(Builder builder) {
+        this.id = builder.id;
+        this.type = builder.type;
+        this.provider = builder.provider;
+        this.accountNumber = builder.accountNumber;
     }
 
-    public PaymentMethodType getType() {
-        return type;
-    }
+    // ======================================
+    //               BUILDER
+    // ======================================
 
-    public PaymentProvider getProvider() {
-        return provider;
-    }
+    /**
+     * Static builder class for creating PaymentMethod instances.
+     */
+    public static class Builder {
+        private String id;
+        private PaymentMethodType type;
+        private PaymentProvider provider;
+        private String accountNumber;
 
-    public String getAccountNumber() {
-        return accountNumber;
-    }
+        public Builder withId(String id) {
+            this.id = id;
+            return this;
+        }
 
-    // ======================
-    // Setters
-    // ======================
+        public Builder withType(PaymentMethodType type) {
+            this.type = type;
+            return this;
+        }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+        public Builder withProvider(PaymentProvider provider) {
+            this.provider = provider;
+            return this;
+        }
 
-    public void setType(PaymentMethodType type) {
-        this.type = type;
-    }
+        public Builder withAccountNumber(String accountNumber) {
+            this.accountNumber = accountNumber;
+            return this;
+        }
 
-    public void setProvider(PaymentProvider provider) {
-        this.provider = provider;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-
-    // ======================
-    // ToString
-    // ======================
-
-    @Override
-    public String toString() {
-        return "PaymentMethod{" +
-                "id='" + id + '\'' +
-                ", type=" + type +
-                ", provider=" + provider +
-                ", accountNumber='" + (accountNumber != null ? "****" + accountNumber.substring(accountNumber.length() - 4) : "N/A") + '\'' +
-                '}';
+        /**
+         * Creates a new PaymentMethod instance from the builder's properties.
+         * @return A new PaymentMethod instance.
+         */
+        public PaymentMethod build() {
+            return new PaymentMethod(this);
+        }
     }
 }

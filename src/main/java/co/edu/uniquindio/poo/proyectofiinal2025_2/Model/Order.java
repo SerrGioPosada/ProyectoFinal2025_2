@@ -1,6 +1,9 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.OrderStatus;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +14,9 @@ import java.time.LocalDateTime;
  * referencing them only by their IDs. This ensures transactional consistency
  * and a clean domain model.</p>
  */
+@Getter
+@Setter
+@ToString
 public class Order {
 
     private String id;
@@ -26,108 +32,101 @@ public class Order {
     private String invoiceId;
 
     /**
-     * Constructs a new Order at the beginning of its lifecycle.
-     * The initial status is always set to AWAITING_PAYMENT.
-     *
-     * @param id          The unique identifier for the order.
-     * @param userId      The ID of the user who created the order.
-     * @param origin      The origin address for the shipment.
-     * @param destination The destination address for the shipment.
-     * @param createdAt   The timestamp when the order was created.
+     * Default constructor.
      */
-    public Order(String id, String userId, Address origin, Address destination, LocalDateTime createdAt) {
-        this.id = id;
-        this.userId = userId;
-        this.origin = origin;
-        this.destination = destination;
-        this.createdAt = createdAt;
-        this.status = OrderStatus.AWAITING_PAYMENT; // Initial state
-        this.shipmentId = null; // Null until a shipment is created
-        this.paymentId = null;  // Null until a payment is processed
-        this.invoiceId = null;  // Null until an invoice is generated
+    public Order() {
     }
 
-    // ======================
-    // Getters
-    // ======================
-
-    public String getId() {
-        return id;
+    /**
+     * Private constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    private Order(Builder builder) {
+        this.id = builder.id;
+        this.userId = builder.userId;
+        this.origin = builder.origin;
+        this.destination = builder.destination;
+        this.createdAt = builder.createdAt;
+        this.status = builder.status;
+        this.shipmentId = builder.shipmentId;
+        this.paymentId = builder.paymentId;
+        this.invoiceId = builder.invoiceId;
     }
 
-    public String getUserId() {
-        return userId;
-    }
+    // ======================================
+    //               BUILDER
+    // ======================================
 
-    public Address getOrigin() {
-        return origin;
-    }
+    /**
+     * Static builder class for creating Order instances.
+     */
+    public static class Builder {
+        private String id;
+        private String userId;
+        private Address origin;
+        private Address destination;
+        private LocalDateTime createdAt;
+        private OrderStatus status;
+        private String shipmentId;
+        private String paymentId;
+        private String invoiceId;
 
-    public Address getDestination() {
-        return destination;
-    }
+        public Builder withId(String id) {
+            this.id = id;
+            return this;
+        }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+        public Builder withUserId(String userId) {
+            this.userId = userId;
+            return this;
+        }
 
-    public OrderStatus getStatus() {
-        return status;
-    }
+        public Builder withOrigin(Address origin) {
+            this.origin = origin;
+            return this;
+        }
 
-    public String getShipmentId() {
-        return shipmentId;
-    }
+        public Builder withDestination(Address destination) {
+            this.destination = destination;
+            return this;
+        }
 
-    public String getPaymentId() {
-        return paymentId;
-    }
+        public Builder withCreatedAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
 
-    public String getInvoiceId() {
-        return invoiceId;
-    }
+        public Builder withStatus(OrderStatus status) {
+            this.status = status;
+            return this;
+        }
 
-    // ======================
-    // Setters for State Transitions
-    // ======================
+        public Builder withShipmentId(String shipmentId) {
+            this.shipmentId = shipmentId;
+            return this;
+        }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+        public Builder withPaymentId(String paymentId) {
+            this.paymentId = paymentId;
+            return this;
+        }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+        public Builder withInvoiceId(String invoiceId) {
+            this.invoiceId = invoiceId;
+            return this;
+        }
 
-    public void setStatus(OrderStatus status) {
-        this.status = status;
-    }
-
-    public void setShipmentId(String shipmentId) {
-        this.shipmentId = shipmentId;
-    }
-
-    public void setPaymentId(String paymentId) {
-        this.paymentId = paymentId;
-    }
-
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
-    }
-
-    // ======================
-    // toString
-    // ======================
-
-    @Override
-    public String toString() {
-        return "Order{" +
-                "id='" + id + '\'' +
-                ", userId='" + userId + '\'' +
-                ", status=" + status +
-                ", shipmentId='" + shipmentId + '\'' +
-                ", paymentId='" + paymentId + '\'' +
-                ", invoiceId='" + invoiceId + '\'' +
-                '}';
+        /**
+         * Creates a new Order instance from the builder's properties.
+         * If no status is specified, it defaults to {@code OrderStatus.AWAITING_PAYMENT}.
+         * @return A new Order instance.
+         */
+        public Order build() {
+            // Set default status if not provided
+            if (this.status == null) {
+                this.status = OrderStatus.AWAITING_PAYMENT;
+            }
+            return new Order(this);
+        }
     }
 }

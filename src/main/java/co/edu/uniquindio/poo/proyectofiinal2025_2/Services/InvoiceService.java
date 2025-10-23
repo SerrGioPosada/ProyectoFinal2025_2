@@ -6,11 +6,11 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Tariff;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.InvoiceRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.TariffRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * <p>Provides business logic services related to invoice creation and management.</p>
@@ -23,11 +23,22 @@ public class InvoiceService {
     private final TariffService tariffService;
 
     /**
-     * Constructs a new InvoiceService with its dependencies.
+     * Constructor with dependency injection for repositories and services.
+     *
+     * @param invoiceRepository The InvoiceRepository instance.
+     * @param tariffService The TariffService instance.
+     */
+    public InvoiceService(InvoiceRepository invoiceRepository, TariffService tariffService) {
+        this.invoiceRepository = invoiceRepository;
+        this.tariffService = tariffService;
+    }
+
+    /**
+     * Default constructor that uses singleton instances.
+     * This provides backward compatibility and ease of use.
      */
     public InvoiceService() {
-        this.invoiceRepository = InvoiceRepository.getInstance();
-        this.tariffService = new TariffService(TariffRepository.getInstance());
+        this(InvoiceRepository.getInstance(), new TariffService(TariffRepository.getInstance()));
     }
 
     /**
@@ -67,15 +78,15 @@ public class InvoiceService {
         // Calculate total amount
         double totalAmount = lineItems.stream().mapToDouble(LineItem::getAmount).sum();
 
-        // Create the immutable invoice object
-        Invoice newInvoice = new Invoice(
-                UUID.randomUUID().toString(),
-                order.getId(),
-                "INV-" + System.currentTimeMillis(), // Simple unique invoice number
-                LocalDateTime.now(),
-                totalAmount,
-                lineItems
-        );
+        // Create the immutable invoice object using the manual builder
+        Invoice newInvoice = new Invoice.Builder()
+                .withId(IdGenerationUtil.generateId())
+                .withOrderId(order.getId())
+                .withInvoiceNumber(IdGenerationUtil.generateInvoiceNumber())
+                .withIssuedAt(LocalDateTime.now())
+                .withTotalAmount(totalAmount)
+                .withLineItems(lineItems)
+                .build();
 
         // Persist the new invoice
         invoiceRepository.addInvoice(newInvoice);

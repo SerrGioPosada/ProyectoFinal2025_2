@@ -1,6 +1,10 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PaymentStatus;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 
 /**
@@ -9,6 +13,9 @@ import java.time.LocalDateTime;
  * A payment contains information about the amount, date, status, the method used,
  * and a reference to the specific invoice it is paying for.</p>
  */
+@Getter
+@Setter
+@ToString
 public class Payment {
 
     private String id;
@@ -19,91 +26,75 @@ public class Payment {
     private PaymentMethod paymentMethod;
 
     /**
-     * Constructs a new Payment with the provided data.
-     *
-     * @param id            The unique identifier for this payment transaction.
-     * @param invoiceId     The ID of the invoice this payment is for.
-     * @param amount        The total amount paid.
-     * @param date          The date and time of the payment.
-     * @param status        The current status of the payment.
-     * @param paymentMethod The payment method used in the transaction.
+     * Default constructor.
      */
-    public Payment(String id, String invoiceId, double amount, LocalDateTime date, PaymentStatus status, PaymentMethod paymentMethod) {
-        this.id = id;
-        this.invoiceId = invoiceId;
-        this.amount = amount;
-        this.date = date;
-        this.status = status;
-        this.paymentMethod = paymentMethod;
+    public Payment() {
     }
 
-    // ======================
-    // Getters
-    // ======================
-
-    public String getId() {
-        return id;
+    /**
+     * Private constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    private Payment(Builder builder) {
+        this.id = builder.id;
+        this.invoiceId = builder.invoiceId;
+        this.amount = builder.amount;
+        this.date = builder.date;
+        this.status = builder.status;
+        this.paymentMethod = builder.paymentMethod;
     }
 
-    public String getInvoiceId() {
-        return invoiceId;
-    }
+    // ======================================
+    //               BUILDER
+    // ======================================
 
-    public double getAmount() {
-        return amount;
-    }
+    /**
+     * Static builder class for creating Payment instances.
+     */
+    public static class Builder {
+        private String id;
+        private String invoiceId;
+        private double amount;
+        private LocalDateTime date;
+        private PaymentStatus status;
+        private PaymentMethod paymentMethod;
 
-    public LocalDateTime getDate() {
-        return date;
-    }
+        public Builder withId(String id) {
+            this.id = id;
+            return this;
+        }
 
-    public PaymentStatus getStatus() {
-        return status;
-    }
+        public Builder withInvoiceId(String invoiceId) {
+            this.invoiceId = invoiceId;
+            return this;
+        }
 
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
-    }
+        public Builder withAmount(double amount) {
+            this.amount = amount;
+            return this;
+        }
 
-    // ======================
-    // Setters
-    // ======================
+        public Builder withDate(LocalDateTime date) {
+            this.date = date;
+            return this;
+        }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+        public Builder withStatus(PaymentStatus status) {
+            this.status = status;
+            return this;
+        }
 
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
-    }
+        public Builder withPaymentMethod(PaymentMethod paymentMethod) {
+            this.paymentMethod = paymentMethod;
+            return this;
+        }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
-    public void setStatus(PaymentStatus status) {
-        this.status = status;
-    }
-
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    // ======================
-    // toString
-    // ======================
-
-    @Override
-    public String toString() {
-        return "Payment{" +
-                "id='" + id + '\'' +
-                ", invoiceId='" + invoiceId + '\'' +
-                ", amount=" + amount +
-                ", status=" + status +
-                '}';
+        /**
+         * Creates a new Payment instance from the builder's properties.
+         * @return A new Payment instance.
+         */
+        public Payment build() {
+            return new Payment(this);
+        }
     }
 }

@@ -1,25 +1,44 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Tariff;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilRepository.GsonProvider;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilRepository.JsonFileHandler;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilRepository.RepositoryPaths;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
- * <p>Manages the persistence and retrieval of Tariff entities.</p>
- * <p>This class is implemented as a Singleton to ensure that there is only one
- * instance managing all tariff data in the application.</p>
+ * Manages the persistence and retrieval of Tariff entities using a HashMap for fast lookups.
+ * <p>This class is implemented as a Singleton and saves data to a local JSON file.</p>
  */
 public class TariffRepository {
 
+    // --- Attributes for Persistence ---
+    private final Gson gson = GsonProvider.createGson();
     private static TariffRepository instance;
-    private final List<Tariff> tariffs;
+    private final Map<String, Tariff> tariffsById;
 
+    /**
+     * Private constructor that loads data from the file upon initialization.
+     */
     private TariffRepository() {
-        this.tariffs = new ArrayList<>();
+        this.tariffsById = new HashMap<>();
+        loadFromFile();
     }
 
+    /**
+     * Returns the singleton instance of the repository.
+     *
+     * @return the unique instance of {@code TariffRepository}
+     */
     public static synchronized TariffRepository getInstance() {
         if (instance == null) {
             instance = new TariffRepository();
@@ -27,28 +46,50 @@ public class TariffRepository {
         return instance;
     }
 
-    public void addTariff(Tariff tariff) {
-        tariffs.add(tariff);
+    // ======================
+    // Private file handling methods
+    // ======================
+
+    private void saveToFile() {
+        List<Tariff> tariffList = new ArrayList<>(tariffsById.values());
+        JsonFileHandler.saveToFile(RepositoryPaths.TARIFFS_PATH, tariffList, gson);
     }
 
-    public Optional<Tariff> findById(String id) {
-        return tariffs.stream()
-                .filter(tariff -> tariff.getId().equals(id))
-                .findFirst();
-    }
+    private void loadFromFile() {
+        Type listType = new TypeToken<ArrayList<Tariff>>() {}.getType();
+        Optional<List<Tariff>> loadedTariffs = JsonFileHandler.loadFromFile(
+                RepositoryPaths.TARIFFS_PATH,
+                listType,
+                gson
+        );
 
-    public List<Tariff> findAll() {
-        return new ArrayList<>(tariffs);
-    }
-
-    public void update(Tariff updatedTariff) {
-        findById(updatedTariff.getId()).ifPresent(existingTariff -> {
-            int index = tariffs.indexOf(existingTariff);
-            tariffs.set(index, updatedTariff);
+        loadedTariffs.ifPresent(tariffs -> {
+            Logger.info("Loading " + tariffs.size() + " tariffs from file...");
+            for (Tariff tariff : tariffs) {
+                tariffsById.put(tariff.getId(), tariff);
+            }
+            Logger.info("Successfully loaded " + tariffsById.size() + " tariffs");
         });
     }
 
-    public void delete(String id) {
-        findById(id).ifPresent(tariffs::remove);
+    // ======================
+    // Handling methods
+    // ======================
+
+    public void addTariff(Tariff tariff) {
+        tariffsById.put(tariff.getId(), tariff);
+        saveToFile();
+    }
+
+    // ======================
+    // Query methods
+    // ======================
+
+    public Optional<Tariff> findById(String id) {
+        return Optional.ofNullable(tariffsById.get(id));
+    }
+
+    public List<Tariff> findAll() {
+        return new ArrayList<>(tariffsById.values());
     }
 }
