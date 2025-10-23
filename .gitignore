@@ -1,21 +1,31 @@
+### Maven ###
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# .mvn/jvm.config SÍ se sube (configuración del proyecto)
+# .mvn/wrapper/ SÍ se sube (Maven Wrapper)
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+.idea/
 *.iws
 *.iml
 *.ipr
-
-# Ignorar archivos del IDE y herramientas
-.idea/
-*.iml
-copilot.*.xml
+out/
+.idea_modules/
+atlassian-ide-plugin.xml
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
 
 ### Eclipse ###
 .apt_generated
@@ -25,6 +35,15 @@ copilot.*.xml
 .settings
 .springBeans
 .sts4-cache
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+.recommenders
 
 ### NetBeans ###
 /nbproject/private/
@@ -38,10 +57,57 @@ build/
 
 ### VS Code ###
 .vscode/
+*.code-workspace
 
 ### Mac OS ###
 .DS_Store
-.idea/copilot.data.migration.agent.xml
-.idea/copilot.data.migration.agent.xml
-/.idea
-.idea/copilot.data.migration.ask.xml
+.AppleDouble
+.LSOverride
+._*
+
+### Windows ###
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+### Java ###
+*.class
+*.log
+hs_err_pid*
+replay_pid*
+
+### Logs ###
+*.log
+logs/
+compile-debug.log
+
+### Scripts temporales ###
+mvnw-quiet.cmd
+build.cmd
+run.cmd
+
+### Claude Code ###
+CLAUDE.md
+.claude/
+*.md.claude
+*-claude.md
+.claude*.md
+
+### Data Files (Base de datos local) ###
+data/
+
+### Configuration Files ###
+# NOTE: For university/educational purposes, oauth.properties IS included in the repo
+# In production environments, you should exclude this file and use environment variables
+# config/oauth.properties  # Uncomment this line for production use
+
+### Documentación ###
+# Solo README.md se sube en la raíz
+# docs/ NO se sube al repositorio (documentación local)
+/*.md
+!README.md
+docs/

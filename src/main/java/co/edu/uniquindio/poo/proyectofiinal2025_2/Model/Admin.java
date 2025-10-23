@@ -1,53 +1,77 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PermissionLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * <p>Represents an administrator in the system, extending the {@link AuthenticablePerson} class.</p>
  * <p>An administrator has system management privileges defined by an employee ID and a
  * specific permission level.</p>
  */
+@Getter
+@Setter
+@ToString(callSuper = true)
 public class Admin extends AuthenticablePerson {
 
     private String employeeId;
     private PermissionLevel permissionLevel;
 
     /**
-     * Constructs a new Admin with the specified details.
-     *
-     * @param id              The unique identifier for the admin.
-     * @param name            The admin's first name.
-     * @param lastName        The admin's last name.
-     * @param email           The admin's email address.
-     * @param phone           The admin's phone number.
-     * @param password        The admin's password for login (will be hashed).
-     * @param employeeId      The unique employee identifier.
-     * @param permissionLevel The level of permissions assigned to the admin.
+     * Default constructor.
      */
-    public Admin(String id, String name, String lastName, String email, String phone, String password,
-                 String employeeId, PermissionLevel permissionLevel) {
-        super(id, name, lastName, email, phone, password);
-        this.employeeId = employeeId;
-        this.permissionLevel = permissionLevel;
+    public Admin() {
+        super();
     }
 
-    // =================================
-    // Getters and Setters
-    // =================================
-
-    public String getEmployeeId() {
-        return employeeId;
+    /**
+     * Protected constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    protected Admin(Builder builder) {
+        super(builder);
+        this.employeeId = builder.employeeId;
+        this.permissionLevel = builder.permissionLevel;
     }
 
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
-    }
+    // ======================================
+    //               BUILDER
+    // ======================================
 
-    public PermissionLevel getPermissionLevel() {
-        return permissionLevel;
-    }
+    /**
+     * Concrete builder for creating Admin instances.
+     */
+    public static class Builder extends AuthenticablePerson.Builder<Builder> {
+        private String employeeId;
+        private PermissionLevel permissionLevel;
 
-    public void setPermissionLevel(PermissionLevel permissionLevel) {
-        this.permissionLevel = permissionLevel;
+        public Builder withEmployeeId(String employeeId) {
+            this.employeeId = employeeId;
+            return this;
+        }
+
+        public Builder withPermissionLevel(PermissionLevel permissionLevel) {
+            this.permissionLevel = permissionLevel;
+            return this;
+        }
+
+        /**
+         * Returns the concrete builder instance (part of the CRTP pattern).
+         * @return The concrete builder instance.
+         */
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        /**
+         * Creates a new Admin instance from the builder's properties.
+         * @return A new Admin instance.
+         */
+        @Override
+        public Admin build() {
+            return new Admin(this);
+        }
     }
 }

@@ -1,20 +1,22 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Services;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Admin;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.AuthenticablePerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Person;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.User;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.AdminRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.UserRepository;
-import co.edu.uniquindio.poo.proyectofiinal2025_2.Utilities.PasswordUtility;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilModel.PasswordUtility;
 
 import java.util.Optional;
 
 /**
- * <p>Provides a centralized service for authenticating all types of persons.</p>
- * <p>This class is a Singleton that handles login, logout, and session state for the
- * current person (User, Admin, or DeliveryPerson) using secure password verification.</p>
+ * Provides a centralized service for authenticating all types of persons.
+ * This class is a Singleton that handles login, logout, and session state for the
+ * current person (User, Admin, or DeliveryPerson) using secure password verification.
  */
 public class AuthenticationService {
 
@@ -22,20 +24,34 @@ public class AuthenticationService {
     private final AdminRepository adminRepository;
     private final UserRepository userRepository;
     private final DeliveryPersonRepository deliveryPersonRepository;
-
     private Person currentPerson;
 
     /**
-     * Private constructor to initialize the service and its repository dependencies.
+     * Package-private constructor for testing and dependency injection.
+     * Allows injecting custom repository implementations.
+     *
+     * @param adminRepository The AdminRepository instance to use.
+     * @param userRepository The UserRepository instance to use.
+     * @param deliveryPersonRepository The DeliveryPersonRepository instance to use.
      */
-    private AuthenticationService() {
-        this.adminRepository = AdminRepository.getInstance();
-        this.userRepository = UserRepository.getInstance();
-        this.deliveryPersonRepository = DeliveryPersonRepository.getInstance();
+    AuthenticationService(AdminRepository adminRepository, UserRepository userRepository,
+                          DeliveryPersonRepository deliveryPersonRepository) {
+        this.adminRepository = adminRepository;
+        this.userRepository = userRepository;
+        this.deliveryPersonRepository = deliveryPersonRepository;
     }
 
     /**
-     * Returns the single instance of the authentication service.
+     * Private constructor to enforce the Singleton pattern and initialize repositories.
+     * Delegates to the dependency injection constructor with singleton repositories.
+     */
+    private AuthenticationService() {
+        this(AdminRepository.getInstance(), UserRepository.getInstance(),
+             DeliveryPersonRepository.getInstance());
+    }
+
+    /**
+     * Returns the single instance of the AuthenticationService.
      *
      * @return The singleton instance of AuthenticationService.
      */
@@ -47,52 +63,22 @@ public class AuthenticationService {
     }
 
     /**
-     * Attempts to log in a person with the given credentials using secure password checking.
-     * <p>It checks for a match in the Admin, User, and DeliveryPerson repositories.</p>
+     * Allows setting a custom instance for testing purposes.
+     * WARNING: This should only be used in test environments.
      *
-     * @param email             The email address to check.
-     * @param plainTextPassword The plain text password to verify against the stored hash.
-     * @return true if login is successful, false otherwise.
+     * @param customInstance The custom AuthenticationService instance.
      */
-    public boolean login(String email, String plainTextPassword) {
-        // Try to find an admin
-        Optional<Admin> adminOpt = adminRepository.findByEmail(email);
-        if (adminOpt.isPresent()) {
-            Admin admin = adminOpt.get();
-            if (PasswordUtility.checkPassword(plainTextPassword, admin.getPassword())) {
-                this.currentPerson = admin;
-                return true;
-            }
-        }
-
-        // Try to find a user
-        User user = userRepository.findByEmail(email);
-        if (user != null) {
-            if (PasswordUtility.checkPassword(plainTextPassword, user.getPassword())) {
-                this.currentPerson = user;
-                return true;
-            }
-        }
-
-        // Try to find a delivery person
-        Optional<DeliveryPerson> deliveryPersonOpt = deliveryPersonRepository.findDeliveryPersonByEmail(email);
-        if (deliveryPersonOpt.isPresent()) {
-            DeliveryPerson deliveryPerson = deliveryPersonOpt.get();
-            if (PasswordUtility.checkPassword(plainTextPassword, deliveryPerson.getPassword())) {
-                this.currentPerson = deliveryPerson;
-                return true;
-            }
-        }
-
-        // If no match is found
-        return false;
+    static void setInstance(AuthenticationService customInstance) {
+        instance = customInstance;
     }
 
     /**
      * Logs out the currently authenticated person.
+     * Clears the current session and resets the authenticated user to null.
      */
     public void logout() {
         this.currentPerson = null;
+        Logger.info("User logged out successfully");
     }
 
     /**
@@ -105,12 +91,55 @@ public class AuthenticationService {
     }
 
     /**
+     * Returns the authenticated user as an AuthenticablePerson.
+     * This is useful for accessing common authentication properties.
+     *
+     * @return The authenticated person, or null if not logged in.
+     */
+    public AuthenticablePerson getAuthenticatedUser() {
+        return (AuthenticablePerson) currentPerson;
+    }
+
+    /**
+     * Manually sets the authenticated person for the current session.
+     * This is useful for external authentication flows like OAuth (e.g., Google Sign-In)
+     * where the authentication is verified externally.
+     *
+     * @param person The person to be set as the current authenticated user.
+     */
+    public void setAuthenticatedUser(Person person) {
+        this.currentPerson = person;
+        String email = person instanceof AuthenticablePerson
+                ? ((AuthenticablePerson) person).getEmail()
+                : "Unknown";
+        Logger.info("Authenticated user set: " + email);
+    }
+
+    /**
+     * Checks if any person is currently logged in.
+     *
+     * @return true if a person is logged in, false otherwise.
+     */
+    public boolean isPersonLoggedIn() {
+        return currentPerson != null;
+    }
+
+    /**
      * Checks if the currently logged-in person is an administrator.
      *
      * @return true if the current person is an instance of Admin, false otherwise.
      */
     public boolean isCurrentPersonAdmin() {
         return currentPerson instanceof Admin;
+    }
+
+    /**
+     * Checks if the currently logged-in person is a regular user.
+     *
+     * @return true if the current person is an instance of User, false otherwise.
+     */
+    public boolean isCurrentPersonUser() {
+        return currentPerson instanceof User;
     }
 
     /**
@@ -123,11 +152,109 @@ public class AuthenticationService {
     }
 
     /**
-     * Checks if any person is currently logged in.
+     * Attempts to log in a person with the given credentials using secure password checking.
+     * It checks for a match in the Admin, User, and DeliveryPerson repositories in that order.
+     * For Users, it also verifies that the account is active (not disabled).
      *
-     * @return true if a person is logged in, false otherwise.
+     * @param email             The email address to check.
+     * @param plainTextPassword The plain text password to verify against the stored hash.
+     * @return true if login is successful, false otherwise.
      */
-    public boolean isPersonLoggedIn() {
-        return currentPerson != null;
+    public boolean login(String email, String plainTextPassword) {
+        Logger.info("Attempting login for: " + email);
+
+        if (tryAuthenticateAdmin(email, plainTextPassword) ||
+                tryAuthenticateUser(email, plainTextPassword) ||
+                tryAuthenticateDeliveryPerson(email, plainTextPassword)) {
+            return true;
+        }
+
+        Logger.warn("Login failed for: " + email);
+        return false;
+    }
+
+    /**
+     * Attempts to authenticate as an Admin.
+     * Checks if the email exists in the admin repository and verifies the password.
+     *
+     * @param email             The email address.
+     * @param plainTextPassword The plain text password.
+     * @return true if authentication is successful, false otherwise.
+     */
+    private boolean tryAuthenticateAdmin(String email, String plainTextPassword) {
+        Optional<Admin> adminOpt = adminRepository.findByEmail(email);
+
+        if (adminOpt.isEmpty()) {
+            return false;
+        }
+
+        Admin admin = adminOpt.get();
+        if (PasswordUtility.checkPassword(plainTextPassword, admin.getPassword())) {
+            this.currentPerson = admin;
+            Logger.info("Admin logged in successfully: " + email);
+            return true;
+        }
+
+        Logger.warn("Invalid password for admin: " + email);
+        return false;
+    }
+
+    /**
+     * Attempts to authenticate as a User.
+     * Verifies that the user account is active before allowing login.
+     * Inactive accounts cannot log in to the system.
+     *
+     * @param email             The email address.
+     * @param plainTextPassword The plain text password.
+     * @return true if authentication is successful, false otherwise.
+     */
+    private boolean tryAuthenticateUser(String email, String plainTextPassword) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+
+        User user = userOpt.get();
+
+        if (!user.isActive()) {
+            Logger.warn("Login failed: User account is disabled - " + email);
+            return false;
+        }
+
+        if (PasswordUtility.checkPassword(plainTextPassword, user.getPassword())) {
+            this.currentPerson = user;
+            Logger.info("User logged in successfully: " + email);
+            return true;
+        }
+
+        Logger.warn("Invalid password for user: " + email);
+        return false;
+    }
+
+    /**
+     * Attempts to authenticate as a DeliveryPerson.
+     * Checks if the email exists in the delivery person repository and verifies the password.
+     *
+     * @param email             The email address.
+     * @param plainTextPassword The plain text password.
+     * @return true if authentication is successful, false otherwise.
+     */
+    private boolean tryAuthenticateDeliveryPerson(String email, String plainTextPassword) {
+        Optional<DeliveryPerson> deliveryOpt = deliveryPersonRepository.findDeliveryPersonByEmail(email);
+
+        if (deliveryOpt.isEmpty()) {
+            return false;
+        }
+
+        DeliveryPerson deliveryPerson = deliveryOpt.get();
+        if (PasswordUtility.checkPassword(plainTextPassword, deliveryPerson.getPassword())) {
+            this.currentPerson = deliveryPerson;
+            Logger.info("Delivery person logged in successfully: " + email);
+            return true;
+        }
+
+        Logger.warn("Invalid password for delivery person: " + email);
+        return false;
     }
 }

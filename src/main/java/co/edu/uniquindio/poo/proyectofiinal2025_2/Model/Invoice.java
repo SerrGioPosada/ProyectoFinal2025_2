@@ -1,5 +1,8 @@
 package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +13,8 @@ import java.util.List;
  * It contains all the necessary details for a financial record, including a breakdown
  * of costs in the form of line items.</p>
  */
+@Getter
+@ToString
 public final class Invoice {
 
     private final String id;
@@ -20,49 +25,71 @@ public final class Invoice {
     private final List<LineItem> lineItems;
 
     /**
-     * Constructs a new, immutable Invoice.
-     *
-     * @param id            The unique identifier for this invoice.
-     * @param orderId       The ID of the order this invoice is for.
-     * @param invoiceNumber A unique, human-readable invoice number.
-     * @param issuedAt      The date and time the invoice was issued.
-     * @param totalAmount   The total amount of the invoice.
-     * @param lineItems     A list of line items detailing the costs.
+     * Private constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
      */
-    public Invoice(String id, String orderId, String invoiceNumber, LocalDateTime issuedAt, double totalAmount, List<LineItem> lineItems) {
-        this.id = id;
-        this.orderId = orderId;
-        this.invoiceNumber = invoiceNumber;
-        this.issuedAt = issuedAt;
-        this.totalAmount = totalAmount;
-        this.lineItems = Collections.unmodifiableList(lineItems); // Ensure immutability
+    private Invoice(Builder builder) {
+        this.id = builder.id;
+        this.orderId = builder.orderId;
+        this.invoiceNumber = builder.invoiceNumber;
+        this.issuedAt = builder.issuedAt;
+        this.totalAmount = builder.totalAmount;
+        this.lineItems = (builder.lineItems != null)
+                ? Collections.unmodifiableList(builder.lineItems)
+                : Collections.emptyList(); // Ensure immutability and prevent nulls
     }
 
-    // =================================
-    // Getters Only (Immutable Entity)
-    // =================================
+    // ======================================
+    //               BUILDER
+    // ======================================
 
-    public String getId() {
-        return id;
-    }
+    /**
+     * Static builder class for creating Invoice instances.
+     */
+    public static class Builder {
+        private String id;
+        private String orderId;
+        private String invoiceNumber;
+        private LocalDateTime issuedAt;
+        private double totalAmount;
+        private List<LineItem> lineItems;
 
-    public String getOrderId() {
-        return orderId;
-    }
+        public Builder withId(String id) {
+            this.id = id;
+            return this;
+        }
 
-    public String getInvoiceNumber() {
-        return invoiceNumber;
-    }
+        public Builder withOrderId(String orderId) {
+            this.orderId = orderId;
+            return this;
+        }
 
-    public LocalDateTime getIssuedAt() {
-        return issuedAt;
-    }
+        public Builder withInvoiceNumber(String invoiceNumber) {
+            this.invoiceNumber = invoiceNumber;
+            return this;
+        }
 
-    public double getTotalAmount() {
-        return totalAmount;
-    }
+        public Builder withIssuedAt(LocalDateTime issuedAt) {
+            this.issuedAt = issuedAt;
+            return this;
+        }
 
-    public List<LineItem> getLineItems() {
-        return lineItems;
+        public Builder withTotalAmount(double totalAmount) {
+            this.totalAmount = totalAmount;
+            return this;
+        }
+
+        public Builder withLineItems(List<LineItem> lineItems) {
+            this.lineItems = lineItems;
+            return this;
+        }
+
+        /**
+         * Creates a new Invoice instance from the builder's properties.
+         * @return A new Invoice instance.
+         */
+        public Invoice build() {
+            return new Invoice(this);
+        }
     }
 }

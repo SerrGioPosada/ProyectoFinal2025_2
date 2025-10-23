@@ -10,8 +10,26 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums;
  * </ul>
  */
 public enum CoverageArea {
-    NORTH,
-    SOUTH,
-    CENTRAL,
-    CITY_WIDE
+    NORTH("Zona Norte"),
+    SOUTH("Zona Sur"),
+    CENTRAL("Zona Central"),
+    CITY_WIDE("Ciudad Completa");
+
+    private final String displayName;
+
+    /**
+     * Constructor for CoverageArea enum.
+     * @param displayName The display name in Spanish for the UI
+     */
+    CoverageArea(String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     * Gets the display name in Spanish.
+     * @return The display name
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
 }

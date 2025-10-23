@@ -6,9 +6,9 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.PaymentMethod;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.PaymentStatus;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.InvoiceRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.PaymentRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * <p>Provides business logic services related to payment processing.</p>
@@ -22,13 +22,30 @@ public class PaymentService {
     private final OrderService orderService;
 
     /**
-     * Constructs a new PaymentService with its dependencies.
+     * Constructor with dependency injection for repositories and services.
+     *
+     * @param paymentRepository The PaymentRepository instance.
+     * @param invoiceRepository The InvoiceRepository instance.
+     * @param orderService The OrderService instance.
+     */
+    public PaymentService(PaymentRepository paymentRepository, InvoiceRepository invoiceRepository,
+                         OrderService orderService) {
+        this.paymentRepository = paymentRepository;
+        this.invoiceRepository = invoiceRepository;
+        this.orderService = orderService;
+    }
+
+    /**
+     * Default constructor that uses singleton instances.
+     * This provides backward compatibility and ease of use.
      */
     public PaymentService() {
-        this.paymentRepository = PaymentRepository.getInstance();
-        this.invoiceRepository = InvoiceRepository.getInstance();
-        this.orderService = new OrderService(); // In a real DI framework, this would be injected
+        this(PaymentRepository.getInstance(), InvoiceRepository.getInstance(), new OrderService());
     }
+
+    // ===========================
+    // Payment Processing
+    // ===========================
 
     /**
      * Processes a payment for a given invoice.
@@ -47,14 +64,14 @@ public class PaymentService {
         // For now, we will assume the payment is always successful.
         boolean paymentSuccessful = true;
 
-        Payment newPayment = new Payment(
-                UUID.randomUUID().toString(),
-                invoiceId,
-                invoice.getTotalAmount(),
-                LocalDateTime.now(),
-                paymentSuccessful ? PaymentStatus.APPROVED : PaymentStatus.FAILED,
-                paymentMethod
-        );
+        Payment newPayment = new Payment.Builder()
+                .withId(IdGenerationUtil.generateId())
+                .withInvoiceId(invoiceId)
+                .withAmount(invoice.getTotalAmount())
+                .withDate(LocalDateTime.now())
+                .withStatus(paymentSuccessful ? PaymentStatus.APPROVED : PaymentStatus.FAILED)
+                .withPaymentMethod(paymentMethod)
+                .build();
 
         paymentRepository.addPayment(newPayment);
 

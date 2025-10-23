@@ -2,6 +2,9 @@ package co.edu.uniquindio.poo.proyectofiinal2025_2.Model;
 
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.AvailabilityStatus;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.CoverageArea;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +14,9 @@ import java.util.List;
  * <p>A delivery person can be authenticated and has specific attributes such as a document ID,
  * availability status, an assigned vehicle, a coverage area, and a list of shipments they are responsible for.</p>
  */
+@Getter
+@Setter
+@ToString(callSuper = true)
 public class DeliveryPerson extends AuthenticablePerson {
 
     private String documentId;
@@ -20,79 +26,92 @@ public class DeliveryPerson extends AuthenticablePerson {
     private List<Shipment> assignedShipments;
 
     /**
-     * Constructs a new DeliveryPerson with the specified details.
-     *
-     * @param id              The unique identifier for the delivery person.
-     * @param name            The person's first name.
-     * @param lastName        The person's last name.
-     * @param email           The person's email address.
-     * @param phone           The person's phone number.
-     * @param password        The person's password for login (will be hashed).
-     * @param documentId      The national identification number.
-     * @param availability    The current availability status.
-     * @param assignedVehicle The vehicle assigned to the person.
-     * @param coverageArea    The geographical area the person covers.
+     * Default constructor.
+     * Initializes the list of shipments to avoid NullPointerExceptions.
      */
-    public DeliveryPerson(String id, String name, String lastName, String email, String phone, String password,
-                          String documentId, AvailabilityStatus availability, Vehicle assignedVehicle, CoverageArea coverageArea) {
-        super(id, name, lastName, email, phone, password);
-        this.documentId = documentId;
-        this.availability = availability;
-        this.assignedVehicle = assignedVehicle;
-        this.coverageArea = coverageArea;
+    public DeliveryPerson() {
+        super();
         this.assignedShipments = new ArrayList<>();
     }
 
-    // =================================
-    // Getters and Setters
-    // =================================
-
-    public String getDocumentId() {
-        return documentId;
+    /**
+     * Protected constructor for the builder pattern.
+     * @param builder The builder instance to construct from.
+     */
+    protected DeliveryPerson(Builder builder) {
+        super(builder);
+        this.documentId = builder.documentId;
+        this.availability = builder.availability;
+        this.assignedVehicle = builder.assignedVehicle;
+        this.coverageArea = builder.coverageArea;
+        this.assignedShipments = new ArrayList<>(); // Always initialize list
     }
 
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
+    // ======================================
+    //               BUILDER
+    // ======================================
+
+    /**
+     * Concrete builder for creating DeliveryPerson instances.
+     */
+    public static class Builder extends AuthenticablePerson.Builder<Builder> {
+        private String documentId;
+        private AvailabilityStatus availability;
+        private Vehicle assignedVehicle;
+        private CoverageArea coverageArea;
+
+        public Builder withDocumentId(String documentId) {
+            this.documentId = documentId;
+            return this;
+        }
+
+        public Builder withAvailability(AvailabilityStatus availability) {
+            this.availability = availability;
+            return this;
+        }
+
+        public Builder withAssignedVehicle(Vehicle assignedVehicle) {
+            this.assignedVehicle = assignedVehicle;
+            return this;
+        }
+
+        public Builder withCoverageArea(CoverageArea coverageArea) {
+            this.coverageArea = coverageArea;
+            return this;
+        }
+
+        /**
+         * Returns the concrete builder instance (part of the CRTP pattern).
+         * @return The concrete builder instance.
+         */
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        /**
+         * Creates a new DeliveryPerson instance from the builder's properties.
+         * @return A new DeliveryPerson instance.
+         */
+        @Override
+        public DeliveryPerson build() {
+            return new DeliveryPerson(this);
+        }
     }
 
-    public AvailabilityStatus getAvailability() {
-        return availability;
-    }
-
-    public void setAvailability(AvailabilityStatus availability) {
-        this.availability = availability;
-    }
-
-    public Vehicle getAssignedVehicle() {
-        return assignedVehicle;
-    }
-
-    public void setAssignedVehicle(Vehicle assignedVehicle) {
-        this.assignedVehicle = assignedVehicle;
-    }
-
-    public CoverageArea getCoverageArea() {
-        return coverageArea;
-    }
-
-    public void setCoverageArea(CoverageArea coverageArea) {
-        this.coverageArea = coverageArea;
-    }
-
-    public List<Shipment> getAssignedShipments() {
-        return assignedShipments;
-    }
-
-    public void setAssignedShipments(List<Shipment> assignedShipments) {
-        this.assignedShipments = assignedShipments;
-    }
+    // ======================================
+    //           UTILITY METHODS
+    // ======================================
 
     /**
      * Adds a shipment to the delivery person's list of assigned shipments.
      *
-     * @param shipment The shipment to add.
+     * @param shipment The Shipment object to add.
      */
     public void addShipment(Shipment shipment) {
+        if (this.assignedShipments == null) {
+            this.assignedShipments = new ArrayList<>();
+        }
         this.assignedShipments.add(shipment);
     }
 }

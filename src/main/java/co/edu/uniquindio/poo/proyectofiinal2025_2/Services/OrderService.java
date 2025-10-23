@@ -6,9 +6,9 @@ import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums.OrderStatus;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.OrderRepository;
 import co.edu.uniquindio.poo.proyectofiinal2025_2.Repositories.ShipmentRepository;
+import co.edu.uniquindio.poo.proyectofiinal2025_2.Util.UtilService.IdGenerationUtil;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * <p>Orchestrates the entire order management process, acting as the central service for the Order aggregate.</p>
@@ -22,13 +22,31 @@ public class OrderService {
     private final ShipmentService shipmentService;
 
     /**
-     * Constructs a new OrderService with its dependencies.
+     * Constructor with dependency injection for repositories and services.
+     *
+     * @param orderRepository The OrderRepository instance.
+     * @param invoiceService The InvoiceService instance.
+     * @param shipmentService The ShipmentService instance.
+     */
+    public OrderService(OrderRepository orderRepository, InvoiceService invoiceService,
+                       ShipmentService shipmentService) {
+        this.orderRepository = orderRepository;
+        this.invoiceService = invoiceService;
+        this.shipmentService = shipmentService;
+    }
+
+    /**
+     * Default constructor that uses singleton instances.
+     * This provides backward compatibility and ease of use.
      */
     public OrderService() {
-        this.orderRepository = OrderRepository.getInstance();
-        this.invoiceService = new InvoiceService();
-        this.shipmentService = new ShipmentService(ShipmentRepository.getInstance());
+        this(OrderRepository.getInstance(), new InvoiceService(),
+             new ShipmentService());
     }
+
+    // ===========================
+    // Order Management
+    // ===========================
 
     /**
      * Initiates the creation of a new order.
@@ -41,14 +59,17 @@ public class OrderService {
      * @return The newly created Order, ready for payment.
      */
     public Order initiateOrderCreation(String userId, Address origin, Address destination) {
-        // 1. Create the Order in its initial state
-        Order newOrder = new Order(
-                UUID.randomUUID().toString(),
-                userId,
-                origin,
-                destination,
-                LocalDateTime.now()
-        );
+
+        // 1. Create the Order in its initial state using the manual builder
+        Order newOrder = new Order.Builder()
+                .withId(IdGenerationUtil.generateId())
+                .withUserId(userId)
+                .withOrigin(origin)
+                .withDestination(destination)
+                .withCreatedAt(LocalDateTime.now())
+                .withStatus(OrderStatus.AWAITING_PAYMENT)
+                .build();
+
         orderRepository.addOrder(newOrder);
 
         // 2. Call the InvoiceService to create the associated invoice
@@ -60,6 +81,10 @@ public class OrderService {
 
         return newOrder;
     }
+
+    // ===========================
+    // Payment Confirmation
+    // ===========================
 
     /**
      * Confirms that an order has been paid, and transitions it to the next state.
@@ -76,7 +101,10 @@ public class OrderService {
 
         // State Validation: Ensure we can only confirm payment for an order that is awaiting it.
         if (order.getStatus() != OrderStatus.AWAITING_PAYMENT) {
-            throw new IllegalStateException("Cannot confirm payment for an order that is not in the AWAITING_PAYMENT state. Current state: " + order.getStatus());
+            throw new IllegalStateException(
+                    "Cannot confirm payment for an order that is not in the AWAITING_PAYMENT state. Current state: "
+                            + order.getStatus()
+            );
         }
 
         // 1. Update the order state to PAID
