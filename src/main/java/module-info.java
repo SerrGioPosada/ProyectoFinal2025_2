@@ -1,4 +1,4 @@
-module co.edu.uniquindio.poo.proyectofiinal2025_2 {
+module co.edu.uniquindio.poo.proyectofinal2025_2 {
     // JavaFX
     requires javafx.controls;
     requires javafx.fxml;
@@ -21,11 +21,11 @@ module co.edu.uniquindio.poo.proyectofiinal2025_2 {
     requires com.google.common;
 
     // Exports y Opens
-    opens co.edu.uniquindio.poo.proyectofiinal2025_2.Controller to javafx.fxml;
-    exports co.edu.uniquindio.poo.proyectofiinal2025_2;
+    opens co.edu.uniquindio.poo.proyectofinal2025_2.Controller to javafx.fxml;
+    exports co.edu.uniquindio.poo.proyectofinal2025_2;
 
     // --- Permisos para Gson ---
-    opens co.edu.uniquindio.poo.proyectofiinal2025_2.Model to com.google.gson;
-    opens co.edu.uniquindio.poo.proyectofiinal2025_2.Model.dto to com.google.gson;
-    opens co.edu.uniquindio.poo.proyectofiinal2025_2.Model.Enums to com.google.gson;
+    opens co.edu.uniquindio.poo.proyectofinal2025_2.Model to com.google.gson;
+    opens co.edu.uniquindio.poo.proyectofinal2025_2.Model.dto to com.google.gson;
+    opens co.edu.uniquindio.poo.proyectofinal2025_2.Model.Enums to com.google.gson;
 }

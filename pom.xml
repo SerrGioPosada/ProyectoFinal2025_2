@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>co.edu.uniquindio.poo</groupId>
-    <artifactId>ProyectoFiinal2025_2</artifactId>
+    <artifactId>ProyectoFinal2025_2</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>ProyectoFiinal2025_2</name>
+    <name>ProyectoFinal2025_2</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -141,7 +141,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                co.edu.uniquindio.poo.proyectofiinal2025_2/co.edu.uniquindio.poo.proyectofiinal2025_2.MainApp
+                                co.edu.uniquindio.poo.ProyectoFinal2025_2/co.edu.uniquindio.poo.ProyectoFinal2025_2.MainApp
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
