@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="co.edu.uniquindio.poo.proyectofinal2025_2.Controller.ShipmentDetailController"
+      spacing="15" styleClass="content-area">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="header-section">
+        <Label text="Detalles del Envío" styleClass="page-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Ver Desglose Detallado" styleClass="btn-primary" onAction="#handleShowDetailedBreakdown"/>
+        <Button text="Imprimir" styleClass="btn-secondary" onAction="#handlePrint"/>
+        <Button text="Volver" styleClass="btn-secondary" onAction="#handleBack"/>
+    </HBox>
+
+    <!-- Scrollable Content -->
+    <ScrollPane fitToWidth="true" styleClass="details-scroll" VBox.vgrow="ALWAYS">
+        <VBox spacing="20" styleClass="details-container">
+
+            <!-- General Information -->
+            <VBox spacing="10" styleClass="detail-section">
+                <Label text="General Information" styleClass="section-title"/>
+                <GridPane hgap="20" vgap="10" styleClass="detail-grid">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="200" prefWidth="250"/>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="200" prefWidth="250"/>
+                    </columnConstraints>
+
+                    <Label text="Shipment ID:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblId" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Status:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblStatus" text="--" styleClass="detail-value status-badge" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+                    <Label text="Priority:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblPriority" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                    <Label text="Creation Date:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblCreationDate" text="--" styleClass="detail-value" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+                    <Label text="Estimated Delivery:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <Label fx:id="lblEstimatedDate" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                    <Label text="Actual Delivery:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                    <Label fx:id="lblActualDate" text="--" styleClass="detail-value" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+                </GridPane>
+            </VBox>
+
+            <Separator/>
+
+            <!-- User Information -->
+            <VBox spacing="10" styleClass="detail-section">
+                <Label text="User Information" styleClass="section-title"/>
+                <GridPane hgap="20" vgap="10" styleClass="detail-grid">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="200" prefWidth="250"/>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="200" prefWidth="250"/>
+                    </columnConstraints>
+
+                    <Label text="Name:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblUserName" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Phone:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblUserPhone" text="--" styleClass="detail-value" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+                    <Label text="Email:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblUserEmail" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="3"/>
+                </GridPane>
+            </VBox>
+
+            <Separator/>
+
+            <!-- Addresses -->
+            <HBox spacing="20">
+                <VBox spacing="10" styleClass="detail-section" HBox.hgrow="ALWAYS">
+                    <Label text="Origin Address" styleClass="section-title"/>
+                    <Label fx:id="lblOriginAddress" text="--" styleClass="address-text" wrapText="true"/>
+                    <Label fx:id="lblOriginZone" text="Zone: --" styleClass="detail-value"/>
+                </VBox>
+
+                <VBox spacing="10" styleClass="detail-section" HBox.hgrow="ALWAYS">
+                    <Label text="Destination Address" styleClass="section-title"/>
+                    <Label fx:id="lblDestinationAddress" text="--" styleClass="address-text" wrapText="true"/>
+                    <Label fx:id="lblDestinationZone" text="Zone: --" styleClass="detail-value"/>
+                </VBox>
+            </HBox>
+
+            <Separator/>
+
+            <!-- Package Details -->
+            <VBox spacing="10" styleClass="detail-section">
+                <Label text="Package Details" styleClass="section-title"/>
+                <GridPane hgap="20" vgap="10" styleClass="detail-grid">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="200" prefWidth="250"/>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="200" prefWidth="250"/>
+                    </columnConstraints>
+
+                    <Label text="Weight:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblWeight" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Volume:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblVolume" text="--" styleClass="detail-value" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+                    <Label text="Dimensions:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblDimensions" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                    <Label text="Distance:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblDistance" text="--" styleClass="detail-value" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                </GridPane>
+            </VBox>
+
+            <Separator/>
+
+            <!-- Delivery Person (if assigned) -->
+            <VBox fx:id="deliveryPersonSection" spacing="10" styleClass="detail-section">
+                <Label text="Delivery Person" styleClass="section-title"/>
+                <GridPane hgap="20" vgap="10" styleClass="detail-grid">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="200" prefWidth="250"/>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="200" prefWidth="250"/>
+                    </columnConstraints>
+
+                    <Label text="Name:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblDeliveryPersonName" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Phone:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblDeliveryPersonPhone" text="--" styleClass="detail-value" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+                    <Label text="Zone:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblDeliveryPersonZone" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                    <Label text="Assignment Date:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblAssignmentDate" text="--" styleClass="detail-value" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                </GridPane>
+            </VBox>
+
+            <Separator/>
+
+            <!-- Cost Breakdown -->
+            <VBox spacing="10" styleClass="detail-section">
+                <Label text="Cost Breakdown" styleClass="section-title"/>
+                <GridPane hgap="20" vgap="10" styleClass="detail-grid">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="200" prefWidth="250"/>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="200" prefWidth="250"/>
+                    </columnConstraints>
+
+                    <Label text="Base Cost:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblBaseCost" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Services Cost:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblServicesCost" text="--" styleClass="detail-value" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+                    <Label text="Total Cost:" styleClass="detail-label total-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblTotalCost" text="--" styleClass="detail-value total-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                </GridPane>
+            </VBox>
+
+            <Separator/>
+
+            <!-- Additional Services -->
+            <VBox spacing="10" styleClass="detail-section">
+                <Label text="Additional Services" styleClass="section-title"/>
+                <ListView fx:id="listServices" styleClass="services-list" prefHeight="100"/>
+            </VBox>
+
+            <Separator/>
+
+            <!-- Status History -->
+            <VBox spacing="10" styleClass="detail-section">
+                <Label text="Status History" styleClass="section-title"/>
+                <TableView fx:id="statusHistoryTable" styleClass="history-table" prefHeight="150">
+                    <columns>
+                        <TableColumn fx:id="colPreviousStatus" text="From" prefWidth="120"/>
+                        <TableColumn fx:id="colNewStatus" text="To" prefWidth="120"/>
+                        <TableColumn fx:id="colTimestamp" text="Date/Time" prefWidth="150"/>
+                        <TableColumn fx:id="colChangedBy" text="Changed By" prefWidth="120"/>
+                        <TableColumn fx:id="colReason" text="Reason" prefWidth="200"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="No status changes recorded"/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+
+            <Separator/>
+
+            <!-- Notes -->
+            <HBox spacing="20">
+                <VBox spacing="10" styleClass="detail-section" HBox.hgrow="ALWAYS">
+                    <Label text="User Notes" styleClass="section-title"/>
+                    <TextArea fx:id="txtUserNotes" styleClass="notes-area" prefHeight="80" wrapText="true" editable="false"/>
+                </VBox>
+
+                <VBox spacing="10" styleClass="detail-section" HBox.hgrow="ALWAYS">
+                    <Label text="Internal Notes" styleClass="section-title"/>
+                    <TextArea fx:id="txtInternalNotes" styleClass="notes-area" prefHeight="80" wrapText="true" editable="false"/>
+                </VBox>
+            </HBox>
+
+            <!-- Incident Section (if exists) -->
+            <VBox fx:id="incidentSection" spacing="10" styleClass="detail-section incident-section">
+                <Label text="Incident Information" styleClass="section-title incident-title"/>
+                <GridPane hgap="20" vgap="10" styleClass="detail-grid">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints minWidth="500" prefWidth="550"/>
+                    </columnConstraints>
+
+                    <Label text="Type:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblIncidentType" text="--" styleClass="detail-value incident-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Date:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblIncidentDate" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                    <Label text="Description:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <Label fx:id="lblIncidentDescription" text="--" styleClass="detail-value" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                </GridPane>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+
+</VBox>
