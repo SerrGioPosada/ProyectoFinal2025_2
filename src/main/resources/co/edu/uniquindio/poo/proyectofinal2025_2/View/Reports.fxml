@@ -1,14 +1,369 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="co.edu.uniquindio.poo.proyectofinal2025_2.Controller.ReportsController"
-            prefHeight="400.0" prefWidth="600.0">
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.ReportsController"
+            styleClass="scroll-base"
+            fitToWidth="true">
 
-</AnchorPane>
+    <VBox spacing="20" styleClass="content-area">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header Section -->
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-section">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Centro de Reportes y Análisis" styleClass="page-title"/>
+                <Label fx:id="lblLastGenerated" text="Última generación: --" styleClass="info-label"/>
+            </VBox>
+            <Button text="Refrescar Datos" onAction="#handleRefresh" styleClass="btn-primary">
+                <padding>
+                    <Insets top="10" right="20" bottom="10" left="20"/>
+                </padding>
+            </Button>
+        </HBox>
+
+        <!-- Quick Stats Overview -->
+        <GridPane hgap="15" vgap="15">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+                <ColumnConstraints percentWidth="20"/>
+            </columnConstraints>
+
+            <!-- Total Revenue -->
+            <VBox spacing="8" alignment="CENTER" GridPane.columnIndex="0" styleClass="dashboard-stat-card">
+                <padding>
+                    <Insets top="20" right="15" bottom="20" left="15"/>
+                </padding>
+                <Label text="💰" style="-fx-font-size: 32px;"/>
+                <Label text="Ingresos Totales" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                <Label fx:id="lblTotalRevenue" text="0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
+            </VBox>
+
+            <!-- Total Shipments -->
+            <VBox spacing="8" alignment="CENTER" GridPane.columnIndex="1" styleClass="dashboard-stat-card">
+                <padding>
+                    <Insets top="20" right="15" bottom="20" left="15"/>
+                </padding>
+                <Label text="📦" style="-fx-font-size: 32px;"/>
+                <Label text="Total Envíos" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                <Label fx:id="lblTotalShipments" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4a9eff;"/>
+            </VBox>
+
+            <!-- Success Rate -->
+            <VBox spacing="8" alignment="CENTER" GridPane.columnIndex="2" styleClass="dashboard-stat-card">
+                <padding>
+                    <Insets top="20" right="15" bottom="20" left="15"/>
+                </padding>
+                <Label text="✓" style="-fx-font-size: 32px; -fx-text-fill: #28a745;"/>
+                <Label text="Tasa de Éxito" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                <Label fx:id="lblSuccessRate" text="0%" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
+            </VBox>
+
+            <!-- Active Users -->
+            <VBox spacing="8" alignment="CENTER" GridPane.columnIndex="3" styleClass="dashboard-stat-card">
+                <padding>
+                    <Insets top="20" right="15" bottom="20" left="15"/>
+                </padding>
+                <Label text="👥" style="-fx-font-size: 32px;"/>
+                <Label text="Usuarios Activos" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                <Label fx:id="lblActiveUsers" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
+            </VBox>
+
+            <!-- Avg Delivery Time -->
+            <VBox spacing="8" alignment="CENTER" GridPane.columnIndex="4" styleClass="dashboard-stat-card">
+                <padding>
+                    <Insets top="20" right="15" bottom="20" left="15"/>
+                </padding>
+                <Label text="⏱" style="-fx-font-size: 32px;"/>
+                <Label text="Tiempo Promedio" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                <Label fx:id="lblAvgDeliveryTime" text="0h" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #6610f2;"/>
+            </VBox>
+        </GridPane>
+
+        <!-- Report Generation Section -->
+        <VBox spacing="15" styleClass="card-base">
+            <padding>
+                <Insets top="25" right="25" bottom="25" left="25"/>
+            </padding>
+
+            <Label text="Generación de Reportes" styleClass="section-title" style="-fx-font-size: 18px;"/>
+
+            <!-- Date Range Selection -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Label text="Rango de Fechas:" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <DatePicker fx:id="dateFrom" promptText="Desde" styleClass="filter-date" prefWidth="150"/>
+                <Label text="hasta" style="-fx-font-size: 14px;"/>
+                <DatePicker fx:id="dateTo" promptText="Hasta" styleClass="filter-date" prefWidth="150"/>
+                <Button text="Último Mes" onAction="#handleLastMonth" styleClass="btn-secondary">
+                    <padding>
+                        <Insets top="8" right="15" bottom="8" left="15"/>
+                    </padding>
+                </Button>
+                <Button text="Último Trimestre" onAction="#handleLastQuarter" styleClass="btn-secondary">
+                    <padding>
+                        <Insets top="8" right="15" bottom="8" left="15"/>
+                    </padding>
+                </Button>
+                <Button text="Último Año" onAction="#handleLastYear" styleClass="btn-secondary">
+                    <padding>
+                        <Insets top="8" right="15" bottom="8" left="15"/>
+                    </padding>
+                </Button>
+            </HBox>
+
+            <Separator/>
+
+            <!-- Report Types -->
+            <GridPane hgap="15" vgap="15">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="33.33"/>
+                    <ColumnConstraints percentWidth="33.33"/>
+                    <ColumnConstraints percentWidth="33.33"/>
+                </columnConstraints>
+
+                <!-- General Report -->
+                <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="0" styleClass="quick-action-card">
+                    <padding>
+                        <Insets top="20" right="15" bottom="20" left="15"/>
+                    </padding>
+                    <Label text="📊" style="-fx-font-size: 40px;"/>
+                    <Label text="Reporte General" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Label text="Estadísticas generales del sistema" wrapText="true" textAlignment="CENTER" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="PDF" onAction="#handleGeneralReportPDF" styleClass="btn-primary">
+                            <padding>
+                                <Insets top="8" right="15" bottom="8" left="15"/>
+                            </padding>
+                        </Button>
+                        <Button text="CSV" onAction="#handleGeneralReportCSV" styleClass="btn-secondary">
+                            <padding>
+                                <Insets top="8" right="15" bottom="8" left="15"/>
+                            </padding>
+                        </Button>
+                    </HBox>
+                </VBox>
+
+                <!-- Financial Report -->
+                <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="1" styleClass="quick-action-card">
+                    <padding>
+                        <Insets top="20" right="15" bottom="20" left="15"/>
+                    </padding>
+                    <Label text="💵" style="-fx-font-size: 40px;"/>
+                    <Label text="Reporte Financiero" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Label text="Ingresos, gastos y ganancias" wrapText="true" textAlignment="CENTER" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="PDF" onAction="#handleFinancialReportPDF" styleClass="btn-success">
+                            <padding>
+                                <Insets top="8" right="15" bottom="8" left="15"/>
+                            </padding>
+                        </Button>
+                        <Button text="CSV" onAction="#handleFinancialReportCSV" styleClass="btn-secondary">
+                            <padding>
+                                <Insets top="8" right="15" bottom="8" left="15"/>
+                            </padding>
+                        </Button>
+                    </HBox>
+                </VBox>
+
+                <!-- Shipments Report -->
+                <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="2" styleClass="quick-action-card">
+                    <padding>
+                        <Insets top="20" right="15" bottom="20" left="15"/>
+                    </padding>
+                    <Label text="🚚" style="-fx-font-size: 40px;"/>
+                    <Label text="Reporte de Envíos" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Label text="Detalle completo de envíos" wrapText="true" textAlignment="CENTER" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="PDF" onAction="#handleShipmentsReportPDF" styleClass="btn-info">
+                            <padding>
+                                <Insets top="8" right="15" bottom="8" left="15"/>
+                            </padding>
+                        </Button>
+                        <Button text="CSV" onAction="#handleShipmentsReportCSV" styleClass="btn-secondary">
+                            <padding>
+                                <Insets top="8" right="15" bottom="8" left="15"/>
+                            </padding>
+                        </Button>
+                    </HBox>
+                </VBox>
+
+                <!-- Users Report -->
+                <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="quick-action-card">
+                    <padding>
+                        <Insets top="20" right="15" bottom="20" left="15"/>
+                    </padding>
+                    <Label text="👤" style="-fx-font-size: 40px;"/>
+                    <Label text="Reporte de Usuarios" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Label text="Actividad y estadísticas de usuarios" wrapText="true" textAlignment="CENTER" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="PDF" onAction="#handleUsersReportPDF" styleClass="btn-primary">
+                            <padding>
+                                <Insets top="8" right="15" bottom="8" left="15"/>
+                            </padding>
+                        </Button>
+                        <Button text="CSV" onAction="#handleUsersReportCSV" styleClass="btn-secondary">
+                            <padding>
+                                <Insets top="8" right="15" bottom="8" left="15"/>
+                            </padding>
+                        </Button>
+                    </HBox>
+                </VBox>
+
+                <!-- Delivery Personnel Report -->
+                <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="quick-action-card">
+                    <padding>
+                        <Insets top="20" right="15" bottom="20" left="15"/>
+                    </padding>
+                    <Label text="🚴" style="-fx-font-size: 40px;"/>
+                    <Label text="Reporte de Repartidores" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Label text="Rendimiento de repartidores" wrapText="true" textAlignment="CENTER" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="PDF" onAction="#handleDeliveryPersonnelReportPDF" styleClass="btn-warning">
+                            <padding>
+                                <Insets top="8" right="15" bottom="8" left="15"/>
+                            </padding>
+                        </Button>
+                        <Button text="CSV" onAction="#handleDeliveryPersonnelReportCSV" styleClass="btn-secondary">
+                            <padding>
+                                <Insets top="8" right="15" bottom="8" left="15"/>
+                            </padding>
+                        </Button>
+                    </HBox>
+                </VBox>
+
+                <!-- Custom Report -->
+                <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1" styleClass="quick-action-card">
+                    <padding>
+                        <Insets top="20" right="15" bottom="20" left="15"/>
+                    </padding>
+                    <Label text="⚙" style="-fx-font-size: 40px;"/>
+                    <Label text="Reporte Personalizado" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Label text="Configura tu propio reporte" wrapText="true" textAlignment="CENTER" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                    <Button text="Configurar" onAction="#handleCustomReport" styleClass="btn-secondary">
+                        <padding>
+                            <Insets top="8" right="15" bottom="8" left="15"/>
+                        </padding>
+                    </Button>
+                </VBox>
+            </GridPane>
+        </VBox>
+
+        <!-- Analytics Section -->
+        <Label text="Análisis y Gráficos" styleClass="section-title" style="-fx-font-size: 20px;"/>
+
+        <!-- Charts Row 1 -->
+        <HBox spacing="15" prefHeight="350">
+            <!-- Revenue Trend -->
+            <VBox styleClass="chart-container" spacing="10" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+                <Label text="Tendencia de Ingresos" styleClass="chart-title"/>
+                <LineChart fx:id="chartRevenueTrend" VBox.vgrow="ALWAYS" legendVisible="false">
+                    <xAxis>
+                        <CategoryAxis label="Fecha"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Ingresos ($)"/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+
+            <!-- Shipments by Status -->
+            <VBox styleClass="chart-container" spacing="10" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+                <Label text="Envíos por Estado" styleClass="chart-title"/>
+                <PieChart fx:id="chartShipmentsByStatus" VBox.vgrow="ALWAYS" legendVisible="true" labelsVisible="true"/>
+            </VBox>
+        </HBox>
+
+        <!-- Charts Row 2 -->
+        <HBox spacing="15" prefHeight="350">
+            <!-- Top Delivery Personnel -->
+            <VBox styleClass="chart-container" spacing="10" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+                <Label text="Top 10 Repartidores" styleClass="chart-title"/>
+                <BarChart fx:id="chartTopDeliveryPersonnel" VBox.vgrow="ALWAYS" legendVisible="false">
+                    <xAxis>
+                        <CategoryAxis label="Repartidor"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Entregas Completadas"/>
+                    </yAxis>
+                </BarChart>
+            </VBox>
+
+            <!-- Shipments by Coverage Area -->
+            <VBox styleClass="chart-container" spacing="10" HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+                <Label text="Envíos por Zona de Cobertura" styleClass="chart-title"/>
+                <BarChart fx:id="chartShipmentsByArea" VBox.vgrow="ALWAYS" legendVisible="false">
+                    <xAxis>
+                        <CategoryAxis label="Zona"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Cantidad de Envíos"/>
+                    </yAxis>
+                </BarChart>
+            </VBox>
+        </HBox>
+
+        <!-- Recent Activity Table -->
+        <VBox spacing="10" styleClass="card-base">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Actividad Reciente" styleClass="section-title" style="-fx-font-size: 18px;"/>
+
+            <TableView fx:id="tableRecentActivity" styleClass="data-table" prefHeight="300">
+                <columns>
+                    <TableColumn fx:id="colActivityDate" text="Fecha" prefWidth="150"/>
+                    <TableColumn fx:id="colActivityType" text="Tipo" prefWidth="150"/>
+                    <TableColumn fx:id="colActivityDescription" text="Descripción" prefWidth="400"/>
+                    <TableColumn fx:id="colActivityUser" text="Usuario" prefWidth="150"/>
+                    <TableColumn fx:id="colActivityStatus" text="Estado" prefWidth="120"/>
+                </columns>
+                <placeholder>
+                    <Label text="No hay actividad reciente" styleClass="table-placeholder"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+
+        <!-- Export All Section -->
+        <HBox spacing="15" alignment="CENTER" styleClass="card-base">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <VBox spacing="10" alignment="CENTER" HBox.hgrow="ALWAYS">
+                <Label text="Exportar Todo" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Label text="Genera un paquete completo con todos los reportes disponibles" style="-fx-text-fill: #6c757d;"/>
+            </VBox>
+
+            <Button text="Exportar Paquete Completo" onAction="#handleExportAll" styleClass="btn-success" style="-fx-font-size: 14px;">
+                <padding>
+                    <Insets top="12" right="25" bottom="12" left="25"/>
+                </padding>
+            </Button>
+        </HBox>
+
+    </VBox>
+</ScrollPane>

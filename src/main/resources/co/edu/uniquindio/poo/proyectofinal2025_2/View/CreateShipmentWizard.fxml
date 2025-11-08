@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane styleClass="content-area"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.CreateShipmentWizardController">
+
+    <!-- Top Section: Header + Step Indicator (FIXED - NO SCROLL) -->
+    <top>
+        <VBox spacing="10" style="-fx-background-color: transparent;">
+            <padding>
+                <Insets top="10" right="15" bottom="5" left="15"/>
+            </padding>
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="Crear Nuevo Envío" styleClass="page-title" style="-fx-font-size: 20px;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Cancelar" styleClass="btn-secondary" onAction="#handleCancel" prefHeight="35"/>
+            </HBox>
+
+            <!-- Step Indicator -->
+            <HBox alignment="CENTER" spacing="15" fx:id="stepIndicatorContainer" styleClass="card-base"
+                  minHeight="95" prefHeight="95">
+                <padding>
+                    <Insets top="12" right="15" bottom="12" left="15"/>
+                </padding>
+
+                <!-- Step 1 -->
+                <VBox alignment="CENTER" spacing="6" fx:id="step1Container">
+                    <StackPane styleClass="step-circle-active" minWidth="45" minHeight="45"
+                               prefWidth="45" prefHeight="45" maxWidth="45" maxHeight="45">
+                        <Label text="1" styleClass="step-number" style="-fx-font-size: 16px;"/>
+                    </StackPane>
+                    <Label text="Paquete" styleClass="step-label" style="-fx-font-size: 11px;"/>
+                </VBox>
+
+                <Separator prefWidth="40" styleClass="divider"/>
+
+                <!-- Step 2 -->
+                <VBox alignment="CENTER" spacing="6" fx:id="step2Container" opacity="0.5">
+                    <StackPane styleClass="step-circle-inactive" minWidth="45" minHeight="45"
+                               prefWidth="45" prefHeight="45" maxWidth="45" maxHeight="45">
+                        <Label text="2" styleClass="step-number" style="-fx-font-size: 16px;"/>
+                    </StackPane>
+                    <Label text="Origen" styleClass="step-label" style="-fx-font-size: 11px;"/>
+                </VBox>
+
+                <Separator prefWidth="40" styleClass="divider"/>
+
+                <!-- Step 3 -->
+                <VBox alignment="CENTER" spacing="6" fx:id="step3Container" opacity="0.5">
+                    <StackPane styleClass="step-circle-inactive" minWidth="45" minHeight="45"
+                               prefWidth="45" prefHeight="45" maxWidth="45" maxHeight="45">
+                        <Label text="3" styleClass="step-number" style="-fx-font-size: 16px;"/>
+                    </StackPane>
+                    <Label text="Destino" styleClass="step-label" style="-fx-font-size: 11px;"/>
+                </VBox>
+
+                <Separator prefWidth="40" styleClass="divider"/>
+
+                <!-- Step 4 -->
+                <VBox alignment="CENTER" spacing="6" fx:id="step4Container" opacity="0.5">
+                    <StackPane styleClass="step-circle-inactive" minWidth="45" minHeight="45"
+                               prefWidth="45" prefHeight="45" maxWidth="45" maxHeight="45">
+                        <Label text="4" styleClass="step-number" style="-fx-font-size: 16px;"/>
+                    </StackPane>
+                    <Label text="Servicios" styleClass="step-label" style="-fx-font-size: 11px;"/>
+                </VBox>
+
+                <Separator prefWidth="40" styleClass="divider"/>
+
+                <!-- Step 5 -->
+                <VBox alignment="CENTER" spacing="6" fx:id="step5Container" opacity="0.5">
+                    <StackPane styleClass="step-circle-inactive" minWidth="45" minHeight="45"
+                               prefWidth="45" prefHeight="45" maxWidth="45" maxHeight="45">
+                        <Label text="5" styleClass="step-number" style="-fx-font-size: 16px;"/>
+                    </StackPane>
+                    <Label text="Resumen" styleClass="step-label" style="-fx-font-size: 11px;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Center Section: Form Content (SCROLLABLE) -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="details-scroll" pannable="true">
+            <HBox alignment="TOP_CENTER" fillHeight="false">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                <VBox spacing="20" styleClass="card-base" maxWidth="900" minHeight="600">
+                    <padding>
+                        <Insets top="30" right="30" bottom="30" left="30"/>
+                    </padding>
+
+                <!-- PASO 1: Datos del Paquete -->
+                <VBox spacing="20" fx:id="step1Form">
+                    <Label text="Paso 1: Datos del Paquete" styleClass="section-title"/>
+                    <Label text="Ingresa las dimensiones y peso del paquete" styleClass="text-muted"/>
+
+                    <GridPane hgap="20" vgap="20">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <!-- Peso -->
+                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label fx:id="lblWeightFloat" text="PESO (KG)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtWeight" promptText="PESO (KG)" styleClass="modern-input-light"/>
+                            </StackPane>
+                            <Label fx:id="lblWeightError" styleClass="error-message" visible="false" managed="false"/>
+                        </VBox>
+
+                        <!-- Alto -->
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label fx:id="lblHeightFloat" text="ALTO (CM)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtHeight" promptText="ALTO (CM)" styleClass="modern-input-light"/>
+                            </StackPane>
+                            <Label fx:id="lblHeightError" styleClass="error-message" visible="false" managed="false"/>
+                        </VBox>
+
+                        <!-- Ancho -->
+                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label fx:id="lblWidthFloat" text="ANCHO (CM)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtWidth" promptText="ANCHO (CM)" styleClass="modern-input-light"/>
+                            </StackPane>
+                            <Label fx:id="lblWidthError" styleClass="error-message" visible="false" managed="false"/>
+                        </VBox>
+
+                        <!-- Largo -->
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label fx:id="lblLengthFloat" text="LARGO (CM)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtLength" promptText="LARGO (CM)" styleClass="modern-input-light"/>
+                            </StackPane>
+                            <Label fx:id="lblLengthError" styleClass="error-message" visible="false" managed="false"/>
+                        </VBox>
+
+                        <!-- Volumen (calculado) -->
+                        <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                            <Label text="Volumen Calculado" styleClass="form-label"/>
+                            <Label fx:id="lblVolumeCalculated" text="0.0 m³" styleClass="detail-value"
+                                   style="-fx-font-size: 18px; -fx-text-fill: #4a9eff;"/>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+
+                <!-- PASO 2: Dirección de Origen -->
+                <VBox spacing="20" fx:id="step2Form" visible="false" managed="false">
+                    <Label text="Paso 2: Dirección de Origen" styleClass="section-title"/>
+                    <Label text="Ingresa la dirección donde recogeremos el paquete" styleClass="text-muted"/>
+
+                    <!-- Seleccionar dirección guardada -->
+                    <VBox spacing="8">
+                        <Label text="Direcciones Guardadas (Opcional)" styleClass="form-label"/>
+                        <ComboBox fx:id="cmbOriginSavedAddresses" promptText="Selecciona una dirección guardada o ingresa manualmente"
+                                  styleClass="form-combo" maxWidth="Infinity"/>
+                    </VBox>
+
+                    <GridPane hgap="20" vgap="20">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <!-- Alias -->
+                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label fx:id="lblOriginAliasFloat" text="ALIAS (OPCIONAL)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtOriginAlias" promptText="ALIAS (OPCIONAL)" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- Calle -->
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label fx:id="lblOriginStreetFloat" text="CALLE / DIRECCIÓN" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtOriginStreet" promptText="CALLE / DIRECCIÓN" styleClass="modern-input-light"/>
+                            </StackPane>
+                            <Label fx:id="lblOriginStreetError" styleClass="error-message" visible="false" managed="false"/>
+                        </VBox>
+
+                        <!-- Ciudad -->
+                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label fx:id="lblOriginCityFloat" text="CIUDAD" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtOriginCity" promptText="CIUDAD" styleClass="modern-input-light"/>
+                            </StackPane>
+                            <Label fx:id="lblOriginCityError" styleClass="error-message" visible="false" managed="false"/>
+                        </VBox>
+
+                        <!-- Departamento -->
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label fx:id="lblOriginStateFloat" text="DEPARTAMENTO" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtOriginState" promptText="DEPARTAMENTO" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- Código Postal -->
+                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <Label fx:id="lblOriginZipCodeFloat" text="CÓDIGO POSTAL" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtOriginZipCode" promptText="CÓDIGO POSTAL" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- País -->
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                            <Label fx:id="lblOriginCountryFloat" text="PAÍS" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtOriginCountry" promptText="PAÍS" text="Colombia" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- Coordenadas (Opcionales - para mapa futuro) -->
+                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                            <Label fx:id="lblOriginLatitudeFloat" text="LATITUD (OPCIONAL)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtOriginLatitude" promptText="LATITUD (OPCIONAL)" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                            <Label fx:id="lblOriginLongitudeFloat" text="LONGITUD (OPCIONAL)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtOriginLongitude" promptText="LONGITUD (OPCIONAL)" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+
+                <!-- PASO 3: Dirección de Destino -->
+                <VBox spacing="20" fx:id="step3Form" visible="false" managed="false">
+                    <Label text="Paso 3: Dirección de Destino" styleClass="section-title"/>
+                    <Label text="Ingresa la dirección donde entregaremos el paquete" styleClass="text-muted"/>
+
+                    <!-- Seleccionar dirección guardada -->
+                    <VBox spacing="8">
+                        <Label text="Direcciones Guardadas (Opcional)" styleClass="form-label"/>
+                        <ComboBox fx:id="cmbDestinationSavedAddresses" promptText="Selecciona una dirección guardada o ingresa manualmente"
+                                  styleClass="form-combo" maxWidth="Infinity"/>
+                    </VBox>
+
+                    <GridPane hgap="20" vgap="20">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <!-- Alias -->
+                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label fx:id="lblDestinationAliasFloat" text="ALIAS (OPCIONAL)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtDestinationAlias" promptText="ALIAS (OPCIONAL)" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- Calle -->
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label fx:id="lblDestinationStreetFloat" text="CALLE / DIRECCIÓN" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtDestinationStreet" promptText="CALLE / DIRECCIÓN" styleClass="modern-input-light"/>
+                            </StackPane>
+                            <Label fx:id="lblDestinationStreetError" styleClass="error-message" visible="false" managed="false"/>
+                        </VBox>
+
+                        <!-- Ciudad -->
+                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label fx:id="lblDestinationCityFloat" text="CIUDAD" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtDestinationCity" promptText="CIUDAD" styleClass="modern-input-light"/>
+                            </StackPane>
+                            <Label fx:id="lblDestinationCityError" styleClass="error-message" visible="false" managed="false"/>
+                        </VBox>
+
+                        <!-- Departamento -->
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label fx:id="lblDestinationStateFloat" text="DEPARTAMENTO" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtDestinationState" promptText="DEPARTAMENTO" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- Código Postal -->
+                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <Label fx:id="lblDestinationZipCodeFloat" text="CÓDIGO POSTAL" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtDestinationZipCode" promptText="CÓDIGO POSTAL" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- País -->
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                            <Label fx:id="lblDestinationCountryFloat" text="PAÍS" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtDestinationCountry" promptText="PAÍS" text="Colombia" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- Coordenadas (Opcionales - para mapa futuro) -->
+                        <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                            <Label fx:id="lblDestinationLatitudeFloat" text="LATITUD (OPCIONAL)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtDestinationLatitude" promptText="LATITUD (OPCIONAL)" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+
+                        <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                            <Label fx:id="lblDestinationLongitudeFloat" text="LONGITUD (OPCIONAL)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtDestinationLongitude" promptText="LONGITUD (OPCIONAL)" styleClass="modern-input-light"/>
+                            </StackPane>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+
+                <!-- PASO 4: Servicios Adicionales -->
+                <VBox spacing="20" fx:id="step4Form" visible="false" managed="false">
+                    <Label text="Paso 4: Servicios Adicionales" styleClass="section-title"/>
+                    <Label text="Selecciona los servicios adicionales para tu envío" styleClass="text-muted"/>
+
+                    <VBox spacing="15">
+                        <!-- Seguro -->
+                        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="service-card">
+                            <padding>
+                                <Insets top="15" right="15" bottom="15" left="15"/>
+                            </padding>
+                            <CheckBox fx:id="chkInsurance" styleClass="service-checkbox"/>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Seguro de Envío" styleClass="form-label" style="-fx-font-weight: bold;"/>
+                                <Label text="Protege tu paquete contra pérdidas o daños (5 porciento del valor)" styleClass="form-label-small"/>
+                            </VBox>
+                            <Label fx:id="lblInsuranceCost" text="0" styleClass="detail-value" style="-fx-font-size: 16px;"/>
+                        </HBox>
+
+                        <!-- Frágil -->
+                        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="service-card">
+                            <padding>
+                                <Insets top="15" right="15" bottom="15" left="15"/>
+                            </padding>
+                            <CheckBox fx:id="chkFragile" styleClass="service-checkbox"/>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Manejo Frágil" styleClass="form-label" style="-fx-font-weight: bold;"/>
+                                <Label text="Manejo especial para paquetes delicados (2,000 COP)" styleClass="form-label-small"/>
+                            </VBox>
+                            <Label text="2,000 COP" styleClass="detail-value" style="-fx-font-size: 16px;"/>
+                        </HBox>
+
+                        <!-- Firma Requerida -->
+                        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="service-card">
+                            <padding>
+                                <Insets top="15" right="15" bottom="15" left="15"/>
+                            </padding>
+                            <CheckBox fx:id="chkSignature" styleClass="service-checkbox"/>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Firma Requerida" styleClass="form-label" style="-fx-font-weight: bold;"/>
+                                <Label text="Requiere firma del destinatario al recibir (1,500 COP)" styleClass="form-label-small"/>
+                            </VBox>
+                            <Label text="1,500 COP" styleClass="detail-value" style="-fx-font-size: 16px;"/>
+                        </HBox>
+
+                        <!-- Prioridad -->
+                        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="service-card">
+                            <padding>
+                                <Insets top="15" right="15" bottom="15" left="15"/>
+                            </padding>
+                            <CheckBox fx:id="chkPriority" styleClass="service-checkbox"/>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Entrega Prioritaria" styleClass="form-label" style="-fx-font-weight: bold;"/>
+                                <Label text="Entrega más rápida (15 porciento adicional)" styleClass="form-label-small"/>
+                            </VBox>
+                            <Label fx:id="lblPriorityCost" text="0" styleClass="detail-value" style="-fx-font-size: 16px;"/>
+                        </HBox>
+                    </VBox>
+
+                    <Separator/>
+
+                    <!-- Vehicle Selection -->
+                    <VBox spacing="12" styleClass="card-base">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15"/>
+                        </padding>
+                        <Label text="🚗 Selección de Vehículo" styleClass="form-label" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                        <Label fx:id="lblVehicleRecommendation" text="" styleClass="text-muted" wrapText="true" style="-fx-font-size: 12px;"/>
+
+                        <HBox spacing="15" alignment="CENTER_LEFT">
+                            <Label text="Tipo de Vehículo:" styleClass="form-label"/>
+                            <ComboBox fx:id="cmbVehicleType" promptText="Seleccione vehículo" prefWidth="250" styleClass="form-input"/>
+                        </HBox>
+
+                        <Label fx:id="lblVehicleValidation" text="" wrapText="true" style="-fx-text-fill: #d9534f; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                    </VBox>
+
+                    <Separator/>
+
+                    <!-- Notas adicionales -->
+                    <VBox spacing="8">
+                        <Label text="Notas Adicionales (Opcional)" styleClass="form-label"/>
+                        <TextArea fx:id="txtNotes" promptText="Instrucciones especiales para la entrega..."
+                                 styleClass="form-input" wrapText="true" prefHeight="80"/>
+                    </VBox>
+
+                    <!-- Fecha de recogida -->
+                    <VBox spacing="8">
+                        <Label text="Fecha y Hora de Recogida" styleClass="form-label"/>
+                        <HBox spacing="15" alignment="CENTER_LEFT">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Fecha" styleClass="form-label-small"/>
+                                <DatePicker fx:id="datePickup" promptText="Selecciona fecha" styleClass="form-input"/>
+                            </VBox>
+                            <VBox spacing="5">
+                                <Label text="Hora (24h)" styleClass="form-label-small"/>
+                                <Spinner fx:id="spinnerHour" editable="true" prefWidth="80"
+                                         styleClass="time-spinner"/>
+                            </VBox>
+                            <Label text=":" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-padding: 20 5 0 5;"/>
+                            <VBox spacing="5">
+                                <Label text="Minutos" styleClass="form-label-small"/>
+                                <Spinner fx:id="spinnerMinute" editable="true" prefWidth="80"
+                                         styleClass="time-spinner"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- PASO 5: Resumen y Cotización -->
+                <VBox spacing="20" fx:id="step5Form" visible="false" managed="false">
+                    <Label text="📋 Paso 5: Resumen y Cotización" styleClass="section-title"/>
+                    <Label text="Revisa los detalles de tu envío antes de confirmar" styleClass="text-muted"/>
+
+                    <!-- Resumen del Paquete -->
+                    <VBox spacing="10" styleClass="info-card">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15"/>
+                        </padding>
+                        <Label text="📦 Paquete" styleClass="form-label" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                        <GridPane hgap="15" vgap="8">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="150"/>
+                                <ColumnConstraints/>
+                            </columnConstraints>
+                            <Label text="Peso:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                            <Label fx:id="lblSummaryWeight" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                            <Label text="Dimensiones:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                            <Label fx:id="lblSummaryDimensions" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                            <Label text="Volumen:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                            <Label fx:id="lblSummaryVolume" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- Resumen de Direcciones -->
+                    <HBox spacing="15">
+                        <!-- Origen -->
+                        <VBox spacing="10" styleClass="info-card" HBox.hgrow="ALWAYS">
+                            <padding>
+                                <Insets top="15" right="15" bottom="15" left="15"/>
+                            </padding>
+                            <Label text="📍 Origen" styleClass="form-label" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                            <Label fx:id="lblSummaryOrigin" text="--" styleClass="detail-value" wrapText="true"/>
+                        </VBox>
+
+                        <!-- Destino -->
+                        <VBox spacing="10" styleClass="info-card" HBox.hgrow="ALWAYS">
+                            <padding>
+                                <Insets top="15" right="15" bottom="15" left="15"/>
+                            </padding>
+                            <Label text="🎯 Destino" styleClass="form-label" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                            <Label fx:id="lblSummaryDestination" text="--" styleClass="detail-value" wrapText="true"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Servicios Seleccionados -->
+                    <VBox spacing="10" styleClass="info-card" fx:id="summaryServicesContainer">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15"/>
+                        </padding>
+                        <Label text="✨ Servicios Adicionales" styleClass="form-label" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                        <Label fx:id="lblSummaryServices" text="Ninguno seleccionado" styleClass="detail-value"/>
+                    </VBox>
+
+                    <Separator/>
+
+                    <!-- Desglose de Costos -->
+                    <VBox spacing="15" styleClass="card-base" style="-fx-background-color: linear-gradient(to bottom right, #f8f9fa, #e9ecef);">
+                        <padding>
+                            <Insets top="20" right="20" bottom="20" left="20"/>
+                        </padding>
+                        <Label text="💰 Desglose de Costos" styleClass="section-title" style="-fx-font-size: 16px;"/>
+
+                        <GridPane hgap="15" vgap="12">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" halignment="LEFT"/>
+                                <ColumnConstraints hgrow="SOMETIMES" halignment="RIGHT"/>
+                            </columnConstraints>
+
+                            <Label text="Costo Base:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                            <Label fx:id="lblQuoteBaseCost" text="0" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                            <Label text="Costo por Distancia:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                            <Label fx:id="lblQuoteDistanceCost" text="0" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                            <Label text="Costo por Peso:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                            <Label fx:id="lblQuoteWeightCost" text="0" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                            <Label text="Costo por Volumen:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                            <Label fx:id="lblQuoteVolumeCost" text="0" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                            <Label text="Servicios Adicionales:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                            <Label fx:id="lblQuoteServicesCost" text="0" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+                            <Separator GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2"/>
+
+                            <Label text="TOTAL:" styleClass="form-label" style="-fx-font-weight: bold; -fx-font-size: 18px;" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+                            <Label fx:id="lblQuoteTotalCost" text="0" styleClass="detail-value" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4a9eff;" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                        </GridPane>
+
+                        <Label fx:id="lblEstimatedDelivery" text="Fecha estimada de entrega: --" styleClass="form-label" style="-fx-font-style: italic;"/>
+                    </VBox>
+                </VBox>
+                </VBox>
+            </HBox>
+        </ScrollPane>
+    </center>
+
+    <!-- Bottom Section: Navigation Buttons (FIXED - NO SCROLL) -->
+    <bottom>
+        <HBox spacing="15" alignment="CENTER" styleClass="card-base">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Button fx:id="btnPrevious" text="← Anterior" styleClass="btn-secondary" onAction="#handlePrevious"
+                    prefWidth="150" visible="false" managed="false"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnNext" text="Siguiente →" styleClass="btn-primary" onAction="#handleNext" prefWidth="150"/>
+            <Button fx:id="btnConfirm" text="Confirmar Envío" styleClass="btn-success" onAction="#handleConfirm"
+                    prefWidth="180" visible="false" managed="false"/>
+        </HBox>
+    </bottom>
+</BorderPane>

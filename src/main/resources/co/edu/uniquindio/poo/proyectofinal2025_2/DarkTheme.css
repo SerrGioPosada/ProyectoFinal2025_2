@@ -1,0 +1,867 @@
+/* ============================================
+   DARK THEME OVERRIDES
+   This file overrides the base Style.css with dark theme colors
+   ============================================ */
+
+/* Apply dark background globally to root - Changed to #032d4d (dark blue) */
+.root {
+    -fx-background-color: #032d4d !important;
+}
+
+/* ROOT & MAIN BACKGROUNDS */
+.root-pane {
+    -fx-background-color: #032d4d !important;
+}
+
+.main-pane {
+    -fx-background-color: #043a5e !important;
+}
+
+.dashboard-background,
+.content-area {
+    -fx-background-color: #032d4d !important;
+}
+
+/* HEADER & TOP BAR */
+.header-pane {
+    -fx-background-color: #043a5e !important;
+}
+
+.top-bar {
+    -fx-background-color: #02213a !important;
+}
+
+/* NAVIGATION */
+.nav-bar {
+    -fx-background-color: #043a5e !important;
+}
+
+.nav-button {
+    -fx-background-color: #043a5e !important;
+    -fx-text-fill: #e1e4e8 !important;
+}
+
+.nav-button:hover {
+    -fx-background-color: #4a9eff !important;
+    -fx-text-fill: white !important;
+}
+
+/* SIDEBAR */
+.sidebar {
+    -fx-background-color: #02213a !important;
+}
+
+.sidebar-button {
+    -fx-background-color: #02213a !important;
+    -fx-text-fill: #e1e4e8 !important;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #4a9eff !important;
+    -fx-text-fill: white !important;
+}
+
+/* CARDS & CONTAINERS - KEEP WHITE BACKGROUND FOR BETTER VISIBILITY */
+.card-base,
+.detail-section,
+.filter-section,
+.timeline-card,
+.info-card,
+.profile-container,
+.chart-container,
+.dashboard-stat-card,
+.admin-stat-card {
+    -fx-background-color: white !important;
+    -fx-background-radius: 12px !important;
+    -fx-border-color: #e0e0e0 !important;
+    -fx-border-radius: 12px !important;
+    -fx-border-width: 1px !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2) !important;
+}
+
+.dashboard-stat-card:hover,
+.admin-stat-card:hover {
+    -fx-border-color: rgba(74, 158, 255, 0.5) !important;
+    -fx-effect: dropshadow(gaussian, rgba(74, 158, 255, 0.3), 15, 0, 0, 3) !important;
+    -fx-translate-y: -2 !important;
+}
+
+.quick-action-card {
+    -fx-background-color: white !important;
+    -fx-background-radius: 12px !important;
+    -fx-border-color: transparent !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2) !important;
+    -fx-cursor: hand !important;
+}
+
+.quick-action-card:hover {
+    -fx-background-color: #f8f9fa !important;
+    -fx-effect: dropshadow(gaussian, rgba(74, 158, 255, 0.25), 12, 0, 0, 4) !important;
+    -fx-border-color: #4a9eff !important;
+    -fx-translate-y: -3 !important;
+    -fx-scale-x: 1.02 !important;
+    -fx-scale-y: 1.02 !important;
+}
+
+/* HEADER SECTION */
+.header-section {
+    -fx-background-color: #043a5e !important;
+}
+
+/* TABLES */
+.table-base,
+.custom-table,
+.data-table,
+.history-table {
+    -fx-background-color: #043a5e !important;
+    -fx-border-color: #054a70 !important;
+}
+
+.table-row-cell {
+    -fx-background-color: #043a5e !important;
+    -fx-text-fill: #e1e4e8 !important;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #054a70 !important;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: rgba(74, 158, 255, 0.15) !important;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: rgba(74, 158, 255, 0.25) !important;
+}
+
+.column-header,
+.column-header-background {
+    -fx-background-color: #032d4d !important;
+    -fx-text-fill: #e1e4e8 !important;
+    -fx-border-color: transparent transparent #054a70 transparent !important;
+}
+
+.table-cell {
+    -fx-text-fill: #e1e4e8 !important;
+}
+
+/* TableView Specific */
+.table-view {
+    -fx-background-color: #043a5e !important;
+}
+
+.table-view .column-header,
+.table-view .column-header-background,
+.table-view .filler {
+    -fx-background-color: #032d4d !important;
+}
+
+.table-view .table-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e1e4e8 !important;
+}
+
+/* FORM INPUTS */
+.input-base,
+.search-field,
+.filter-combo,
+.filter-date,
+.form-field,
+.form-combo,
+.form-date,
+.form-input,
+.notes-area {
+    -fx-background-color: #054a70 !important;
+    -fx-border-color: #065d8a;
+    -fx-text-fill: #e1e4e8;
+    -fx-prompt-text-fill: #8b9bb0;
+}
+
+.input-base:focused,
+.search-field:focused,
+.form-field:focused,
+.form-input:focused,
+.notes-area:focused {
+    -fx-border-color: #4a9eff;
+    -fx-background-color: #065d8a !important;
+}
+
+/* ComboBox Dark Theme */
+ComboBox,
+.combo-box,
+.filter-combo,
+.form-combo {
+    -fx-background-color: #054a70 !important;
+    -fx-border-color: #065d8a !important;
+}
+
+ComboBox .button-cell,
+.combo-box .button-cell,
+.filter-combo .button-cell,
+.form-combo .button-cell {
+    -fx-background-color: transparent !important;
+    -fx-text-fill: #e1e4e8 !important;
+}
+
+ComboBox .button-cell:empty,
+.combo-box .button-cell:empty,
+.filter-combo .button-cell:empty,
+.form-combo .button-cell:empty {
+    -fx-text-fill: rgba(255, 255, 255, 0.5) !important;
+}
+
+ComboBox .list-cell,
+.combo-box .list-cell,
+.filter-combo .list-cell,
+.form-combo .list-cell {
+    -fx-background-color: #054a70;
+    -fx-text-fill: #e1e4e8;
+}
+
+ComboBox .list-cell:hover,
+.combo-box .list-cell:hover,
+.filter-combo .list-cell:hover,
+.form-combo .list-cell:hover {
+    -fx-background-color: #065d8a;
+}
+
+ComboBox .arrow-button,
+.combo-box .arrow-button,
+.filter-combo .arrow-button,
+.form-combo .arrow-button {
+    -fx-background-color: #054a70;
+}
+
+/* DatePicker Dark Theme */
+DatePicker,
+.filter-date,
+.form-date {
+    -fx-background-color: #054a70 !important;
+}
+
+DatePicker > .text-field,
+.filter-date > .text-field,
+.form-date > .text-field {
+    -fx-background-color: #054a70 !important;
+    -fx-text-fill: #e1e4e8;
+}
+
+/* BUTTONS - Keep primary colors but adjust for dark mode */
+.btn-update {
+    -fx-effect: dropshadow(gaussian, rgba(76, 175, 80, 0.4), 8, 0, 0, 2);
+}
+
+.btn-primary {
+    -fx-effect: dropshadow(gaussian, rgba(74, 158, 255, 0.4), 10, 0, 0, 2);
+}
+
+.btn-success {
+    -fx-effect: dropshadow(gaussian, rgba(40, 167, 69, 0.4), 10, 0, 0, 2);
+}
+
+/* TYPOGRAPHY */
+.page-title,
+.section-title,
+.card-title,
+.dashboard-title,
+.dashboard-header-title,
+.option-card-title,
+.chart-title,
+.chart-title-large {
+    -fx-text-fill: #e1e4e8;
+}
+
+.detail-label,
+.info-label,
+.profile-label,
+.stat-card-label,
+.admin-stat-label-white,
+.form-label {
+    -fx-text-fill: #a8adb7;
+}
+
+.detail-value,
+.info-value,
+.profile-value,
+.action-card-text {
+    -fx-text-fill: #e1e4e8;
+}
+
+.action-card-icon {
+    -fx-text-fill: #4a9eff;
+}
+
+.dashboard-header-subtitle {
+    -fx-text-fill: #6c7589;
+}
+
+.text-muted {
+    -fx-text-fill: #6c7589;
+}
+
+.text-dark {
+    -fx-text-fill: #e1e4e8;
+}
+
+/* LABELS IN GENERAL */
+.label {
+    -fx-text-fill: #e1e4e8;
+}
+
+/* STAT CARDS - KEEP COLORS */
+.stat-card-value {
+    -fx-text-fill: #4a9eff;
+}
+
+.stat-card-value-pending {
+    -fx-text-fill: #FF9800;
+}
+
+.stat-card-value-processing {
+    -fx-text-fill: #9C27B0;
+}
+
+.stat-card-value-completed {
+    -fx-text-fill: #4CAF50;
+}
+
+/* COMPACT STAT CARDS - KEEP GRADIENTS WITH COLORS FOR VISIBILITY */
+.stat-card-compact {
+    -fx-background-color: rgba(255, 255, 255, 0.05) !important;
+    -fx-border-color: rgba(255, 255, 255, 0.1) !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);
+}
+
+.stat-card-compact:hover {
+    -fx-effect: dropshadow(gaussian, rgba(74, 158, 255, 0.4), 15, 0, 0, 5) !important;
+}
+
+.stat-card-compact-success {
+    -fx-background-color: rgba(255, 255, 255, 0.05) !important;
+    -fx-border-color: rgba(255, 255, 255, 0.1) !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);
+}
+
+.stat-card-compact-success:hover {
+    -fx-effect: dropshadow(gaussian, rgba(40, 167, 69, 0.4), 15, 0, 0, 5) !important;
+}
+
+.stat-card-compact-info {
+    -fx-background-color: rgba(255, 255, 255, 0.05) !important;
+    -fx-border-color: rgba(255, 255, 255, 0.1) !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);
+}
+
+.stat-card-compact-info:hover {
+    -fx-effect: dropshadow(gaussian, rgba(23, 162, 184, 0.4), 15, 0, 0, 5) !important;
+}
+
+.stat-card-compact-warning {
+    -fx-background-color: rgba(255, 255, 255, 0.05) !important;
+    -fx-border-color: rgba(255, 255, 255, 0.1) !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);
+}
+
+.stat-card-compact-warning:hover {
+    -fx-effect: dropshadow(gaussian, rgba(255, 193, 7, 0.4), 15, 0, 0, 5) !important;
+}
+
+.stat-card-compact-primary {
+    -fx-background-color: rgba(255, 255, 255, 0.05) !important;
+    -fx-border-color: rgba(255, 255, 255, 0.1) !important;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);
+}
+
+.stat-card-compact-primary:hover {
+    -fx-effect: dropshadow(gaussian, rgba(74, 158, 255, 0.4), 15, 0, 0, 5) !important;
+}
+
+/* Stat card labels in dark mode */
+.stat-label-compact {
+    -fx-text-fill: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Colored stat values in dark mode */
+.stat-card-compact .stat-value-compact {
+    -fx-text-fill: #6eb3ff !important;
+}
+
+.stat-card-compact-success .stat-value-compact {
+    -fx-text-fill: #4cda69 !important;
+}
+
+.stat-card-compact-info .stat-value-compact {
+    -fx-text-fill: #3fc4df !important;
+}
+
+.stat-card-compact-warning .stat-value-compact {
+    -fx-text-fill: #ffd454 !important;
+}
+
+.stat-card-compact-primary .stat-value-compact {
+    -fx-text-fill: #6eb3ff !important;
+}
+
+/* ADMIN STAT CARDS - No overrides needed, inherit from stat-card-compact classes */
+
+/* CHARTS - KEEP WHITE BACKGROUND FOR BETTER VISIBILITY */
+.chart,
+.chart-pie,
+.chart-bar,
+.chart-container-large {
+    -fx-background-color: white !important;
+}
+
+.chart-content {
+    -fx-background-color: white !important;
+}
+
+.chart-plot-background {
+    -fx-background-color: #f8f9fa !important;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: #dee2e6 !important;
+}
+
+.axis {
+    -fx-tick-label-fill: #495057 !important;
+}
+
+.axis-label {
+    -fx-text-fill: #495057 !important;
+}
+
+.chart-legend {
+    -fx-background-color: white !important;
+}
+
+.chart-legend-item {
+    -fx-text-fill: #495057 !important;
+}
+
+.chart-pie-label {
+    -fx-fill: #212529 !important;
+}
+
+.chart-line-symbol {
+    -fx-background-color: #4a9eff !important;
+}
+
+/* SCROLLBARS */
+.scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(74, 158, 255, 0.4);
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* BADGES */
+.badge-active {
+    -fx-background-color: #1e4620;
+    -fx-text-fill: #81c784;
+}
+
+.badge-inactive {
+    -fx-background-color: #4a1e1e;
+    -fx-text-fill: #e57373;
+}
+
+.status-badge {
+    -fx-text-fill: white;
+}
+
+/* DIALOGS */
+.dialog-pane {
+    -fx-background-color: #043a5e;
+}
+
+.dialog-pane > .content {
+    -fx-background-color: #043a5e;
+}
+
+.dialog-pane > .button-bar > .container {
+    -fx-background-color: #043a5e;
+}
+
+.dialog-pane:header .header-panel {
+    -fx-background-color: #032d4d;
+}
+
+/* EMPTY STATES */
+.empty-state-text {
+    -fx-text-fill: #a8adb7;
+}
+
+.empty-state-subtitle {
+    -fx-text-fill: #6c7589;
+}
+
+.empty-state-icon {
+    -fx-text-fill: #3d4354;
+}
+
+/* UTILITY BACKGROUNDS */
+.bg-light {
+    -fx-background-color: #054a70 !important;
+}
+
+.bg-white {
+    -fx-background-color: #043a5e !important;
+}
+
+/* SEPARATOR */
+.separator {
+    -fx-background-color: #054a70 !important;
+}
+
+/* SCROLL PANES & VIEWPORTS */
+.scroll-pane {
+    -fx-background-color: #032d4d !important;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: #032d4d !important;
+}
+
+.scroll-pane > .corner {
+    -fx-background-color: #032d4d !important;
+}
+
+/* VBOX & HBOX CONTAINERS */
+VBox,
+HBox,
+StackPane,
+GridPane,
+AnchorPane,
+BorderPane {
+    -fx-background-color: transparent;
+}
+
+/* REGIONS & PANES */
+.region,
+.pane {
+    -fx-background-color: transparent;
+}
+
+/* GRID PANE SPECIFIC */
+GridPane {
+    -fx-background-color: transparent !important;
+}
+
+/* STAT CARD CONTAINERS */
+.stat-card-container,
+.stats-grid,
+.metrics-container {
+    -fx-background-color: transparent !important;
+}
+
+/* MENU LABEL */
+.menu-label {
+    -fx-background-color: #043a5e;
+    -fx-text-fill: #a8adb7;
+}
+
+/* WARNING & INFO BOXES */
+.warning-box {
+    -fx-background-color: rgba(255, 193, 7, 0.15);
+    -fx-border-color: #ffc107;
+}
+
+.warning-title,
+.warning-item {
+    -fx-text-fill: #ffc107;
+}
+
+.info-box {
+    -fx-background-color: rgba(23, 162, 184, 0.15);
+    -fx-border-color: #17a2b8;
+}
+
+.incident-section {
+    -fx-background-color: rgba(255, 193, 7, 0.15);
+    -fx-border-color: #ffc107;
+}
+
+.incident-title,
+.incident-value {
+    -fx-text-fill: #ffc107;
+}
+
+/* PROFILE OPTION CARDS */
+.profile-option-card {
+    -fx-background-color: #043a5e;
+    -fx-border-color: #054a70;
+}
+
+.profile-option-card:hover {
+    -fx-border-color: rgba(74, 158, 255, 0.5);
+}
+
+.profile-option-card-danger {
+    -fx-background-color: #043a5e;
+    -fx-border-color: #dc3545;
+}
+
+.option-card-description {
+    -fx-text-fill: #a8adb7;
+}
+
+/* TEXT FIELD & TEXT AREA SELECTION */
+.text-field,
+.text-area {
+    -fx-text-fill: #e1e4e8;
+}
+
+.text-field:focused,
+.text-area:focused {
+    -fx-background-color: #353a4a;
+}
+
+/* CHECKBOX */
+.check-box {
+    -fx-text-fill: #e1e4e8;
+}
+
+.check-box .box {
+    -fx-background-color: #054a70;
+    -fx-border-color: #065d8a;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #4a9eff;
+    -fx-border-color: #4a9eff;
+}
+
+.modern-checkbox {
+    -fx-text-fill: white !important;
+}
+
+.checkbox-label {
+    -fx-text-fill: white !important;
+}
+
+/* SPINNER */
+.spinner {
+    -fx-background-color: #054a70;
+    -fx-border-color: #065d8a;
+}
+
+.spinner .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e1e4e8;
+}
+
+/* LIST VIEW */
+.list-view {
+    -fx-background-color: #043a5e;
+    -fx-border-color: #054a70;
+}
+
+.list-cell {
+    -fx-background-color: #043a5e;
+    -fx-text-fill: #e1e4e8;
+}
+
+.list-cell:hover {
+    -fx-background-color: #054a70;
+}
+
+.list-cell:selected {
+    -fx-background-color: rgba(74, 158, 255, 0.25);
+}
+
+/* SERVICES LIST */
+.services-list {
+    -fx-background-color: #043a5e;
+    -fx-border-color: #054a70;
+}
+
+.services-list .list-cell {
+    -fx-background-color: #043a5e;
+}
+
+/* PLACEHOLDER TEXT */
+.placeholder .label {
+    -fx-text-fill: #6c7589;
+}
+
+/* BUTTONS - Keep original colors but ensure visibility */
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-warning,
+.btn-danger,
+.btn-info {
+    -fx-background-color: inherit; /* Keep their original colors */
+}
+
+/* FORM CONTAINERS */
+.form-container {
+    -fx-background-color: transparent !important;
+}
+
+/* OPTION CARDS */
+.option-card,
+.profile-option-card {
+    -fx-background-color: #043a5e !important;
+    -fx-border-color: #054a70 !important;
+}
+
+.option-card:hover,
+.profile-option-card:hover {
+    -fx-border-color: rgba(74, 158, 255, 0.5) !important;
+}
+
+/* EMPTY CONTAINERS AND WRAPPERS */
+.container,
+.wrapper,
+.box {
+    -fx-background-color: transparent !important;
+}
+
+/* THEME TOGGLE BUTTON */
+.theme-toggle-btn {
+    -fx-background-color: #054a70;
+    -fx-text-fill: #e1e4e8;
+    -fx-border-color: #065d8a;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-padding: 8 16;
+}
+
+.theme-toggle-btn:hover {
+    -fx-background-color: #065d8a;
+    -fx-border-color: #4a9eff;
+}
+
+/* ============================================
+   OVERRIDE FOR LIGHT INPUT FIELDS (CreateShipment)
+   These inputs should remain visible even in dark mode
+   ============================================ */
+TextField.modern-input-light,
+.modern-input-light.text-field,
+.modern-input-light {
+    -fx-background-color: #e8edf5 !important;
+    -fx-border-color: #8b95a8 !important;
+    -fx-border-width: 2px !important;
+    -fx-text-fill: #0a0e1a !important;
+    -fx-prompt-text-fill: #3a4555 !important;
+}
+
+TextField.modern-input-light:focused,
+.modern-input-light.text-field:focused,
+.modern-input-light:focused {
+    -fx-background-color: #ffffff !important;
+    -fx-border-color: #2196F3 !important;
+    -fx-border-width: 3px !important;
+}
+
+Label.floating-label-light,
+.floating-label-light.label,
+.floating-label-light {
+    -fx-text-fill: #1a2332 !important;
+}
+
+/* ============================================
+   AUTH VIEWS (Login, Signup, ForgotPassword) IN DARK MODE
+   These views should have dark blue background with white text
+   ============================================ */
+
+/* Login/Auth Views - Dark blue background */
+.login-background-pane,
+.signup-root {
+    -fx-background-color: #032d4d !important;
+}
+
+/* Logo circle in dark mode should have white border and text */
+.logo-circle {
+    -fx-border-color: white !important;
+}
+
+.logo-text {
+    -fx-text-fill: white !important;
+}
+
+.welcome-text {
+    -fx-text-fill: white !important;
+}
+
+/* Modern input fields in dark mode should have transparent/white styling */
+.modern-input {
+    -fx-background-color: rgba(255, 255, 255, 0.1) !important;
+    -fx-border-color: rgba(255, 255, 255, 0.3) !important;
+    -fx-text-fill: white !important;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.5) !important;
+}
+
+.modern-input:focused {
+    -fx-background-color: rgba(255, 255, 255, 0.15) !important;
+    -fx-border-color: #4a9eff !important;
+}
+
+/* Floating labels in dark mode should be white */
+.floating-label-top {
+    -fx-text-fill: rgba(255, 255, 255, 0.5) !important;
+}
+
+.floating-label-top-active {
+    -fx-text-fill: #4a9eff !important;
+}
+
+/* Google link in dark mode should have white/transparent styling */
+.google-link {
+    -fx-text-fill: white !important;
+    -fx-background-color: rgba(255, 255, 255, 0.1) !important;
+    -fx-border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.google-link:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.2) !important;
+    -fx-border-color: white !important;
+}
+
+/* Link labels in dark mode */
+.link-label {
+    -fx-text-fill: rgba(255, 255, 255, 0.7) !important;
+}
+
+.link-label:hover {
+    -fx-text-fill: white !important;
+}
+
+/* Divider in dark mode */
+.divider {
+    -fx-background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.divider-text {
+    -fx-text-fill: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* ============================================
+   WIZARD STEP INDICATORS - Dark Mode Style
+   Inactive steps should have white border, white text, transparent background
+   ============================================ */
+
+.step-circle-inactive {
+    -fx-background-color: transparent !important;
+    -fx-border-color: white !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 50% !important;
+    -fx-background-radius: 50% !important;
+}
+
+.step-circle-inactive .step-number {
+    -fx-text-fill: white !important;
+}
+
+.step-label {
+    -fx-text-fill: white !important;
+}

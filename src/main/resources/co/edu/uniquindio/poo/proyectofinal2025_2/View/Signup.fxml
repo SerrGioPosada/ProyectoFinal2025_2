@@ -5,10 +5,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
 
-<AnchorPane styleClass="signup-root" stylesheets="@../Style.css"
+<AnchorPane styleClass="signup-root"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="co.edu.uniquindio.poo.proyectofinal2025_2.Controller.SignupController"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.SignupController"
             prefWidth="500" prefHeight="700">
 
     <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="login-scroll" pannable="true"
@@ -22,7 +22,7 @@
                 <!-- Logo Circle -->
                 <HBox alignment="CENTER">
                     <StackPane styleClass="logo-circle">
-                        <Label text="SF" styleClass="logo-text"/>
+                        <Label text="SD" styleClass="logo-text"/>
                     </StackPane>
                 </HBox>
 
@@ -33,34 +33,47 @@
                 </VBox>
 
                 <!-- Form Fields -->
-                <VBox spacing="15" styleClass="form-container">
+                <VBox spacing="10" styleClass="form-container">
 
                     <!-- Name Field -->
-                    <VBox spacing="3">
-                        <TextField fx:id="txtName" styleClass="modern-input" promptText="NOMBRE"/>
-                        <Label fx:id="lblNameError" styleClass="validation-error" visible="false" managed="false"/>
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblNameFloat" text="NOMBRE" styleClass="floating-label-top"/>
+                        <StackPane styleClass="input-container">
+                            <TextField fx:id="txtName" styleClass="modern-input" promptText="NOMBRE"/>
+                        </StackPane>
+                        <Label fx:id="lblNameError" styleClass="validation-error" minHeight="16"/>
                     </VBox>
 
                     <!-- Last Name Field -->
-                    <VBox spacing="3">
-                        <TextField fx:id="txtLastName" styleClass="modern-input" promptText="APELLIDO"/>
-                        <Label fx:id="lblLastNameError" styleClass="validation-error" visible="false" managed="false"/>
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblLastNameFloat" text="APELLIDO" styleClass="floating-label-top"/>
+                        <StackPane styleClass="input-container">
+                            <TextField fx:id="txtLastName" styleClass="modern-input" promptText="APELLIDO"/>
+                        </StackPane>
+                        <Label fx:id="lblLastNameError" styleClass="validation-error" minHeight="16"/>
                     </VBox>
 
                     <!-- Email Field -->
-                    <VBox spacing="3">
-                        <TextField fx:id="txtEmail" styleClass="modern-input" promptText="CORREO ELECTRÓNICO"/>
-                        <Label fx:id="lblEmailError" styleClass="validation-error" visible="false" managed="false"/>
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblEmailFloat" text="CORREO ELECTRÓNICO" styleClass="floating-label-top"/>
+                        <StackPane styleClass="input-container">
+                            <TextField fx:id="txtEmail" styleClass="modern-input" promptText="CORREO ELECTRÓNICO"/>
+                        </StackPane>
+                        <Label fx:id="lblEmailError" styleClass="validation-error" minHeight="16"/>
                     </VBox>
 
                     <!-- Phone Field -->
-                    <VBox spacing="3">
-                        <TextField fx:id="txtPhone" styleClass="modern-input" promptText="TELÉFONO"/>
-                        <Label fx:id="lblPhoneError" styleClass="validation-error" visible="false" managed="false"/>
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblPhoneFloat" text="TELÉFONO" styleClass="floating-label-top"/>
+                        <StackPane styleClass="input-container">
+                            <TextField fx:id="txtPhone" styleClass="modern-input" promptText="TELÉFONO"/>
+                        </StackPane>
+                        <Label fx:id="lblPhoneError" styleClass="validation-error" minHeight="16"/>
                     </VBox>
 
                     <!-- Password Field -->
-                    <VBox spacing="3">
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblPasswordFloat" text="CONTRASEÑA" styleClass="floating-label-top"/>
                         <HBox spacing="10" alignment="CENTER_LEFT">
                             <StackPane styleClass="input-container" HBox.hgrow="ALWAYS">
                                 <PasswordField fx:id="txtPassword" styleClass="modern-input" promptText="CONTRASEÑA"/>
@@ -68,11 +81,12 @@
                             </StackPane>
                             <ImageView fx:id="imgTogglePassword" styleClass="password-toggle-outside" fitWidth="24" fitHeight="24" preserveRatio="true" pickOnBounds="true"/>
                         </HBox>
-                        <Label fx:id="lblPasswordError" styleClass="validation-error" visible="false" managed="false"/>
+                        <Label fx:id="lblPasswordError" styleClass="validation-error" minHeight="16"/>
                     </VBox>
 
                     <!-- Confirm Password Field -->
-                    <VBox spacing="3">
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblConfirmPasswordFloat" text="CONFIRMAR CONTRASEÑA" styleClass="floating-label-top"/>
                         <HBox spacing="10" alignment="CENTER_LEFT">
                             <StackPane styleClass="input-container" HBox.hgrow="ALWAYS">
                                 <PasswordField fx:id="txtConfirmPassword" styleClass="modern-input" promptText="CONFIRMAR CONTRASEÑA"/>
@@ -80,7 +94,7 @@
                             </StackPane>
                             <ImageView fx:id="imgToggleConfirmPassword" styleClass="password-toggle-outside" fitWidth="24" fitHeight="24" preserveRatio="true" pickOnBounds="true"/>
                         </HBox>
-                        <Label fx:id="lblConfirmPasswordError" styleClass="validation-error" visible="false" managed="false"/>
+                        <Label fx:id="lblConfirmPasswordError" styleClass="validation-error" minHeight="16"/>
                     </VBox>
 
                     <!-- Register Button -->

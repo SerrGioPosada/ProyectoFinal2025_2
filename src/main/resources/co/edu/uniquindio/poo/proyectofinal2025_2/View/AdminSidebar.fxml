@@ -8,10 +8,9 @@
 
 <AnchorPane prefWidth="176"
             styleClass="sidebar"
-            stylesheets="@../Style.css"
             xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="co.edu.uniquindio.poo.proyectofinal2025_2.Controller.AdminSidebarController">
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.AdminSidebarController">
 
     <children>
         <!-- Sidebar panel -->
@@ -22,10 +21,9 @@
                     AnchorPane.topAnchor="0.0">
 
             <children>
+                <!-- Top buttons container -->
                 <VBox alignment="TOP_CENTER"
-                      prefHeight="204.0"
                       spacing="5"
-                      AnchorPane.bottomAnchor="0.0"
                       AnchorPane.leftAnchor="0.0"
                       AnchorPane.rightAnchor="0.0"
                       AnchorPane.topAnchor="131.0">
@@ -33,9 +31,24 @@
                     <children>
                         <Button fx:id="btnDashboard" text="Panel de Control" styleClass="sidebar-button"/>
                         <Button fx:id="btnManageUsers" text="Gestionar Usuarios" styleClass="sidebar-button"/>
+                        <Button fx:id="btnManageDelivery" text="Gestionar Repartidores" styleClass="sidebar-button"/>
+                        <Button fx:id="btnManageVehicles" text="Gestionar Vehículos" styleClass="sidebar-button"/>
+                        <Button fx:id="btnManageOrders" text="Gestionar Órdenes" styleClass="sidebar-button"/>
                         <Button fx:id="btnManageShipments" text="Gestionar Envíos" styleClass="sidebar-button"/>
                         <Button fx:id="btnReports" text="Reportes" styleClass="sidebar-button"/>
                         <Button fx:id="btnProfile" text="Mi Perfil" styleClass="sidebar-button"/>
+                        <Button fx:id="btnToggleTheme" text="🌙" onAction="#handleToggleTheme" styleClass="sidebar-button" style="-fx-font-size: 18px;"/>
+                    </children>
+                </VBox>
+
+                <!-- Bottom buttons container -->
+                <VBox alignment="BOTTOM_CENTER"
+                      spacing="5"
+                      AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0"
+                      AnchorPane.bottomAnchor="10.0">
+
+                    <children>
                         <Button fx:id="btnLogout" text="Cerrar Sesión" styleClass="sidebar-button"/>
                     </children>
                 </VBox>

@@ -1,0 +1,315 @@
+package co.edu.uniquindio.poo.ProyectoFinal2025_2.Services;
+
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Address;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Invoice;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.AvailabilityStatus;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.CoverageArea;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.OrderStatus;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.DeliveryPersonRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.OrderRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.ShipmentRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilService.IdGenerationUtil;
+
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * <p>Orchestrates the entire order management process, acting as the central service for the Order aggregate.</p>
+ * <p>This service manages the lifecycle (Saga) of an order, from initiation to confirmation and handoff
+ * to the shipment process. It ensures that all state transitions are valid.</p>
+ */
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final InvoiceService invoiceService;
+    private final ShipmentService shipmentService;
+    private final DeliveryPersonRepository deliveryPersonRepository;
+
+    /**
+     * Constructor with dependency injection for repositories and services.
+     *
+     * @param orderRepository The OrderRepository instance.
+     * @param invoiceService The InvoiceService instance.
+     * @param shipmentService The ShipmentService instance.
+     * @param deliveryPersonRepository The DeliveryPersonRepository instance.
+     */
+    public OrderService(OrderRepository orderRepository, InvoiceService invoiceService,
+                       ShipmentService shipmentService, DeliveryPersonRepository deliveryPersonRepository) {
+        this.orderRepository = orderRepository;
+        this.invoiceService = invoiceService;
+        this.shipmentService = shipmentService;
+        this.deliveryPersonRepository = deliveryPersonRepository;
+    }
+
+    /**
+     * Default constructor that uses singleton instances.
+     * This provides backward compatibility and ease of use.
+     */
+    public OrderService() {
+        this(OrderRepository.getInstance(), new InvoiceService(),
+             new ShipmentService(), DeliveryPersonRepository.getInstance());
+    }
+
+    // ===========================
+    // Order Management
+    // ===========================
+
+    /**
+     * Initiates the creation of a new order.
+     * <p>This is the first step in the saga. It creates the order, generates the invoice,
+     * and leaves the order in the AWAITING_PAYMENT state.</p>
+     *
+     * @param userId      The ID of the user creating the order.
+     * @param origin      The origin address.
+     * @param destination The destination address.
+     * @return The newly created Order, ready for payment.
+     */
+    public Order initiateOrderCreation(String userId, Address origin, Address destination) {
+
+        // 1. Create the Order in its initial state using the manual builder
+        Order newOrder = new Order.Builder()
+                .withId(IdGenerationUtil.generateId())
+                .withUserId(userId)
+                .withOrigin(origin)
+                .withDestination(destination)
+                .withCreatedAt(LocalDateTime.now())
+                .withStatus(OrderStatus.AWAITING_PAYMENT)
+                .build();
+
+        orderRepository.addOrder(newOrder);
+
+        // 2. Call the InvoiceService to create the associated invoice
+        Invoice invoice = invoiceService.createInvoiceForOrder(newOrder);
+
+        // 3. Update the order with the new invoiceId
+        newOrder.setInvoiceId(invoice.getId());
+        orderRepository.update(newOrder);
+
+        return newOrder;
+    }
+
+    // ===========================
+    // Payment Confirmation
+    // ===========================
+
+    /**
+     * Confirms that an order has been paid, and transitions it to the next state.
+     * <p>This is a critical step in the saga. It validates the order's state, updates it,
+     * and triggers the creation of the shipment.</p>
+     *
+     * @param orderId   The ID of the order to confirm.
+     * @param paymentId The ID of the successful payment transaction.
+     * @throws IllegalStateException if the order is not in the AWAITING_PAYMENT state.
+     */
+    public void confirmOrderPayment(String orderId, String paymentId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with ID: " + orderId));
+
+        // State Validation: Ensure we can only confirm payment for an order that is awaiting it.
+        if (order.getStatus() != OrderStatus.AWAITING_PAYMENT) {
+            throw new IllegalStateException(
+                    "Cannot confirm payment for an order that is not in the AWAITING_PAYMENT state. Current state: "
+                            + order.getStatus()
+            );
+        }
+
+        // 1. Update the order state to PAID
+        order.setPaymentId(paymentId);
+        order.setStatus(OrderStatus.PAID);
+        orderRepository.update(order);
+
+        // 2. Order is now PAID and ready for admin to assign delivery person
+        // Shipment will be created when delivery person is assigned, not here
+    }
+
+    // ===========================
+    // Query Methods
+    // ===========================
+
+    /**
+     * Retrieves all orders for a specific user.
+     *
+     * @param userId The ID of the user whose orders to retrieve.
+     * @return A list of orders belonging to the user.
+     */
+    public java.util.List<Order> getOrdersByUser(String userId) {
+        return orderRepository.findAll().stream()
+                .filter(order -> order.getUserId().equals(userId))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Retrieves all orders in the system.
+     *
+     * @return A list of all orders.
+     */
+    public java.util.List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    // ===========================
+    // Delivery Person Assignment
+    // ===========================
+
+    /**
+     * Assigns a delivery person to an order and creates shipment in PENDING_APPROVAL state.
+     * The shipment won't be visible until admin approves the order.
+     *
+     * @param orderId The ID of the order.
+     * @param deliveryPersonId The ID of the delivery person to assign.
+     * @return true if assignment was successful, false otherwise.
+     */
+    public boolean assignDeliveryPerson(String orderId, String deliveryPersonId) {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
+            return false;
+        }
+
+        // Only allow assignment for PAID orders
+        if (order.getStatus() != OrderStatus.PAID) {
+            return false;
+        }
+
+        // Assign delivery person
+        order.setDeliveryPersonId(deliveryPersonId);
+
+        // Create shipment with PENDING_APPROVAL status (not visible yet)
+        String shipmentId = shipmentService.createShipmentForOrder(order);
+        order.setShipmentId(shipmentId);
+
+        // Change order status to PENDING_APPROVAL
+        order.setStatus(OrderStatus.PENDING_APPROVAL);
+        orderRepository.update(order);
+        return true;
+    }
+
+    /**
+     * Approves an order and creates the corresponding shipment.
+     * In the new workflow, shipments are created at approval time with PENDING_ASSIGNMENT status.
+     * Delivery person assignment happens later at the shipment level.
+     *
+     * @param orderId The ID of the order to approve.
+     * @return true if approval was successful, false otherwise.
+     */
+    public boolean approveOrderAndCreateShipment(String orderId) {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
+            return false;
+        }
+
+        // Only allow approval for PENDING_APPROVAL or PAID orders
+        if (order.getStatus() != OrderStatus.PENDING_APPROVAL && order.getStatus() != OrderStatus.PAID) {
+            return false;
+        }
+
+        // Create shipment with PENDING_ASSIGNMENT status (no delivery person yet)
+        String shipmentId = shipmentService.createShipmentForOrder(order);
+        if (shipmentId == null) {
+            return false;
+        }
+
+        // Update order with shipment ID and change status to APPROVED
+        order.setShipmentId(shipmentId);
+        order.setStatus(OrderStatus.APPROVED);
+        orderRepository.update(order);
+
+        return true;
+    }
+
+    /**
+     * Auto-assigns delivery persons to pending orders based on coverage area and availability.
+     * Uses a round-robin approach within each coverage area to distribute workload evenly.
+     *
+     * @return The number of orders that were successfully auto-assigned.
+     */
+    public int autoAssignDeliveryPersons() {
+        int assignedCount = 0;
+
+        // Get all orders that are paid but don't have a delivery person assigned
+        List<Order> pendingOrders = orderRepository.findAll().stream()
+                .filter(order -> order.getStatus() == OrderStatus.PAID && order.getDeliveryPersonId() == null)
+                .collect(Collectors.toList());
+
+        // Get all available delivery persons
+        List<DeliveryPerson> availableDeliveryPersons = deliveryPersonRepository.getAllDeliveryPersons().stream()
+                .filter(dp -> dp.getAvailability() == AvailabilityStatus.AVAILABLE)
+                .collect(Collectors.toList());
+
+        if (availableDeliveryPersons.isEmpty()) {
+            return 0; // No delivery persons available
+        }
+
+        // Try to assign each pending order
+        for (Order order : pendingOrders) {
+            // Determine coverage area based on destination city
+            CoverageArea requiredArea = determineCoverageArea(order.getDestination());
+
+            // Find delivery persons that cover this area
+            List<DeliveryPerson> suitableDeliveryPersons = availableDeliveryPersons.stream()
+                    .filter(dp -> dp.getCoverageArea() == requiredArea)
+                    .sorted(Comparator.comparingInt(dp -> getAssignedOrdersCount(dp.getId())))
+                    .collect(Collectors.toList());
+
+            // If no delivery person for specific area, try to use any available
+            if (suitableDeliveryPersons.isEmpty()) {
+                suitableDeliveryPersons = availableDeliveryPersons.stream()
+                        .sorted(Comparator.comparingInt(dp -> getAssignedOrdersCount(dp.getId())))
+                        .collect(Collectors.toList());
+            }
+
+            // Assign to the delivery person with least orders
+            if (!suitableDeliveryPersons.isEmpty()) {
+                DeliveryPerson selectedDeliveryPerson = suitableDeliveryPersons.get(0);
+                if (assignDeliveryPerson(order.getId(), selectedDeliveryPerson.getId())) {
+                    assignedCount++;
+                }
+            }
+        }
+
+        return assignedCount;
+    }
+
+    /**
+     * Determines the coverage area based on the destination address.
+     * This is a simplified implementation based on address location.
+     *
+     * @param destination The destination address.
+     * @return The determined coverage area.
+     */
+    private CoverageArea determineCoverageArea(Address destination) {
+        if (destination == null || destination.getCity() == null) {
+            return CoverageArea.CENTRAL;
+        }
+
+        String city = destination.getCity().toLowerCase();
+        String state = destination.getState() != null ? destination.getState().toLowerCase() : "";
+
+        // Simple heuristic based on common zone keywords
+        if (city.contains("norte") || state.contains("norte")) {
+            return CoverageArea.NORTH;
+        } else if (city.contains("sur") || state.contains("sur")) {
+            return CoverageArea.SOUTH;
+        }
+
+        // Default to Central zone or City-wide for flexibility
+        return CoverageArea.CENTRAL;
+    }
+
+    /**
+     * Gets the count of orders currently assigned to a delivery person.
+     *
+     * @param deliveryPersonId The ID of the delivery person.
+     * @return The count of assigned orders.
+     */
+    private int getAssignedOrdersCount(String deliveryPersonId) {
+        return (int) orderRepository.findAll().stream()
+                .filter(order -> deliveryPersonId.equals(order.getDeliveryPersonId()))
+                .filter(order -> order.getStatus() != OrderStatus.APPROVED &&
+                               order.getStatus() != OrderStatus.CANCELLED)
+                .count();
+    }
+}

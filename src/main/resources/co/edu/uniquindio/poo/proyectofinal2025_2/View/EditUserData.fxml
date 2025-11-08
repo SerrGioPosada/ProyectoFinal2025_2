@@ -6,7 +6,7 @@
 <?import javafx.scene.image.ImageView?>
 
 <ScrollPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-            fx:controller="co.edu.uniquindio.poo.proyectofinal2025_2.Controller.EditUserDataController"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.EditUserDataController"
             fitToWidth="true" styleClass="content-area">
 
     <VBox spacing="20" alignment="TOP_CENTER" styleClass="content-area">

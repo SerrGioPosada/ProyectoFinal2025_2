@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.ReportIncidentDialogController"
+      spacing="20"
+      styleClass="dialog-container"
+      prefWidth="600"
+      prefHeight="550">
+
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <!-- Header Section -->
+    <VBox spacing="10" styleClass="dialog-header">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="⚠️" style="-fx-font-size: 32px;"/>
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label text="Reportar Incidencia" styleClass="dialog-title"/>
+                <Label text="Describe el problema encontrado durante la entrega" styleClass="dialog-subtitle"/>
+            </VBox>
+        </HBox>
+        <Separator/>
+    </VBox>
+
+    <!-- Order Information Section -->
+    <VBox styleClass="section-container" spacing="10">
+        <Label text="Información del Envío" styleClass="section-title-small"/>
+        <GridPane hgap="15" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="30"/>
+                <ColumnConstraints percentWidth="70"/>
+            </columnConstraints>
+
+            <Label text="ID Orden:" styleClass="label-bold" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <Label fx:id="lblOrderId" text="--" styleClass="info-label" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <Label text="Dirección:" styleClass="label-bold" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <Label fx:id="lblAddress" text="--" styleClass="info-label" wrapText="true"
+                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        </GridPane>
+    </VBox>
+
+    <!-- Incident Form Section -->
+    <VBox spacing="15" VBox.vgrow="ALWAYS">
+        <!-- Incident Type Selection -->
+        <VBox spacing="8">
+            <Label text="Tipo de Incidencia *" styleClass="label-bold"/>
+            <ComboBox fx:id="cmbIncidentType" prefWidth="Infinity" styleClass="combo-box"
+                      promptText="Selecciona el tipo de incidencia"/>
+        </VBox>
+
+        <!-- Description TextArea -->
+        <VBox spacing="8" VBox.vgrow="ALWAYS">
+            <Label text="Descripción Detallada *" styleClass="label-bold"/>
+            <TextArea fx:id="txtDescription"
+                      promptText="Describe detalladamente qué sucedió..."
+                      wrapText="true"
+                      prefRowCount="6"
+                      styleClass="text-area-input"
+                      VBox.vgrow="ALWAYS"/>
+            <Label fx:id="lblCharCount" text="0/500 caracteres" styleClass="char-count-label"/>
+        </VBox>
+
+        <!-- Additional Options -->
+        <VBox spacing="10">
+            <CheckBox fx:id="chkContactCustomer" text="El cliente fue contactado"
+                      styleClass="custom-checkbox"/>
+            <CheckBox fx:id="chkAttachPhoto" text="Se adjuntaron fotos como evidencia"
+                      styleClass="custom-checkbox"/>
+            <CheckBox fx:id="chkRequiresFollowUp" text="Requiere seguimiento posterior"
+                      styleClass="custom-checkbox"/>
+        </VBox>
+    </VBox>
+
+    <!-- Warning Info -->
+    <HBox spacing="10" alignment="CENTER_LEFT"
+          style="-fx-background-color: #fff3cd; -fx-padding: 12; -fx-background-radius: 8;">
+        <Label text="⚠️" style="-fx-font-size: 18px;"/>
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label text="Nota Importante" style="-fx-font-weight: bold; -fx-text-fill: #856404;"/>
+            <Label text="Al reportar una incidencia, el estado del envío cambiará a 'Con Incidencia' y se notificará al administrador y al cliente."
+                   wrapText="true" style="-fx-text-fill: #856404; -fx-font-size: 12px;"/>
+        </VBox>
+    </HBox>
+
+    <!-- Action Buttons -->
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button text="Cancelar" onAction="#handleCancel"
+                styleClass="btn-cancel"
+                prefWidth="120"/>
+        <Button text="Reportar Incidencia" onAction="#handleSubmit"
+                styleClass="btn-danger"
+                prefWidth="170"/>
+    </HBox>
+
+</VBox>

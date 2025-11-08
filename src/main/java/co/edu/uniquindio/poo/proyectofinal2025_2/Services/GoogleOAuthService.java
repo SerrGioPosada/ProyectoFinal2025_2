@@ -1,8 +1,10 @@
-package co.edu.uniquindio.poo.proyectofinal2025_2.Services;
+package co.edu.uniquindio.poo.ProyectoFinal2025_2.Services;
 
-import co.edu.uniquindio.poo.proyectofinal2025_2.Util.ConfigLoader;
-import co.edu.uniquindio.poo.proyectofinal2025_2.Util.UtilModel.Logger;
-import co.edu.uniquindio.poo.proyectofinal2025_2.Util.UtilModel.StringUtil;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.ConfigLoader;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
+
+
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.StringUtil;
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
@@ -217,10 +219,88 @@ public class GoogleOAuthService {
      * @return HTML string for successful authentication.
      */
     private String buildSuccessResponse() {
-        return "<html><body style='font-family: Arial; text-align: center; padding: 50px;'>" +
-                "<h1 style='color: green;'>Login Successful!</h1>" +
-                "<p>You can close this window and return to the application.</p>" +
-                "</body></html>";
+        return "<!DOCTYPE html>" +
+                "<html lang='es'>" +
+                "<head>" +
+                "<meta charset='UTF-8'>" +
+                "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                "<title>Autenticación Exitosa</title>" +
+                "<style>" +
+                "* { margin: 0; padding: 0; box-sizing: border-box; }" +
+                "body {" +
+                "  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;" +
+                "  background: linear-gradient(135deg, #032d4d 0%, #0A4969 100%);" +
+                "  display: flex;" +
+                "  justify-content: center;" +
+                "  align-items: center;" +
+                "  min-height: 100vh;" +
+                "  color: #333;" +
+                "}" +
+                ".container {" +
+                "  background: white;" +
+                "  border-radius: 20px;" +
+                "  box-shadow: 0 20px 60px rgba(0,0,0,0.3);" +
+                "  padding: 60px 80px;" +
+                "  text-align: center;" +
+                "  max-width: 500px;" +
+                "  animation: slideIn 0.5s ease-out;" +
+                "}" +
+                "@keyframes slideIn {" +
+                "  from { transform: translateY(-30px); opacity: 0; }" +
+                "  to { transform: translateY(0); opacity: 1; }" +
+                "}" +
+                ".icon {" +
+                "  width: 80px;" +
+                "  height: 80px;" +
+                "  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);" +
+                "  border-radius: 50%;" +
+                "  display: flex;" +
+                "  align-items: center;" +
+                "  justify-content: center;" +
+                "  margin: 0 auto 30px;" +
+                "  animation: checkmark 0.6s ease-in-out;" +
+                "}" +
+                "@keyframes checkmark {" +
+                "  0% { transform: scale(0); }" +
+                "  50% { transform: scale(1.2); }" +
+                "  100% { transform: scale(1); }" +
+                "}" +
+                ".checkmark {" +
+                "  color: white;" +
+                "  font-size: 48px;" +
+                "  font-weight: bold;" +
+                "}" +
+                "h1 {" +
+                "  color: #032d4d;" +
+                "  font-size: 32px;" +
+                "  font-weight: 600;" +
+                "  margin-bottom: 15px;" +
+                "}" +
+                "p {" +
+                "  color: #6c757d;" +
+                "  font-size: 16px;" +
+                "  line-height: 1.6;" +
+                "  margin-bottom: 30px;" +
+                "}" +
+                ".footer {" +
+                "  color: #adb5bd;" +
+                "  font-size: 14px;" +
+                "  margin-top: 20px;" +
+                "}" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "<div class='container'>" +
+                "  <div class='icon'>" +
+                "    <span class='checkmark'>✓</span>" +
+                "  </div>" +
+                "  <h1>¡Autenticación Exitosa!</h1>" +
+                "  <p>Has iniciado sesión correctamente con tu cuenta de Google.</p>" +
+                "  <p style='font-weight: 500; color: #495057;'>Puedes cerrar esta ventana y regresar a la aplicación.</p>" +
+                "  <div class='footer'>Sistema de Gestión de Envíos</div>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
     }
 
     /**
@@ -229,10 +309,105 @@ public class GoogleOAuthService {
      * @return HTML string for failed authentication.
      */
     private String buildErrorResponse() {
-        return "<html><body style='font-family: Arial; text-align: center; padding: 50px;'>" +
-                "<h1 style='color: red;'>Login Failed</h1>" +
-                "<p>No authorization code received.</p>" +
-                "</body></html>";
+        return "<!DOCTYPE html>" +
+                "<html lang='es'>" +
+                "<head>" +
+                "<meta charset='UTF-8'>" +
+                "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                "<title>Error de Autenticación</title>" +
+                "<style>" +
+                "* { margin: 0; padding: 0; box-sizing: border-box; }" +
+                "body {" +
+                "  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;" +
+                "  background: linear-gradient(135deg, #032d4d 0%, #0A4969 100%);" +
+                "  display: flex;" +
+                "  justify-content: center;" +
+                "  align-items: center;" +
+                "  min-height: 100vh;" +
+                "  color: #333;" +
+                "}" +
+                ".container {" +
+                "  background: white;" +
+                "  border-radius: 20px;" +
+                "  box-shadow: 0 20px 60px rgba(0,0,0,0.3);" +
+                "  padding: 60px 80px;" +
+                "  text-align: center;" +
+                "  max-width: 500px;" +
+                "  animation: slideIn 0.5s ease-out;" +
+                "}" +
+                "@keyframes slideIn {" +
+                "  from { transform: translateY(-30px); opacity: 0; }" +
+                "  to { transform: translateY(0); opacity: 1; }" +
+                "}" +
+                ".icon {" +
+                "  width: 80px;" +
+                "  height: 80px;" +
+                "  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);" +
+                "  border-radius: 50%;" +
+                "  display: flex;" +
+                "  align-items: center;" +
+                "  justify-content: center;" +
+                "  margin: 0 auto 30px;" +
+                "  animation: shake 0.5s ease-in-out;" +
+                "}" +
+                "@keyframes shake {" +
+                "  0%, 100% { transform: translateX(0); }" +
+                "  25% { transform: translateX(-10px); }" +
+                "  75% { transform: translateX(10px); }" +
+                "}" +
+                ".error-icon {" +
+                "  color: white;" +
+                "  font-size: 48px;" +
+                "  font-weight: bold;" +
+                "}" +
+                "h1 {" +
+                "  color: #032d4d;" +
+                "  font-size: 32px;" +
+                "  font-weight: 600;" +
+                "  margin-bottom: 15px;" +
+                "}" +
+                "p {" +
+                "  color: #6c757d;" +
+                "  font-size: 16px;" +
+                "  line-height: 1.6;" +
+                "  margin-bottom: 20px;" +
+                "}" +
+                ".error-details {" +
+                "  background: #f8f9fa;" +
+                "  border-left: 4px solid #f44336;" +
+                "  padding: 15px;" +
+                "  border-radius: 8px;" +
+                "  margin: 20px 0;" +
+                "  text-align: left;" +
+                "}" +
+                ".error-details strong {" +
+                "  color: #032d4d;" +
+                "  display: block;" +
+                "  margin-bottom: 5px;" +
+                "}" +
+                ".footer {" +
+                "  color: #adb5bd;" +
+                "  font-size: 14px;" +
+                "  margin-top: 20px;" +
+                "}" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "<div class='container'>" +
+                "  <div class='icon'>" +
+                "    <span class='error-icon'>✕</span>" +
+                "  </div>" +
+                "  <h1>Error de Autenticación</h1>" +
+                "  <p>No se pudo completar el proceso de autenticación con Google.</p>" +
+                "  <div class='error-details'>" +
+                "    <strong>Detalles del error:</strong>" +
+                "    <p style='margin: 0; color: #6c757d;'>No se recibió el código de autorización.</p>" +
+                "  </div>" +
+                "  <p style='font-weight: 500; color: #495057;'>Por favor, intenta nuevamente desde la aplicación.</p>" +
+                "  <div class='footer'>Sistema de Gestión de Envíos</div>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
     }
 
     /**

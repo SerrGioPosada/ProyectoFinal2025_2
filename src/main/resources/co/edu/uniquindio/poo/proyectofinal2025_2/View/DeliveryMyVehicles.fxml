@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.DeliveryMyVehiclesController"
+            styleClass="scroll-base"
+            fitToWidth="true">
+
+    <VBox spacing="20" styleClass="content-area">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header Section -->
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-section">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Mis Vehículos" styleClass="page-title"/>
+                <Label text="Gestiona los vehículos asignados a ti" styleClass="info-label"/>
+            </VBox>
+            <Button text="Actualizar" onAction="#handleRefresh" styleClass="btn-primary"/>
+        </HBox>
+
+        <!-- Summary Card -->
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <VBox styleClass="stat-card-compact" spacing="5" prefWidth="200">
+                <Label text="Total Vehículos" styleClass="stat-label-compact"/>
+                <Label fx:id="lblTotalVehicles" text="0" styleClass="stat-value-compact"/>
+            </VBox>
+
+            <VBox styleClass="stat-card-compact-success" spacing="5" prefWidth="200">
+                <Label text="Vehículo Actual" styleClass="stat-label-compact"/>
+                <Label fx:id="lblCurrentVehicle" text="--" styleClass="stat-value-compact"
+                       style="-fx-font-size: 16px;"/>
+            </VBox>
+        </HBox>
+
+        <!-- Vehicles Table Section -->
+        <VBox styleClass="section-container" spacing="15">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Lista de Vehículos Asignados" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnCollapseToggle" text="▲" onAction="#toggleCollapse"
+                        styleClass="collapse-button"/>
+            </HBox>
+
+            <!-- Collapsible Section -->
+            <VBox fx:id="collapsibleSection" spacing="15">
+
+                <!-- Table Container -->
+                <VBox spacing="10">
+                    <TableView fx:id="tblVehicles" styleClass="data-table">
+                        <columns>
+                            <TableColumn fx:id="colPlate" text="Placa" prefWidth="120"/>
+                            <TableColumn fx:id="colType" text="Tipo" prefWidth="150"/>
+                            <TableColumn fx:id="colCapacity" text="Capacidad (kg)" prefWidth="120"/>
+                            <TableColumn fx:id="colModel" text="Modelo" prefWidth="150"/>
+                            <TableColumn fx:id="colYear" text="Año" prefWidth="80"/>
+                            <TableColumn fx:id="colStatus" text="Estado" prefWidth="120"/>
+                            <TableColumn fx:id="colActions" text="Acciones" prefWidth="150"/>
+                        </columns>
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="10" style="-fx-padding: 40;">
+                                <Label text="No tienes vehículos asignados"
+                                       style="-fx-font-size: 16px; -fx-text-fill: #6c757d;"/>
+                                <Label text="Los vehículos asignados aparecerán aquí"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #999999;"/>
+                            </VBox>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+
+            </VBox>
+        </VBox>
+
+        <!-- Vehicle Details Card (shown when a vehicle is selected) -->
+        <VBox fx:id="vehicleDetailsCard" styleClass="profile-container" spacing="15"
+              visible="false" managed="false">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Detalles del Vehículo Seleccionado" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                <Button text="Cerrar" onAction="#handleCloseDetails" styleClass="btn-secondary"/>
+            </HBox>
+
+            <Separator/>
+
+            <GridPane hgap="20" vgap="15">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                </columnConstraints>
+
+                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label text="Placa:" styleClass="label-bold"/>
+                    <Label fx:id="lblDetailPlate" text="--" styleClass="info-label"/>
+                </VBox>
+
+                <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label text="Tipo:" styleClass="label-bold"/>
+                    <Label fx:id="lblDetailType" text="--" styleClass="info-label"/>
+                </VBox>
+
+                <VBox spacing="5" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                    <Label text="Modelo:" styleClass="label-bold"/>
+                    <Label fx:id="lblDetailModel" text="--" styleClass="info-label"/>
+                </VBox>
+
+                <VBox spacing="5" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                    <Label text="Año:" styleClass="label-bold"/>
+                    <Label fx:id="lblDetailYear" text="--" styleClass="info-label"/>
+                </VBox>
+
+                <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <Label text="Capacidad:" styleClass="label-bold"/>
+                    <Label fx:id="lblDetailCapacity" text="--" styleClass="info-label"/>
+                </VBox>
+
+                <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <Label text="Color:" styleClass="label-bold"/>
+                    <Label fx:id="lblDetailColor" text="--" styleClass="info-label"/>
+                </VBox>
+
+                <VBox spacing="5" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                    <Label text="Estado:" styleClass="label-bold"/>
+                    <Label fx:id="lblDetailStatus" text="--" styleClass="info-label"/>
+                </VBox>
+
+                <VBox spacing="5" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                    <Label text="Kilometraje:" styleClass="label-bold"/>
+                    <Label fx:id="lblDetailMileage" text="--" styleClass="info-label"/>
+                </VBox>
+            </GridPane>
+
+            <Separator/>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="Usar Este Vehículo" onAction="#handleUseVehicle" styleClass="btn-primary"/>
+                <Button text="Ver Historial" onAction="#handleViewHistory" styleClass="btn-secondary"/>
+            </HBox>
+        </VBox>
+
+        <!-- Info Card -->
+        <VBox styleClass="info-card" spacing="10">
+            <Label text="ℹ️ Información Importante" styleClass="label-bold"/>
+            <Label text="• Solo puedes usar vehículos que hayan sido asignados a ti por un administrador"
+                   styleClass="info-label" wrapText="true"/>
+            <Label text="• Puedes cambiar el vehículo en uso desde tu Panel de Control"
+                   styleClass="info-label" wrapText="true"/>
+            <Label text="• Asegúrate de mantener tu vehículo en buen estado para realizar entregas"
+                   styleClass="info-label" wrapText="true"/>
+        </VBox>
+
+    </VBox>
+</ScrollPane>

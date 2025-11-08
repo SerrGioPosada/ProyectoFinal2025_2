@@ -8,9 +8,8 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="co.edu.uniquindio.poo.proyectofinal2025_2.Controller.AdminDashboardController"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.AdminDashboardController"
             styleClass="scroll-base"
-            stylesheets="@../Style.css"
             fitToWidth="true">
 
     <VBox spacing="15" styleClass="content-area">
@@ -25,7 +24,10 @@
         </HBox>
 
         <!-- Compact Statistics Overview -->
-        <GridPane hgap="10" vgap="10">
+        <GridPane hgap="10" vgap="10" styleClass="stats-grid">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
             <columnConstraints>
                 <ColumnConstraints percentWidth="16.66"/>
                 <ColumnConstraints percentWidth="16.66"/>
@@ -36,39 +38,45 @@
             </columnConstraints>
 
             <!-- Total Users -->
-            <VBox styleClass="stat-card-compact" spacing="5" GridPane.columnIndex="0">
-                <Label text="Usuarios" styleClass="stat-label-compact"/>
-                <Label fx:id="lblTotalUsers" text="0" styleClass="stat-value-compact"/>
+            <VBox fx:id="cardTotalUsers" spacing="5" alignment="CENTER" GridPane.columnIndex="0"
+                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3); -fx-border-color: #e9ecef; -fx-border-width: 1; -fx-border-radius: 12; -fx-cursor: hand;">
+                <Label text="Usuarios" style="-fx-text-fill: #6c757d; -fx-font-size: 13px;"/>
+                <Label fx:id="lblTotalUsers" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #4a9eff;"/>
             </VBox>
 
             <!-- Total Shipments -->
-            <VBox styleClass="stat-card-compact" spacing="5" GridPane.columnIndex="1">
-                <Label text="Envíos" styleClass="stat-label-compact"/>
-                <Label fx:id="lblTotalShipments" text="0" styleClass="stat-value-compact"/>
+            <VBox fx:id="cardTotalShipments" spacing="5" alignment="CENTER" GridPane.columnIndex="1"
+                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3); -fx-border-color: #e9ecef; -fx-border-width: 1; -fx-border-radius: 12; -fx-cursor: hand;">
+                <Label text="Envíos" style="-fx-text-fill: #6c757d; -fx-font-size: 13px;"/>
+                <Label fx:id="lblTotalShipments" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #4a9eff;"/>
             </VBox>
 
             <!-- Delivered -->
-            <VBox styleClass="stat-card-compact-success" spacing="5" GridPane.columnIndex="2">
-                <Label text="Entregados" styleClass="stat-label-compact"/>
-                <Label fx:id="lblDeliveredShipments" text="0" styleClass="stat-value-compact"/>
+            <VBox fx:id="cardDelivered" spacing="5" alignment="CENTER" GridPane.columnIndex="2"
+                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3); -fx-border-color: #e9ecef; -fx-border-width: 1; -fx-border-radius: 12; -fx-cursor: hand;">
+                <Label text="Entregados" style="-fx-text-fill: #6c757d; -fx-font-size: 13px;"/>
+                <Label fx:id="lblDeliveredShipments" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
             </VBox>
 
             <!-- In Transit -->
-            <VBox styleClass="stat-card-compact-info" spacing="5" GridPane.columnIndex="3">
-                <Label text="En Tránsito" styleClass="stat-label-compact"/>
-                <Label fx:id="lblInTransitShipments" text="0" styleClass="stat-value-compact"/>
+            <VBox fx:id="cardInTransit" spacing="5" alignment="CENTER" GridPane.columnIndex="3"
+                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3); -fx-border-color: #e9ecef; -fx-border-width: 1; -fx-border-radius: 12; -fx-cursor: hand;">
+                <Label text="En Tránsito" style="-fx-text-fill: #6c757d; -fx-font-size: 13px;"/>
+                <Label fx:id="lblInTransitShipments" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
             </VBox>
 
             <!-- Total Revenue -->
-            <VBox styleClass="stat-card-compact-warning" spacing="5" GridPane.columnIndex="4">
-                <Label text="Ingresos" styleClass="stat-label-compact"/>
-                <Label fx:id="lblTotalRevenue" text="0" styleClass="stat-value-compact"/>
+            <VBox fx:id="cardRevenue" spacing="5" alignment="CENTER" GridPane.columnIndex="4"
+                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3); -fx-border-color: #e9ecef; -fx-border-width: 1; -fx-border-radius: 12; -fx-cursor: hand;">
+                <Label text="Ingresos" style="-fx-text-fill: #6c757d; -fx-font-size: 13px;"/>
+                <Label fx:id="lblTotalRevenue" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #ffc107;"/>
             </VBox>
 
             <!-- Success Rate -->
-            <VBox styleClass="stat-card-compact-primary" spacing="5" GridPane.columnIndex="5">
-                <Label text="Éxito" styleClass="stat-label-compact"/>
-                <Label fx:id="lblDeliverySuccessRate" text="0" styleClass="stat-value-compact"/>
+            <VBox fx:id="cardSuccessRate" spacing="5" alignment="CENTER" GridPane.columnIndex="5"
+                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3); -fx-border-color: #e9ecef; -fx-border-width: 1; -fx-border-radius: 12; -fx-cursor: hand;">
+                <Label text="Éxito" style="-fx-text-fill: #6c757d; -fx-font-size: 13px;"/>
+                <Label fx:id="lblDeliverySuccessRate" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #4a9eff;"/>
             </VBox>
         </GridPane>
 

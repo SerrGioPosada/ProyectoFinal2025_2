@@ -1,0 +1,730 @@
+package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
+
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.AvailabilityStatus;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.CoverageArea;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.OrderStatus;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.DeliveryPersonRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.OrderRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.UserRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.OrderService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.TabStateManager;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+import java.net.URL;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+
+/**
+ * Controller for order management (Admin view).
+ * Allows admins to manage ALL orders in the system.
+ */
+public class AdminOrderManagementController implements Initializable {
+
+    // Root pane
+    @FXML private VBox rootPane;
+
+    // Table and Columns
+    @FXML private TableView<Order> ordersTable;
+    @FXML private TableColumn<Order, String> colId;
+    @FXML private TableColumn<Order, String> colUser;
+    @FXML private TableColumn<Order, String> colOrigin;
+    @FXML private TableColumn<Order, String> colDestination;
+    @FXML private TableColumn<Order, String> colStatus;
+    @FXML private TableColumn<Order, String> colCreatedDate;
+    @FXML private TableColumn<Order, String> colShipmentId;
+    @FXML private TableColumn<Order, String> colPaymentId;
+
+    // Filters
+    @FXML private ComboBox<OrderStatus> filterStatus;
+    @FXML private TextField searchField;
+
+    // Counter Labels
+    @FXML private Label lblTotalOrders;
+    @FXML private Label lblPending;
+    @FXML private Label lblProcessing;
+    @FXML private Label lblReadyForShipment;
+    @FXML private Label lblCompleted;
+
+    // Tab System Elements
+    @FXML private VBox collapsibleTabSection;
+    @FXML private Button btnCollapseToggle;
+    @FXML private Button btnTabStats;
+    @FXML private Button btnTabFilters;
+
+    @FXML private javafx.scene.layout.HBox statsTabContent;
+    @FXML private VBox filtersTabContent;
+
+    private static final String VIEW_NAME = "AdminOrderManagement";
+
+    // Repositories and Services
+    private final OrderRepository orderRepository = OrderRepository.getInstance();
+    private final UserRepository userRepository = UserRepository.getInstance();
+    private final DeliveryPersonRepository deliveryPersonRepository = DeliveryPersonRepository.getInstance();
+    private final OrderService orderService = new OrderService();
+
+    // Data
+    private ObservableList<Order> ordersData;
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        setupTable();
+        setupFilters();
+        loadAllOrders();
+        updateCounters();
+        restoreViewState();
+
+        Logger.info("AdminOrderManagementController initialized");
+    }
+
+    /**
+     * Setup the table columns with proper cell value factories.
+     */
+    private void setupTable() {
+        colId.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getId()));
+        colUser.setCellValueFactory(data -> {
+            String userId = data.getValue().getUserId();
+            return userRepository.findById(userId)
+                    .map(user -> new SimpleStringProperty(user.getName()))
+                    .orElse(new SimpleStringProperty("N/A"));
+        });
+        colOrigin.setCellValueFactory(data -> {
+            var addr = data.getValue().getOrigin();
+            return new SimpleStringProperty(addr != null ? addr.getCity() : "N/A");
+        });
+        colDestination.setCellValueFactory(data -> {
+            var addr = data.getValue().getDestination();
+            return new SimpleStringProperty(addr != null ? addr.getCity() : "N/A");
+        });
+        colStatus.setCellValueFactory(data ->
+            new SimpleStringProperty(data.getValue().getStatus() != null
+                ? data.getValue().getStatus().getDisplayName()
+                : "N/A"));
+
+        // Apply styled cell factory for status column
+        colStatus.setCellFactory(column -> new javafx.scene.control.TableCell<Order, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    setStyle("");
+                } else {
+                    Order order = getTableView().getItems().get(getIndex());
+                    OrderStatus status = order.getStatus();
+
+                    // Create styled label for status
+                    javafx.scene.control.Label badge = new javafx.scene.control.Label(item);
+                    badge.setStyle(
+                        "-fx-background-color: " + status.getColor() + ";" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 5 10 5 10;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 11px;"
+                    );
+
+                    setText(null);
+                    setGraphic(badge);
+                }
+            }
+        });
+        colCreatedDate.setCellValueFactory(data ->
+            new SimpleStringProperty(data.getValue().getCreatedAt() != null
+                ? data.getValue().getCreatedAt().format(DATE_FORMATTER)
+                : "N/A"));
+        colShipmentId.setCellValueFactory(data ->
+            new SimpleStringProperty(data.getValue().getShipmentId() != null
+                ? data.getValue().getShipmentId()
+                : "N/A"));
+        colPaymentId.setCellValueFactory(data ->
+            new SimpleStringProperty(data.getValue().getPaymentId() != null
+                ? data.getValue().getPaymentId()
+                : "N/A"));
+
+        // Context menu for actions
+        ordersTable.setRowFactory(tv -> {
+            TableRow<Order> row = new TableRow<>();
+            ContextMenu contextMenu = new ContextMenu();
+
+            MenuItem viewDetails = new MenuItem("Ver Detalles");
+            viewDetails.setOnAction(e -> viewOrderDetails(row.getItem()));
+
+            MenuItem viewHistory = new MenuItem("Ver Historial Completo");
+            viewHistory.setOnAction(e -> showOrderHistory(row.getItem()));
+
+            MenuItem approveOrder = new MenuItem("Aprobar y Crear Envío");
+            approveOrder.setOnAction(e -> approveOrderAndCreateShipment(row.getItem()));
+
+            MenuItem rejectOrder = new MenuItem("Rechazar Orden");
+            rejectOrder.setOnAction(e -> rejectOrder(row.getItem()));
+
+            contextMenu.getItems().addAll(viewDetails, viewHistory, approveOrder, rejectOrder);
+
+            row.contextMenuProperty().bind(
+                javafx.beans.binding.Bindings.when(row.emptyProperty())
+                    .then((ContextMenu) null)
+                    .otherwise(contextMenu)
+            );
+
+            return row;
+        });
+    }
+
+    /**
+     * Setup filters and search functionality.
+     */
+    private void setupFilters() {
+        // Initialize status filter with ButtonCell
+        if (filterStatus != null) {
+            ObservableList<OrderStatus> statusList = FXCollections.observableArrayList();
+            statusList.add(null); // "All" option
+            statusList.addAll(OrderStatus.values());
+            filterStatus.setItems(statusList);
+
+            filterStatus.setCellFactory(lv -> new javafx.scene.control.ListCell<OrderStatus>() {
+                @Override
+                protected void updateItem(OrderStatus item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setText(null);
+                    } else if (item == null) {
+                        setText("Todos los estados");
+                    } else {
+                        setText(item.getDisplayName());
+                    }
+                }
+            });
+
+            filterStatus.setValue(null);
+
+            filterStatus.setButtonCell(new javafx.scene.control.ListCell<OrderStatus>() {
+                @Override
+                protected void updateItem(OrderStatus item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText("Todos los estados");
+                        setStyle("-fx-text-fill: #6c757d;");
+                    } else {
+                        setText(item.getDisplayName());
+                        setStyle("-fx-text-fill: #495057;");
+                    }
+                }
+            });
+
+            filterStatus.setOnAction(e -> applyFilters());
+        }
+
+        // Search field
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        }
+    }
+
+    /**
+     * Load all orders from repository.
+     * Shows only orders with PENDING_APPROVAL or CANCELLED status.
+     * Once approved, orders become shipments and are managed separately.
+     */
+    private void loadAllOrders() {
+        List<Order> allOrders = orderRepository.findAll().stream()
+                .filter(order -> order.getStatus() == OrderStatus.PENDING_APPROVAL ||
+                               order.getStatus() == OrderStatus.CANCELLED ||
+                               order.getStatus() == OrderStatus.AWAITING_PAYMENT ||
+                               order.getStatus() == OrderStatus.PAID)
+                .collect(Collectors.toList());
+        ordersData = FXCollections.observableArrayList(allOrders);
+        ordersTable.setItems(ordersData);
+        ordersTable.refresh(); // Force table refresh to update UI
+    }
+
+    /**
+     * Apply filters to the orders table.
+     */
+    @FXML
+    private void applyFilters() {
+        List<Order> allOrders = orderRepository.findAll().stream()
+                .filter(order -> order.getStatus() == OrderStatus.PENDING_APPROVAL ||
+                               order.getStatus() == OrderStatus.CANCELLED ||
+                               order.getStatus() == OrderStatus.AWAITING_PAYMENT ||
+                               order.getStatus() == OrderStatus.PAID)
+                .collect(Collectors.toList());
+
+        // Filter by status
+        if (filterStatus != null && filterStatus.getValue() != null) {
+            allOrders = allOrders.stream()
+                    .filter(order -> order.getStatus() == filterStatus.getValue())
+                    .collect(Collectors.toList());
+        }
+
+        // Filter by search text
+        if (searchField != null && searchField.getText() != null && !searchField.getText().isEmpty()) {
+            String searchText = searchField.getText().toLowerCase();
+            allOrders = allOrders.stream()
+                    .filter(order ->
+                        order.getId().toLowerCase().contains(searchText) ||
+                        (order.getUserId() != null && order.getUserId().toLowerCase().contains(searchText)))
+                    .collect(Collectors.toList());
+        }
+
+        ordersData = FXCollections.observableArrayList(allOrders);
+        ordersTable.setItems(ordersData);
+        updateCounters();
+    }
+
+    /**
+     * Clear all filters.
+     */
+    @FXML
+    private void clearFilters() {
+        if (filterStatus != null) filterStatus.setValue(null);
+        if (searchField != null) searchField.clear();
+        loadAllOrders();
+        updateCounters();
+    }
+
+    /**
+     * Refresh the table data.
+     */
+    @FXML
+    private void refresh() {
+        loadAllOrders();
+        updateCounters();
+        Logger.info("Orders table refreshed");
+    }
+
+    /**
+     * Update counter labels.
+     */
+    private void updateCounters() {
+        List<Order> allOrders = orderRepository.findAll();
+
+        if (lblTotalOrders != null) lblTotalOrders.setText(String.valueOf(allOrders.size()));
+        if (lblPending != null) lblPending.setText(String.valueOf(
+            allOrders.stream().filter(o -> o.getStatus() == OrderStatus.AWAITING_PAYMENT).count()));
+        if (lblProcessing != null) lblProcessing.setText(String.valueOf(
+            allOrders.stream().filter(o -> o.getStatus() == OrderStatus.PENDING_APPROVAL).count()));
+        if (lblReadyForShipment != null) lblReadyForShipment.setText(String.valueOf(
+            allOrders.stream().filter(o -> o.getStatus() == OrderStatus.APPROVED).count()));
+        if (lblCompleted != null) lblCompleted.setText(String.valueOf(
+            allOrders.stream().filter(o -> o.getStatus() == OrderStatus.CANCELLED).count()));
+    }
+
+    /**
+     * View order details.
+     */
+    private void viewOrderDetails(Order order) {
+        if (order == null) return;
+
+        StringBuilder details = new StringBuilder();
+        details.append("ID: ").append(order.getId()).append("\n");
+        details.append("Usuario: ").append(order.getUserId()).append("\n");
+        details.append("Estado: ").append(order.getStatus()).append("\n");
+        details.append("Fecha Creación: ").append(order.getCreatedAt().format(DATE_FORMATTER)).append("\n");
+        details.append("Origen: ").append(order.getOrigin() != null ? order.getOrigin().getCity() : "N/A").append("\n");
+        details.append("Destino: ").append(order.getDestination() != null ? order.getDestination().getCity() : "N/A").append("\n");
+        details.append("ID Envío: ").append(order.getShipmentId() != null ? order.getShipmentId() : "N/A").append("\n");
+        details.append("ID Pago: ").append(order.getPaymentId() != null ? order.getPaymentId() : "N/A").append("\n");
+        details.append("ID Factura: ").append(order.getInvoiceId() != null ? order.getInvoiceId() : "N/A");
+
+        DialogUtil.showInfo("Detalles de la Orden", details.toString());
+    }
+
+    /**
+     * Approve an order.
+     */
+    private void approveOrder(Order order) {
+        if (order == null) return;
+
+        if (order.getStatus() == OrderStatus.AWAITING_PAYMENT) {
+            DialogUtil.showWarning("Orden Pendiente de Pago",
+                "La orden está esperando el pago. No se puede aprobar aún.");
+            return;
+        }
+
+        boolean confirm = DialogUtil.showConfirmation(
+            "Aprobar Orden",
+            "¿Está seguro de que desea aprobar la orden " + order.getId() + "?");
+
+        if (confirm) {
+            // Change status to APPROVED
+            order.setStatus(OrderStatus.APPROVED);
+            orderRepository.update(order);
+            refresh();
+            DialogUtil.showSuccess("Éxito", "Orden aprobada correctamente");
+            Logger.info("Order approved: " + order.getId());
+        }
+    }
+
+    /**
+     * Reject an order.
+     */
+    private void rejectOrder(Order order) {
+        if (order == null) return;
+
+        boolean confirm = DialogUtil.showConfirmation(
+            "Rechazar Orden",
+            "¿Está seguro de que desea rechazar la orden " + order.getId() + "?");
+
+        if (confirm) {
+            // Change status to CANCELLED
+            order.setStatus(OrderStatus.CANCELLED);
+            orderRepository.update(order);
+            refresh();
+            DialogUtil.showSuccess("Éxito", "Orden rechazada correctamente");
+            Logger.info("Order rejected: " + order.getId());
+        }
+    }
+
+    /**
+     * Assign a delivery person to an order.
+     */
+    private void assignDeliveryPersonToOrder(Order order) {
+        if (order == null) return;
+
+        // Get available delivery persons
+        List<DeliveryPerson> available = deliveryPersonRepository.getAllDeliveryPersons().stream()
+            .filter(dp -> dp.getAvailability() == AvailabilityStatus.AVAILABLE)
+            .collect(Collectors.toList());
+
+        if (available.isEmpty()) {
+            DialogUtil.showError("No hay repartidores disponibles",
+                "No hay repartidores disponibles en este momento.");
+            return;
+        }
+
+        // Show dialog to select delivery person
+        ChoiceDialog<DeliveryPerson> dialog = new ChoiceDialog<>(available.get(0), available);
+        dialog.setTitle("Asignar Repartidor");
+        dialog.setHeaderText("Asignar repartidor a la orden " + order.getId());
+        dialog.setContentText("Seleccione un repartidor:");
+
+        // Custom cell factory for better display
+        dialog.getDialogPane().lookupAll(".combo-box").forEach(node -> {
+            if (node instanceof ComboBox) {
+                @SuppressWarnings("unchecked")
+                ComboBox<DeliveryPerson> comboBox = (ComboBox<DeliveryPerson>) node;
+                comboBox.setCellFactory(lv -> new ListCell<DeliveryPerson>() {
+                    @Override
+                    protected void updateItem(DeliveryPerson dp, boolean empty) {
+                        super.updateItem(dp, empty);
+                        if (empty || dp == null) {
+                            setText(null);
+                        } else {
+                            setText(dp.getName() + " - " + dp.getCoverageArea().getDisplayName());
+                        }
+                    }
+                });
+                comboBox.setButtonCell(new ListCell<DeliveryPerson>() {
+                    @Override
+                    protected void updateItem(DeliveryPerson dp, boolean empty) {
+                        super.updateItem(dp, empty);
+                        if (empty || dp == null) {
+                            setText(null);
+                        } else {
+                            setText(dp.getName() + " - " + dp.getCoverageArea().getDisplayName());
+                        }
+                    }
+                });
+            }
+        });
+
+        Optional<DeliveryPerson> result = dialog.showAndWait();
+        result.ifPresent(dp -> {
+            try {
+                boolean success = orderService.assignDeliveryPerson(order.getId(), dp.getId());
+                if (success) {
+                    DialogUtil.showSuccess("Éxito", "Repartidor asignado correctamente");
+                    refresh();
+                    Logger.info("Delivery person " + dp.getId() + " assigned to order " + order.getId());
+                } else {
+                    DialogUtil.showError("Error", "No se pudo asignar el repartidor");
+                }
+            } catch (Exception e) {
+                Logger.error("Failed to assign delivery person: " + e.getMessage());
+                DialogUtil.showError("Error", "Error al asignar repartidor: " + e.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Approve an order and create the corresponding shipment.
+     * In the new workflow, delivery person assignment happens at the shipment level.
+     */
+    private void approveOrderAndCreateShipment(Order order) {
+        if (order == null) return;
+
+        // Validate order status
+        if (order.getStatus() == OrderStatus.AWAITING_PAYMENT) {
+            DialogUtil.showWarning("Orden Pendiente de Pago",
+                "La orden está esperando el pago. No se puede aprobar aún.");
+            return;
+        }
+
+        if (order.getStatus() == OrderStatus.APPROVED) {
+            DialogUtil.showWarning("Orden Ya Procesada",
+                "Esta orden ya ha sido procesada y convertida en envío.");
+            return;
+        }
+
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            DialogUtil.showWarning("Orden Cancelada",
+                "Esta orden ha sido cancelada y no se puede aprobar.");
+            return;
+        }
+
+        // Confirm approval
+        boolean confirm = DialogUtil.showConfirmation(
+            "Aprobar Orden y Crear Envío",
+            "¿Está seguro de que desea aprobar la orden " + order.getId() + " y crear el envío?\n\n" +
+            "El envío se creará con estado PENDING_ASSIGNMENT (pendiente de asignar repartidor).\n" +
+            "Podrá asignar el repartidor desde la sección de Gestión de Envíos.");
+
+        if (confirm) {
+            try {
+                // Use OrderService to approve and create shipment
+                boolean success = orderService.approveOrderAndCreateShipment(order.getId());
+
+                if (success) {
+                    refresh();
+                    DialogUtil.showSuccess("Éxito",
+                        "Orden aprobada y envío creado correctamente.\n" +
+                        "El envío ahora aparecerá en la sección de Gestión de Envíos con estado PENDING_ASSIGNMENT.\n" +
+                        "Asigne un repartidor desde allí para continuar con el proceso.");
+                    Logger.info("Order approved and shipment created: " + order.getId());
+                } else {
+                    DialogUtil.showError("Error", "No se pudo aprobar la orden y crear el envío");
+                }
+            } catch (Exception e) {
+                Logger.error("Failed to approve order and create shipment: " + e.getMessage());
+                DialogUtil.showError("Error", "Error al aprobar orden: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Auto-assign has been moved to ShipmentManagementController.
+     * Assignment now happens at the shipment level, not order level.
+     */
+
+    /**
+     * Handles the assign delivery person button click.
+     * Assigns a delivery person to the selected order.
+     */
+    @FXML
+    private void handleAssignDeliveryPerson() {
+        Order selectedOrder = ordersTable.getSelectionModel().getSelectedItem();
+
+        if (selectedOrder == null) {
+            DialogUtil.showWarning("Seleccione una Orden",
+                "Por favor, seleccione una orden de la tabla para asignar un repartidor.");
+            return;
+        }
+
+        assignDeliveryPersonToOrder(selectedOrder);
+    }
+
+    /**
+     * Show the complete history of an order (unified Order + Shipment timeline).
+     */
+    private void showOrderHistory(Order order) {
+        if (order == null) return;
+
+        // Check if order has associated shipment
+        if (order.getShipmentId() == null || order.getShipmentId().isEmpty()) {
+            DialogUtil.showInfo("Historial No Disponible",
+                "Esta orden aún no tiene un envío asociado.\n\n" +
+                "El historial completo estará disponible después de aprobar la orden y crear el envío.");
+            return;
+        }
+
+        try {
+            // Load the ShipmentHistoryDialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                "/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/ShipmentHistoryDialog.fxml"));
+            Parent root = loader.load();
+
+            // Get controller and load history
+            ShipmentHistoryDialogController controller = loader.getController();
+            controller.loadHistory(order.getShipmentId());
+
+            // Create and show modal dialog
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Historial Completo - Orden " + order.getId());
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.initOwner(ordersTable.getScene().getWindow());
+            dialogStage.setScene(new Scene(root));
+            dialogStage.showAndWait();
+
+        } catch (Exception e) {
+            Logger.error("Failed to show order history: " + e.getMessage());
+            DialogUtil.showError("Error", "No se pudo cargar el historial: " + e.getMessage());
+        }
+    }
+
+    // =================================================================================================================
+    // Tab Switching Methods
+    // =================================================================================================================
+
+    /**
+     * Switches to the Statistics tab.
+     * Expands the section if collapsed (user interaction).
+     */
+    @FXML
+    private void switchToStatsTab() {
+        setActiveTab(btnTabStats);
+        showTabContent(statsTabContent, "stats", true);
+    }
+
+    /**
+     * Switches to the Filters tab.
+     * Expands the section if collapsed (user interaction).
+     */
+    @FXML
+    private void switchToFiltersTab() {
+        setActiveTab(btnTabFilters);
+        showTabContent(filtersTabContent, "filters", true);
+    }
+
+    /**
+     * Sets the active tab button and removes active class from others.
+     */
+    private void setActiveTab(Button activeButton) {
+        // Remove active class from all tab buttons
+        btnTabStats.getStyleClass().remove("tab-button-active");
+        btnTabFilters.getStyleClass().remove("tab-button-active");
+
+        // Add active class to the selected tab
+        activeButton.getStyleClass().add("tab-button-active");
+    }
+
+    /**
+     * Shows the specified tab content and hides all others.
+     *
+     * @param contentToShow The tab content pane to display
+     * @param tabId The ID of the tab for state persistence
+     * @param expandIfCollapsed If true, expands the section if it's currently collapsed (for user clicks).
+     *                          If false, respects the current collapsed state (for restoring view state).
+     */
+    private void showTabContent(javafx.scene.layout.Pane contentToShow, String tabId, boolean expandIfCollapsed) {
+        // If user clicked a tab and section is collapsed, expand it
+        if (expandIfCollapsed) {
+            boolean isExpanded = TabStateManager.isExpanded(VIEW_NAME);
+            if (!isExpanded) {
+                TabStateManager.setExpanded(VIEW_NAME, true);
+                applyCollapseState(true);
+            }
+        }
+
+        // Hide all tab contents
+        statsTabContent.setVisible(false);
+        statsTabContent.setManaged(false);
+        filtersTabContent.setVisible(false);
+        filtersTabContent.setManaged(false);
+
+        // Show the selected content
+        contentToShow.setVisible(true);
+        contentToShow.setManaged(true);
+
+        // Save state
+        TabStateManager.setActiveTab(VIEW_NAME, tabId);
+    }
+
+    // =================================================================================================================
+    // Collapse/Expand Methods
+    // =================================================================================================================
+
+    /**
+     * Toggles the collapse/expand state of the tab section.
+     */
+    @FXML
+    private void toggleCollapse() {
+        boolean currentlyExpanded = TabStateManager.isExpanded(VIEW_NAME);
+        boolean newExpanded = !currentlyExpanded;
+        TabStateManager.setExpanded(VIEW_NAME, newExpanded);
+        applyCollapseState(newExpanded);
+    }
+
+    /**
+     * Applies the collapse/expand visual state.
+     */
+    private void applyCollapseState(boolean expanded) {
+        if (expanded) {
+            // Remove collapsed class and add expanded class
+            collapsibleTabSection.getStyleClass().removeAll("tab-section-collapsed");
+            if (!collapsibleTabSection.getStyleClass().contains("tab-section-expanded")) {
+                collapsibleTabSection.getStyleClass().add("tab-section-expanded");
+            }
+
+            // Make ONLY content container visible (tabs always visible)
+            javafx.scene.Node contentContainer = collapsibleTabSection.lookup(".tab-content-container");
+            if (contentContainer != null) {
+                contentContainer.setVisible(true);
+                contentContainer.setManaged(true);
+            }
+
+            btnCollapseToggle.setText("▲");
+        } else {
+            // Remove expanded class and add collapsed class
+            collapsibleTabSection.getStyleClass().removeAll("tab-section-expanded");
+            if (!collapsibleTabSection.getStyleClass().contains("tab-section-collapsed")) {
+                collapsibleTabSection.getStyleClass().add("tab-section-collapsed");
+            }
+
+            // Hide ONLY content container (tabs always visible)
+            javafx.scene.Node contentContainer = collapsibleTabSection.lookup(".tab-content-container");
+            if (contentContainer != null) {
+                contentContainer.setVisible(false);
+                contentContainer.setManaged(false);
+            }
+
+            btnCollapseToggle.setText("▼");
+        }
+    }
+
+    /**
+     * Restores the saved view state (collapse state and active tab).
+     */
+    private void restoreViewState() {
+        // Restore collapse state
+        boolean expanded = TabStateManager.isExpanded(VIEW_NAME);
+        applyCollapseState(expanded);
+
+        // Restore active tab (without auto-expanding)
+        String activeTab = TabStateManager.getActiveTab(VIEW_NAME);
+        javafx.scene.layout.Pane contentToRestore;
+        String tabIdToRestore;
+
+        if ("filters".equals(activeTab)) {
+            contentToRestore = filtersTabContent;
+            tabIdToRestore = "filters";
+            setActiveTab(btnTabFilters);
+        } else {
+            contentToRestore = statsTabContent;
+            tabIdToRestore = "stats";
+            setActiveTab(btnTabStats);
+        }
+
+        showTabContent(contentToRestore, tabIdToRestore, false); // false = don't auto-expand
+    }
+}

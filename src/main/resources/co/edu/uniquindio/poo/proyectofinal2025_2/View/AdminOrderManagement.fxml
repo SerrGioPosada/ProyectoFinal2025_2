@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.AdminOrderManagementController"
+      spacing="15" styleClass="content-area">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header Section con título y botones principales -->
+    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="header-section">
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label text="Gestión de Órdenes" styleClass="page-title"/>
+            <Label text="Administra todas las órdenes del sistema" styleClass="info-label"
+                   style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+        </VBox>
+        <Button text="Actualizar" styleClass="btn-secondary" onAction="#refresh"/>
+    </HBox>
+
+    <!-- Collapsible Tab System -->
+    <VBox fx:id="collapsibleTabSection" spacing="0" styleClass="collapsible-tab-section, tab-section-expanded"
+          VBox.vgrow="NEVER" minHeight="60">
+        <!-- Header with Collapse Button -->
+        <HBox styleClass="tab-header-with-collapse" minHeight="60" prefHeight="60" maxHeight="60">
+            <HBox styleClass="tab-nav-bar" HBox.hgrow="ALWAYS">
+                <Button fx:id="btnTabStats" text="Estadísticas" styleClass="tab-button, tab-button-active"
+                        onAction="#switchToStatsTab"/>
+                <Button fx:id="btnTabFilters" text="Filtros" styleClass="tab-button"
+                        onAction="#switchToFiltersTab"/>
+            </HBox>
+            <Button fx:id="btnCollapseToggle" text="▲" styleClass="collapse-toggle-btn"
+                    onAction="#toggleCollapse"/>
+        </HBox>
+
+        <!-- Tab Content Container -->
+        <StackPane styleClass="tab-content-container">
+            <!-- Stats Tab Content -->
+            <HBox fx:id="statsTabContent" spacing="15" managed="true" visible="true">
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Total de Órdenes" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblTotalOrders" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+                </VBox>
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Pendientes de Pago" style="-fx-text-fill: #ffc107; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblPending" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #ffc107;"/>
+                </VBox>
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="En Procesamiento" style="-fx-text-fill: #17a2b8; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblProcessing" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
+                </VBox>
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Listas para Envío" style="-fx-text-fill: #6610f2; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblReadyForShipment" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #6610f2;"/>
+                </VBox>
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Completadas" style="-fx-text-fill: #28a745; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblCompleted" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Filters Tab Content -->
+            <VBox fx:id="filtersTabContent" spacing="10" managed="false" visible="false">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="filterStatus" styleClass="filter-combo" prefWidth="220"/>
+                    <TextField fx:id="searchField" promptText="Buscar por ID o usuario..."
+                               styleClass="search-field" HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <!-- Botón limpiar filtros -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="Limpiar Filtros" styleClass="btn-secondary" onAction="#clearFilters"/>
+                </HBox>
+            </VBox>
+        </StackPane>
+    </VBox>
+
+    <!-- Table Section -->
+    <TableView fx:id="ordersTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="120" minWidth="100"/>
+            <TableColumn fx:id="colUser" text="Usuario" prefWidth="150" minWidth="120"/>
+            <TableColumn fx:id="colOrigin" text="Origen" prefWidth="150" minWidth="120"/>
+            <TableColumn fx:id="colDestination" text="Destino" prefWidth="150" minWidth="120"/>
+            <TableColumn fx:id="colStatus" text="Estado" prefWidth="150" minWidth="120"/>
+            <TableColumn fx:id="colCreatedDate" text="Fecha Creación" prefWidth="150" minWidth="130"/>
+            <TableColumn fx:id="colShipmentId" text="ID Envío" prefWidth="120" minWidth="100"/>
+            <TableColumn fx:id="colPaymentId" text="ID Pago" prefWidth="120" minWidth="100"/>
+        </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+        <placeholder>
+            <Label text="No se encontraron órdenes" styleClass="table-placeholder"/>
+        </placeholder>
+    </TableView>
+
+    <!-- Information Section -->
+    <HBox spacing="10" styleClass="info-section" alignment="CENTER_LEFT">
+        <Label text="Haga clic derecho en una orden para ver opciones (Ver Detalles, Ver Historial, Aprobar, Rechazar)"
+               style="-fx-text-fill: #6c757d; -fx-font-size: 12px; -fx-font-style: italic;"/>
+    </HBox>
+
+</VBox>

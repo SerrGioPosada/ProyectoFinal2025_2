@@ -7,9 +7,8 @@
 
 <!-- The ScrollPane is the root element -->
 <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="login-scroll" pannable="true"
-            stylesheets="@../Style.css"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="co.edu.uniquindio.poo.proyectofinal2025_2.Controller.LoginController">
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.LoginController">
 
    <!-- This StackPane will now force itself to fill the ScrollPane's width and have the background color -->
    <StackPane alignment="CENTER" maxWidth="Infinity" prefWidth="Infinity" styleClass="login-background-pane">
@@ -19,7 +18,7 @@
          <!-- Wrapper HBox to correctly center the logo circle -->
          <HBox alignment="CENTER">
             <StackPane styleClass="logo-circle">
-               <Label text="SF" styleClass="logo-text"/>
+               <Label text="SD" styleClass="logo-text"/>
             </StackPane>
          </HBox>
 

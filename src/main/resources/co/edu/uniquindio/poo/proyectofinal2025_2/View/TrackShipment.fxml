@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="co.edu.uniquindio.poo.proyectofinal2025_2.Controller.TrackShipmentController"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.TrackShipmentController"
       spacing="20" styleClass="content-area">
 
     <padding>
@@ -14,15 +14,15 @@
 
     <!-- Header Section -->
     <HBox alignment="CENTER_LEFT" spacing="15" styleClass="header-section">
-        <Label text="Track Shipment" styleClass="page-title"/>
+        <Label text="Rastrear Envío" styleClass="page-title"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="Back" styleClass="btn-secondary" onAction="#handleBack"/>
+        <Button text="Volver" styleClass="btn-secondary" onAction="#handleBack"/>
     </HBox>
 
     <!-- Search Section -->
     <HBox spacing="10" styleClass="filter-section" alignment="CENTER_LEFT">
-        <TextField fx:id="txtShipmentId" promptText="Enter Shipment ID..." styleClass="search-field" HBox.hgrow="ALWAYS"/>
-        <Button text="Track" styleClass="btn-primary" onAction="#handleTrack" prefWidth="100"/>
+        <TextField fx:id="txtShipmentId" promptText="Ingresa el ID del envío..." styleClass="search-field" HBox.hgrow="ALWAYS"/>
+        <Button text="Rastrear" styleClass="btn-primary" onAction="#handleTrack" prefWidth="100"/>
     </HBox>
 
     <!-- Tracking Content -->
@@ -30,7 +30,7 @@
 
         <!-- Shipment Info Card -->
         <VBox spacing="10" styleClass="info-card">
-            <Label text="Shipment Information" styleClass="card-title"/>
+            <Label text="Información del Envío" styleClass="card-title"/>
             <GridPane hgap="20" vgap="10">
                 <columnConstraints>
                     <ColumnConstraints minWidth="120" prefWidth="120"/>
@@ -40,82 +40,41 @@
                 <Label text="ID:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
                 <Label fx:id="lblShipmentId" text="--" styleClass="info-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-                <Label text="Status:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Label text="Estado:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
                 <Label fx:id="lblStatus" text="--" styleClass="info-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-                <Label text="Created:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Label text="Creado:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
                 <Label fx:id="lblCreated" text="--" styleClass="info-value" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-                <Label text="Estimated Delivery:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <Label text="Entrega Estimada:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
                 <Label fx:id="lblEstimated" text="--" styleClass="info-value" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
             </GridPane>
         </VBox>
 
-        <!-- Status Timeline -->
+        <!-- Status Timeline (Dynamic) -->
         <VBox spacing="10" styleClass="timeline-card">
-            <Label text="Shipment Timeline" styleClass="card-title"/>
+            <Label text="Historial Completo (Orden + Envío)" styleClass="card-title"/>
 
-            <VBox spacing="5">
-                <!-- Requested -->
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label fx:id="iconRequested" text="○" styleClass="timeline-icon"/>
-                    <VBox spacing="2">
-                        <Label text="Requested" styleClass="timeline-status"/>
-                        <Label fx:id="lblTimeRequested" text="--" styleClass="timeline-time"/>
-                    </VBox>
-                </HBox>
-
-                <ProgressBar fx:id="progressRequestedToAssigned" progress="0" styleClass="timeline-progress" maxWidth="Infinity"/>
-
-                <!-- Assigned -->
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label fx:id="iconAssigned" text="○" styleClass="timeline-icon"/>
-                    <VBox spacing="2">
-                        <Label text="Assigned" styleClass="timeline-status"/>
-                        <Label fx:id="lblTimeAssigned" text="--" styleClass="timeline-time"/>
-                    </VBox>
-                </HBox>
-
-                <ProgressBar fx:id="progressAssignedToInRoute" progress="0" styleClass="timeline-progress" maxWidth="Infinity"/>
-
-                <!-- In Route -->
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label fx:id="iconInRoute" text="○" styleClass="timeline-icon"/>
-                    <VBox spacing="2">
-                        <Label text="In Route" styleClass="timeline-status"/>
-                        <Label fx:id="lblTimeInRoute" text="--" styleClass="timeline-time"/>
-                    </VBox>
-                </HBox>
-
-                <ProgressBar fx:id="progressInRouteToDelivered" progress="0" styleClass="timeline-progress" maxWidth="Infinity"/>
-
-                <!-- Delivered -->
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label fx:id="iconDelivered" text="○" styleClass="timeline-icon"/>
-                    <VBox spacing="2">
-                        <Label text="Delivered" styleClass="timeline-status"/>
-                        <Label fx:id="lblTimeDelivered" text="--" styleClass="timeline-time"/>
-                    </VBox>
-                </HBox>
-            </VBox>
+            <!-- Dynamic timeline container -->
+            <VBox fx:id="timelineContainer" spacing="5"/>
         </VBox>
 
         <!-- Delivery Person Info -->
         <VBox fx:id="deliveryPersonCard" spacing="10" styleClass="info-card">
-            <Label text="Delivery Person" styleClass="card-title"/>
+            <Label text="Repartidor" styleClass="card-title"/>
             <GridPane hgap="20" vgap="10">
                 <columnConstraints>
                     <ColumnConstraints minWidth="120" prefWidth="120"/>
                     <ColumnConstraints minWidth="200" prefWidth="250"/>
                 </columnConstraints>
 
-                <Label text="Name:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label text="Nombre:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
                 <Label fx:id="lblDeliveryPersonName" text="--" styleClass="info-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-                <Label text="Phone:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Label text="Teléfono:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
                 <Label fx:id="lblDeliveryPersonPhone" text="--" styleClass="info-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-                <Label text="Zone:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Label text="Zona:" styleClass="info-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
                 <Label fx:id="lblDeliveryPersonZone" text="--" styleClass="info-value" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
             </GridPane>
         </VBox>
@@ -124,8 +83,8 @@
 
     <!-- Action Buttons -->
     <HBox spacing="10" styleClass="action-section" alignment="CENTER_LEFT">
-        <Button text="Refresh" styleClass="btn-primary" onAction="#handleRefresh"/>
-        <Button text="View Full Details" styleClass="btn-secondary" onAction="#handleViewDetails"/>
+        <Button text="Actualizar" styleClass="btn-primary" onAction="#handleRefresh"/>
+        <Button text="Ver Detalles Completos" styleClass="btn-secondary" onAction="#handleViewDetails"/>
     </HBox>
 
 </VBox>

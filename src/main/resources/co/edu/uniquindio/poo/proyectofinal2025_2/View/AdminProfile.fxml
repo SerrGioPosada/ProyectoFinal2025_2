@@ -6,7 +6,7 @@
 <?import javafx.scene.image.ImageView?>
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="co.edu.uniquindio.poo.proyectofinal2025_2.Controller.AdminProfileController"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.AdminProfileController"
       spacing="20" styleClass="content-area">
 
     <padding>

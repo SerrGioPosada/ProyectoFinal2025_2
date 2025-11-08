@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.DeliveryHistoryController"
+            styleClass="scroll-base"
+            fitToWidth="true">
+
+    <VBox spacing="20" styleClass="content-area">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header Section -->
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-section">
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label text="Historial de Entregas y Ganancias" styleClass="page-title"/>
+                <Label fx:id="lblLastUpdated" text="Última actualización: --" styleClass="info-label"/>
+            </VBox>
+            <Button text="Exportar a PDF" onAction="#handleExportToPdf" styleClass="btn-secondary"/>
+            <Button text="Actualizar" onAction="#handleRefresh" styleClass="btn-primary"/>
+        </HBox>
+
+        <!-- Summary Statistics Section -->
+        <VBox styleClass="section-container" spacing="15">
+            <Label text="Resumen de Ganancias" styleClass="section-title"/>
+
+            <GridPane hgap="15" vgap="15">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="20"/>
+                </columnConstraints>
+
+                <!-- Total Earnings -->
+                <VBox styleClass="stat-card-compact-success" spacing="8" GridPane.columnIndex="0">
+                    <Label text="Ganancias Totales" styleClass="stat-label-compact"/>
+                    <Label fx:id="lblTotalEarnings" text="$0.00" styleClass="stat-value-large-success"/>
+                </VBox>
+
+                <!-- This Month -->
+                <VBox styleClass="stat-card-compact" spacing="8" GridPane.columnIndex="1">
+                    <Label text="Este Mes" styleClass="stat-label-compact"/>
+                    <Label fx:id="lblMonthEarnings" text="$0.00" styleClass="stat-value-compact"/>
+                </VBox>
+
+                <!-- This Week -->
+                <VBox styleClass="stat-card-compact-info" spacing="8" GridPane.columnIndex="2">
+                    <Label text="Esta Semana" styleClass="stat-label-compact"/>
+                    <Label fx:id="lblWeekEarnings" text="$0.00" styleClass="stat-value-compact"/>
+                </VBox>
+
+                <!-- Today -->
+                <VBox styleClass="stat-card-compact-warning" spacing="8" GridPane.columnIndex="3">
+                    <Label text="Hoy" styleClass="stat-label-compact"/>
+                    <Label fx:id="lblTodayEarnings" text="$0.00" styleClass="stat-value-compact"/>
+                </VBox>
+
+                <!-- Average per Delivery -->
+                <VBox styleClass="stat-card-compact" spacing="8" GridPane.columnIndex="4">
+                    <Label text="Promedio/Entrega" styleClass="stat-label-compact"/>
+                    <Label fx:id="lblAverageEarnings" text="$0.00" styleClass="stat-value-compact"/>
+                </VBox>
+            </GridPane>
+        </VBox>
+
+        <!-- Delivery Statistics Section -->
+        <VBox styleClass="section-container" spacing="15">
+            <Label text="Estadísticas de Entregas" styleClass="section-title"/>
+
+            <GridPane hgap="15" vgap="15">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                </columnConstraints>
+
+                <VBox styleClass="stat-card-compact" spacing="8" GridPane.columnIndex="0">
+                    <Label text="Entregas Completadas" styleClass="stat-label-compact"/>
+                    <Label fx:id="lblCompletedDeliveries" text="0" styleClass="stat-value-compact"/>
+                </VBox>
+
+                <VBox styleClass="stat-card-compact-success" spacing="8" GridPane.columnIndex="1">
+                    <Label text="Exitosas" styleClass="stat-label-compact"/>
+                    <Label fx:id="lblSuccessfulDeliveries" text="0" styleClass="stat-value-compact"/>
+                </VBox>
+
+                <VBox styleClass="stat-card-compact-warning" spacing="8" GridPane.columnIndex="2">
+                    <Label text="Con Incidencias" styleClass="stat-label-compact"/>
+                    <Label fx:id="lblIncidentDeliveries" text="0" styleClass="stat-value-compact"/>
+                </VBox>
+
+                <VBox styleClass="stat-card-compact-info" spacing="8" GridPane.columnIndex="3">
+                    <Label text="Tasa de Éxito" styleClass="stat-label-compact"/>
+                    <Label fx:id="lblSuccessRate" text="0%" styleClass="stat-value-compact"/>
+                </VBox>
+            </GridPane>
+        </VBox>
+
+        <!-- Charts Section -->
+        <HBox spacing="15" prefHeight="350">
+            <!-- Earnings Trend Chart -->
+            <VBox styleClass="section-container" spacing="10" HBox.hgrow="ALWAYS">
+                <Label text="Tendencia de Ganancias (Últimos 30 Días)" styleClass="section-title"/>
+                <LineChart fx:id="chartEarningsTrend"
+                          legendVisible="false"
+                          createSymbols="true"
+                          VBox.vgrow="ALWAYS"
+                          prefHeight="300">
+                    <xAxis>
+                        <CategoryAxis side="BOTTOM"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Ganancias ($)" side="LEFT"/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+
+            <!-- Deliveries by Status Chart -->
+            <VBox styleClass="section-container" spacing="10" HBox.hgrow="ALWAYS">
+                <Label text="Entregas por Estado" styleClass="section-title"/>
+                <PieChart fx:id="chartDeliveriesByStatus"
+                         legendVisible="true"
+                         labelsVisible="true"
+                         VBox.vgrow="ALWAYS"
+                         prefHeight="300"/>
+            </VBox>
+        </HBox>
+
+        <!-- Date Range Filter Section -->
+        <VBox styleClass="section-container" spacing="15">
+            <Label text="Filtrar por Fecha" styleClass="section-title"/>
+
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Label text="Desde:" styleClass="label-bold"/>
+                <DatePicker fx:id="dateFrom" prefWidth="150" styleClass="date-picker"/>
+
+                <Label text="Hasta:" styleClass="label-bold"/>
+                <DatePicker fx:id="dateTo" prefWidth="150" styleClass="date-picker"/>
+
+                <Button text="Aplicar Filtro" onAction="#handleApplyDateFilter" styleClass="btn-primary"/>
+                <Button text="Limpiar" onAction="#handleClearDateFilter" styleClass="btn-secondary"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="Último Mes" onAction="#handleLastMonth" styleClass="btn-outline"/>
+                <Button text="Última Semana" onAction="#handleLastWeek" styleClass="btn-outline"/>
+            </HBox>
+        </VBox>
+
+        <!-- History Table Section -->
+        <VBox styleClass="section-container" spacing="15" VBox.vgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Historial Detallado" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="searchField" promptText="Buscar por ID o dirección..."
+                          prefWidth="300" styleClass="search-field"/>
+            </HBox>
+
+            <TableView fx:id="historyTable" VBox.vgrow="ALWAYS" styleClass="data-table" prefHeight="400">
+                <columns>
+                    <TableColumn fx:id="colDate" text="Fecha" prefWidth="120" minWidth="100"/>
+                    <TableColumn fx:id="colOrderId" text="ID Orden" prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="colRoute" text="Ruta" prefWidth="250" minWidth="200"/>
+                    <TableColumn fx:id="colStatus" text="Estado" prefWidth="120" minWidth="100"/>
+                    <TableColumn fx:id="colDistance" text="Distancia (km)" prefWidth="120" minWidth="100"/>
+                    <TableColumn fx:id="colEarnings" text="Ganancia" prefWidth="100" minWidth="80"/>
+                    <TableColumn fx:id="colRating" text="Calificación" prefWidth="100" minWidth="80"/>
+                </columns>
+                <columnResizePolicy>
+                    <TableView.CONSTRAINED_RESIZE_POLICY/>
+                </columnResizePolicy>
+                <placeholder>
+                    <VBox alignment="CENTER" spacing="10" style="-fx-padding: 40;">
+                        <Label text="No hay entregas completadas"
+                               style="-fx-font-size: 16px; -fx-text-fill: #6c757d;"/>
+                        <Label text="Las entregas completadas aparecerán aquí"
+                               style="-fx-font-size: 14px; -fx-text-fill: #999999;"/>
+                    </VBox>
+                </placeholder>
+            </TableView>
+        </VBox>
+
+        <!-- Footer Info -->
+        <VBox styleClass="info-card" spacing="10">
+            <Label text="ℹ️ Información" styleClass="label-bold"/>
+            <Label text="• Las ganancias se calculan basándose en el costo de cada envío completado"
+                   styleClass="info-label" wrapText="true"/>
+            <Label text="• Puedes exportar el historial a PDF para tus registros"
+                   styleClass="info-label" wrapText="true"/>
+            <Label text="• La tasa de éxito se calcula dividiendo entregas exitosas entre el total de entregas"
+                   styleClass="info-label" wrapText="true"/>
+        </VBox>
+
+    </VBox>
+</ScrollPane>
