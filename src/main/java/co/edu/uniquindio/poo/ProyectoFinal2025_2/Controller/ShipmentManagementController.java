@@ -49,6 +49,9 @@ public class ShipmentManagementController implements Initializable {
     // Root pane
     @FXML private VBox rootPane;
 
+    // Back button (for contextual navigation)
+    @FXML private Button btnBack;
+
     // Table and Columns
     @FXML private TableView<ShipmentDTO> shipmentsTable;
     @FXML private TableColumn<ShipmentDTO, String> colId;
@@ -100,6 +103,10 @@ public class ShipmentManagementController implements Initializable {
 
     // Data
     private ObservableList<ShipmentDTO> shipmentsData;
+
+    // Navigation context
+    private String sourceView = null; // The view that navigated to this view (e.g., "ManageUsers.fxml")
+    private IndexController indexController;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -1081,12 +1088,29 @@ public class ShipmentManagementController implements Initializable {
      * @param userEmail The email of the user to filter by
      */
     public void applyUserFilter(String userEmail) {
+        applyUserFilter(userEmail, null);
+    }
+
+    /**
+     * Applies a user filter with source view information.
+     *
+     * @param userEmail  The email of the user to filter by
+     * @param sourceView The view that initiated this navigation
+     */
+    public void applyUserFilter(String userEmail, String sourceView) {
         if (userEmail == null || userEmail.isEmpty()) {
             Logger.warning("applyUserFilter called with null or empty email");
             return;
         }
 
-        Logger.info("Applying user filter for email: " + userEmail);
+        this.sourceView = sourceView;
+        Logger.info("Applying user filter for email: " + userEmail + " from source: " + sourceView);
+
+        // Show back button if we came from another view
+        if (sourceView != null && btnBack != null) {
+            btnBack.setVisible(true);
+            btnBack.setManaged(true);
+        }
 
         // Verify the user exists
         Optional<User> userOpt = userRepository.findByEmail(userEmail);
@@ -1096,13 +1120,62 @@ public class ShipmentManagementController implements Initializable {
             return;
         }
 
-        // Set the email directly in the combo box (now we show only emails)
-        filterUser.setValue(userEmail);
+        // Ensure the filters tab is open and expanded
+        Platform.runLater(() -> {
+            switchToFiltersTab();
 
-        // Apply the filter
+            // Set the email directly in the combo box (now we show only emails)
+            filterUser.setValue(userEmail);
+
+            // Apply the filter
+            handleFilter();
+
+            Logger.info("User filter applied successfully for: " + userEmail);
+        });
+    }
+
+    /**
+     * Clears any active filters and hides the back button.
+     * Called when navigating directly from the sidebar.
+     */
+    public void clearContextualFilter() {
+        this.sourceView = null;
+
+        // Hide back button
+        if (btnBack != null) {
+            btnBack.setVisible(false);
+            btnBack.setManaged(false);
+        }
+
+        // Clear filters
+        if (filterUser != null) {
+            filterUser.setValue(null);
+        }
+
+        // Reset filters
         handleFilter();
 
-        Logger.info("User filter applied successfully for: " + userEmail);
+        Logger.info("Contextual filter cleared");
+    }
+
+    /**
+     * Sets the IndexController reference for navigation.
+     *
+     * @param indexController The IndexController instance
+     */
+    public void setIndexController(IndexController indexController) {
+        this.indexController = indexController;
+    }
+
+    /**
+     * Handles the back button click - returns to the source view.
+     */
+    @FXML
+    private void handleBack() {
+        if (sourceView != null && indexController != null) {
+            Logger.info("Navigating back to: " + sourceView);
+            indexController.loadView(sourceView);
+        }
     }
 
     // =================================================================================================================

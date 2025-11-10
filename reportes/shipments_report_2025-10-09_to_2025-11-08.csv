@@ -1,0 +1,4 @@
+ID Envío,Usuario,Estado,Peso (kg),Costo Total,Fecha Creación,Fecha Entrega
+ship-003,serpocrack@gmail.com,Entregado,"5,50","$20000,00",30/10/2025 10:30,02/11/2025 15:30
+ship-002,serpocrack@gmail.com,Listo para Recoger,"12,00","$33000,00",31/10/2025 14:15,Pendiente
+ship-001,serpocrack@gmail.com,Pendiente de Asignación,"3,20","$12000,00",01/11/2025 09:00,Pendiente

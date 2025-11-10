@@ -1,7 +1,9 @@
 package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.VehicleType;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Vehicle;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.VehicleService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.TabStateManager;
@@ -42,6 +44,7 @@ public class ManageVehiclesController {
     @FXML private TableColumn<Vehicle, String> colType;
     @FXML private TableColumn<Vehicle, Double> colCapacity;
     @FXML private TableColumn<Vehicle, Boolean> colAvailable;
+    @FXML private TableColumn<Vehicle, String> colDeliveryPerson;
 
     // =================================================================================================================
     // FXML Fields - Search and Filters
@@ -93,6 +96,7 @@ public class ManageVehiclesController {
     // =================================================================================================================
 
     private final VehicleService vehicleService = VehicleService.getInstance();
+    private final DeliveryPersonRepository deliveryPersonRepository = DeliveryPersonRepository.getInstance();
     private ObservableList<Vehicle> vehiclesList;
     private FilteredList<Vehicle> filteredVehicles;
     private IndexController indexController;
@@ -182,6 +186,20 @@ public class ManageVehiclesController {
                 setGraphic(badge);
                 setStyle(""); // Clear cell style to prevent row selection from affecting badge
             }
+        });
+
+        // Configure delivery person column
+        colDeliveryPerson.setCellValueFactory(data -> {
+            String deliveryPersonId = data.getValue().getDeliveryPersonId();
+            if (deliveryPersonId == null || deliveryPersonId.isEmpty()) {
+                return new SimpleStringProperty("Sin asignar");
+            }
+
+            DeliveryPerson deliveryPerson = deliveryPersonRepository.getDeliveryPersonById(deliveryPersonId);
+            if (deliveryPerson != null) {
+                return new SimpleStringProperty(deliveryPerson.getName() + " " + deliveryPerson.getLastName());
+            }
+            return new SimpleStringProperty("Desconocido");
         });
     }
 

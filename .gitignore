@@ -105,6 +105,9 @@ data/
 # In production environments, you should exclude this file and use environment variables
 # config/oauth.properties  # Uncomment this line for production use
 
+# Mercado Pago credentials (NEVER commit these!)
+mercadopago.properties
+
 ### Documentación ###
 # Solo README.md se sube en la raíz
 # docs/ NO se sube al repositorio (documentación local)

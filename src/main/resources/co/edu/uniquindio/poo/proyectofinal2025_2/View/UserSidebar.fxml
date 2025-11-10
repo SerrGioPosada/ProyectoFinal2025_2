@@ -35,6 +35,7 @@
                         <Button fx:id="btnDashboard" text="Dashboard" styleClass="sidebar-button"/>
                         <Button fx:id="btnOrders" text="Mis Envíos" styleClass="sidebar-button"/>
                         <Button fx:id="btnTrackShipment" text="Rastrear Envío" styleClass="sidebar-button"/>
+                        <Button fx:id="btnPaymentReceipts" text="Comprobantes" styleClass="sidebar-button"/>
                         <Button fx:id="btnProfile" text="Mi Perfil" styleClass="sidebar-button"/>
                         <Button fx:id="btnNewShipment" text="Nuevo Envío" styleClass="sidebar-button"/>
                         <Button fx:id="btnToggleTheme" text="🌙" onAction="#handleToggleTheme" styleClass="sidebar-button" style="-fx-font-size: 18px;"/>

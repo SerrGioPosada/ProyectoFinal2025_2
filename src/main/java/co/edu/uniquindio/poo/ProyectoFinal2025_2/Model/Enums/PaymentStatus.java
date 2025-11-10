@@ -6,12 +6,14 @@ package co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums;
  *     <li>{@code PENDING}: The payment has been initiated but is not yet confirmed.</li>
  *     <li>{@code APPROVED}: The payment was successfully processed.</li>
  *     <li>{@code FAILED}: The payment could not be processed.</li>
+ *     <li>{@code REFUNDED}: The payment was refunded.</li>
  * </ul>
  */
 public enum PaymentStatus {
     PENDING("Pendiente", "#FFA726"),
     APPROVED("Aprobado", "#4CAF50"),
-    FAILED("Fallido", "#EF5350");
+    FAILED("Fallido", "#EF5350"),
+    REFUNDED("Reembolsado", "#6c757d");
 
     private final String displayName;
     private final String color;

@@ -98,4 +98,47 @@ public class VehicleRepository {
     public List<Vehicle> findAll() {
         return new ArrayList<>(vehiclesByPlate.values());
     }
+
+    /**
+     * Finds all vehicles owned by a specific delivery person.
+     *
+     * @param deliveryPersonId the ID of the delivery person
+     * @return a list of vehicles owned by the delivery person
+     */
+    public List<Vehicle> findByDeliveryPersonId(String deliveryPersonId) {
+        List<Vehicle> result = new ArrayList<>();
+        for (Vehicle vehicle : vehiclesByPlate.values()) {
+            if (deliveryPersonId.equals(vehicle.getDeliveryPersonId())) {
+                result.add(vehicle);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Updates an existing vehicle in the repository.
+     *
+     * @param vehicle the vehicle to update
+     */
+    public void update(Vehicle vehicle) {
+        if (vehicle != null && vehicle.getPlate() != null) {
+            vehiclesByPlate.put(vehicle.getPlate().toLowerCase(), vehicle);
+            saveToFile();
+        }
+    }
+
+    /**
+     * Deletes a vehicle by its plate.
+     *
+     * @param plate the license plate of the vehicle to delete
+     * @return true if the vehicle was deleted, false otherwise
+     */
+    public boolean delete(String plate) {
+        Vehicle removed = vehiclesByPlate.remove(plate.toLowerCase());
+        if (removed != null) {
+            saveToFile();
+            return true;
+        }
+        return false;
+    }
 }

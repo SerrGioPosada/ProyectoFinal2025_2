@@ -92,14 +92,15 @@ public class ShipmentValidator {
         return switch (from) {
             case PENDING_ASSIGNMENT -> to == ShipmentStatus.READY_FOR_PICKUP ||
                                        to == ShipmentStatus.CANCELLED;
-            case READY_FOR_PICKUP -> to == ShipmentStatus.IN_TRANSIT ||
+            case READY_FOR_PICKUP -> to == ShipmentStatus.PICKED_UP ||
+                                     to == ShipmentStatus.IN_TRANSIT ||
                                      to == ShipmentStatus.CANCELLED;
             case IN_TRANSIT -> to == ShipmentStatus.OUT_FOR_DELIVERY ||
                               to == ShipmentStatus.RETURNED ||
                               to == ShipmentStatus.CANCELLED;
             case OUT_FOR_DELIVERY -> to == ShipmentStatus.DELIVERED ||
                                      to == ShipmentStatus.RETURNED;
-            case DELIVERED, RETURNED, CANCELLED -> false; // Terminal states
+            case PICKED_UP, DELIVERED, RETURNED, CANCELLED -> false; // Terminal states
         };
     }
 

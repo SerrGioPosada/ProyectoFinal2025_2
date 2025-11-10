@@ -19,6 +19,7 @@
             <Label text="Administra todas las órdenes del sistema" styleClass="info-label"
                    style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
         </VBox>
+        <Button fx:id="btnBack" text="← Regresar" styleClass="btn-secondary" onAction="#handleBack" visible="false" managed="false"/>
         <Button text="Actualizar" styleClass="btn-secondary" onAction="#refresh"/>
     </HBox>
 
@@ -67,7 +68,7 @@
             <VBox fx:id="filtersTabContent" spacing="10" managed="false" visible="false">
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <ComboBox fx:id="filterStatus" styleClass="filter-combo" prefWidth="220"/>
-                    <TextField fx:id="searchField" promptText="Buscar por ID o usuario..."
+                    <TextField fx:id="searchField" promptText="Buscar por ID o gmail..."
                                styleClass="search-field" HBox.hgrow="ALWAYS"/>
                 </HBox>
 
@@ -83,7 +84,7 @@
     <TableView fx:id="ordersTable" styleClass="data-table" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="colId" text="ID" prefWidth="120" minWidth="100"/>
-            <TableColumn fx:id="colUser" text="Usuario" prefWidth="150" minWidth="120"/>
+            <TableColumn fx:id="colUser" text="Email" prefWidth="200" minWidth="150"/>
             <TableColumn fx:id="colOrigin" text="Origen" prefWidth="150" minWidth="120"/>
             <TableColumn fx:id="colDestination" text="Destino" prefWidth="150" minWidth="120"/>
             <TableColumn fx:id="colStatus" text="Estado" prefWidth="150" minWidth="120"/>

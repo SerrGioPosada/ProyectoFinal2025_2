@@ -155,6 +155,17 @@ public class UserProfileController implements Initializable {
         }
     }
 
+    @FXML
+    private void handleManagePaymentMethods() {
+        Logger.info("Navigating to Manage Payment Methods view");
+        if (indexController != null) {
+            indexController.loadView("ManagePaymentMethods.fxml");
+        } else {
+            Logger.error("IndexController not set - cannot navigate to ManagePaymentMethods");
+            DialogUtil.showError("Error", "No se pudo navegar a la vista de métodos de pago");
+        }
+    }
+
     /**
      * Sets the IndexController reference for navigation.
      */

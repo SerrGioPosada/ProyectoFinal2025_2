@@ -39,6 +39,8 @@ public class AdminSidebarController extends BaseSidebarController {
     @FXML
     private Button btnReports;
     @FXML
+    private Button btnNotifications;
+    @FXML
     private Button btnProfile;
     @FXML
     private Button btnLogout;
@@ -63,6 +65,19 @@ public class AdminSidebarController extends BaseSidebarController {
         super.initialize(url, resourceBundle);
         log("AdminSidebarController initialized.");
         setupButtonActions();
+        setupNotificationBadge();
+    }
+
+    /**
+     * Sets up the notification badge on the notifications button.
+     * The badge shows the count of unread notifications and updates in real-time.
+     */
+    private void setupNotificationBadge() {
+        if (btnNotifications != null) {
+            createNotificationBadge(btnNotifications);
+            setupNotificationBadgeListener();
+            log("Notification badge initialized for admin");
+        }
     }
 
     // =================================================================================================================
@@ -76,18 +91,16 @@ public class AdminSidebarController extends BaseSidebarController {
      * </p>
      */
     private void setupButtonActions() {
-        Map<Button, String> navigationMap = Map.of(
-                btnDashboard, "AdminDashboard.fxml",
-                btnManageUsers, "ManageUsers.fxml",
-                btnManageDelivery, "ManageDeliveryPersons.fxml",
-                btnManageVehicles, "ManageVehicles.fxml",
-                btnManageOrders, "AdminOrderManagement.fxml",
-                btnManageShipments, "ShipmentManagement.fxml",
-                btnReports, "Reports.fxml",
-                btnProfile, "AdminProfile.fxml"
-        );
-
-        navigationMap.forEach(this::bindNavigation);
+        // Bind each button to its view
+        bindNavigation(btnDashboard, "AdminDashboard.fxml");
+        bindNavigation(btnManageUsers, "ManageUsers.fxml");
+        bindNavigation(btnManageDelivery, "ManageDeliveryPersons.fxml");
+        bindNavigation(btnManageVehicles, "ManageVehicles.fxml");
+        bindNavigation(btnManageOrders, "AdminOrderManagement.fxml");
+        bindNavigation(btnManageShipments, "ShipmentManagement.fxml");
+        bindNavigation(btnReports, "Reports.fxml");
+        bindNavigation(btnNotifications, "NotificationsCenter.fxml");
+        bindNavigation(btnProfile, "AdminProfile.fxml");
 
         // Logout button has special behavior (doesn't navigate to a view)
         if (btnLogout != null) {
@@ -123,10 +136,48 @@ public class AdminSidebarController extends BaseSidebarController {
             button.setOnAction(event -> {
                 setActiveButton(button);
                 NavigationUtil.navigate(indexController, viewName, getClass());
+
+                // Clear contextual filters when navigating from sidebar
+                clearContextualFiltersForView(viewName);
             });
         } else {
             Logger.warn("[AdminSidebarController] Warning: Tried to bind navigation to a null button for view: " + viewName);
         }
+    }
+
+    /**
+     * Clears contextual filters for views that support filtering.
+     * This ensures that when navigating from the sidebar, no filters from previous
+     * contextual navigation (e.g., from ManageUsers) remain active.
+     *
+     * @param viewName The name of the view being navigated to
+     */
+    private void clearContextualFiltersForView(String viewName) {
+        if (indexController == null) return;
+
+        // Use Platform.runLater to ensure the view is loaded before clearing filters
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Object controller = indexController.getCurrentController();
+                if (controller == null) return;
+
+                switch (viewName) {
+                    case "AdminOrderManagement.fxml":
+                        if (controller instanceof AdminOrderManagementController orderController) {
+                            orderController.clearContextualFilter();
+                        }
+                        break;
+                    case "ShipmentManagement.fxml":
+                        if (controller instanceof ShipmentManagementController shipmentController) {
+                            shipmentController.clearContextualFilter();
+                        }
+                        break;
+                    // Add more cases here for other views that support contextual filtering
+                }
+            } catch (Exception e) {
+                Logger.error("Error clearing contextual filter for " + viewName, e);
+            }
+        });
     }
 
     /**
@@ -144,6 +195,7 @@ public class AdminSidebarController extends BaseSidebarController {
             case "AdminOrderManagement.fxml" -> btnManageOrders;
             case "ShipmentManagement.fxml" -> btnManageShipments;
             case "Reports.fxml" -> btnReports;
+            case "NotificationsCenter.fxml" -> btnNotifications;
             case "AdminProfile.fxml" -> btnProfile;
             default -> null;
         };

@@ -3,6 +3,7 @@ package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.AuthenticablePerson;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Person;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.NotificationService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.AnimationUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ImageUtil;
@@ -13,9 +14,13 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.StringUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Circle;
+import javafx.geometry.Pos;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -49,12 +54,16 @@ public abstract class BaseSidebarController implements Initializable {
     // =================================================================================================================
     protected final AuthenticationService authService = AuthenticationService.getInstance();
     protected final ThemeManager themeManager = ThemeManager.getInstance();
+    protected final NotificationService notificationService = NotificationService.getInstance();
 
     @FXML
     protected ImageView imgUserImage;
 
     @FXML
     protected Button btnToggleTheme;
+
+    // Notification badge (created programmatically)
+    protected Label notificationBadge;
 
     // =================================================================================================================
     // Dependencies and State
@@ -279,6 +288,111 @@ public abstract class BaseSidebarController implements Initializable {
         Person currentPerson = authService.getCurrentPerson();
         imgUserImage.setImage(getPersonImage(currentPerson));
         log("Profile image refreshed successfully.");
+    }
+
+    // =================================================================================================================
+    // Notification Badge Management
+    // =================================================================================================================
+
+    /**
+     * Creates and attaches a notification badge to a button.
+     * The badge displays the count of unread notifications.
+     *
+     * @param button The button to attach the badge to (e.g., notifications button)
+     * @return The created badge Label for further customization if needed
+     */
+    protected Label createNotificationBadge(Button button) {
+        if (button == null) {
+            logError("Cannot create notification badge: button is null");
+            return null;
+        }
+
+        // Create badge label
+        notificationBadge = new Label();
+        notificationBadge.getStyleClass().add("notification-badge");
+        notificationBadge.setStyle(
+            "-fx-background-color: #dc3545; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-size: 10px; " +
+            "-fx-font-weight: bold; " +
+            "-fx-padding: 2 6 2 6; " +
+            "-fx-background-radius: 10; " +
+            "-fx-min-width: 18px; " +
+            "-fx-alignment: center;"
+        );
+        notificationBadge.setVisible(false);  // Hidden by default
+        notificationBadge.setManaged(false);  // Doesn't take space when hidden
+
+        // Wrap button in StackPane if not already wrapped
+        if (!(button.getParent() instanceof StackPane)) {
+            // We'll position it absolutely, so just log that the button should be in a StackPane
+            log("Note: For best results, place notification button in a StackPane in FXML");
+        }
+
+        // Try to add badge to button's parent if it's a StackPane
+        if (button.getParent() instanceof StackPane stackPane) {
+            stackPane.getChildren().add(notificationBadge);
+            StackPane.setAlignment(notificationBadge, Pos.TOP_RIGHT);
+            log("Notification badge created and added to StackPane");
+        } else {
+            log("Notification badge created but parent is not StackPane - manual positioning needed");
+        }
+
+        return notificationBadge;
+    }
+
+    /**
+     * Updates the notification badge with the current unread count.
+     * Automatically shows/hides the badge based on whether there are unread notifications.
+     */
+    protected void updateNotificationBadge() {
+        if (notificationBadge == null) {
+            return; // Badge not created yet
+        }
+
+        Person person = authService.getCurrentPerson();
+        if (!(person instanceof AuthenticablePerson currentPerson)) {
+            return;
+        }
+
+        int unreadCount = notificationService.getUnreadCount(currentPerson.getId());
+
+        if (unreadCount > 0) {
+            // Show badge with count
+            notificationBadge.setText(unreadCount > 99 ? "99+" : String.valueOf(unreadCount));
+            notificationBadge.setVisible(true);
+            notificationBadge.setManaged(true);
+            log("Notification badge updated: " + unreadCount + " unread");
+        } else {
+            // Hide badge when no unread notifications
+            notificationBadge.setVisible(false);
+            notificationBadge.setManaged(false);
+            log("Notification badge hidden: no unread notifications");
+        }
+    }
+
+    /**
+     * Sets up a listener to automatically update the notification badge when notifications change.
+     * Call this method after creating the badge to enable real-time updates.
+     */
+    protected void setupNotificationBadgeListener() {
+        Person person = authService.getCurrentPerson();
+        if (!(person instanceof AuthenticablePerson currentPerson)) {
+            return;
+        }
+
+        // Get the observable notification list
+        javafx.collections.ObservableList<co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.NotificationDTO> notifications =
+                notificationService.getUserNotifications(currentPerson.getId());
+
+        // Listen for changes
+        notifications.addListener((javafx.collections.ListChangeListener<co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.NotificationDTO>) change -> {
+            updateNotificationBadge();
+        });
+
+        // Initial update
+        updateNotificationBadge();
+        log("Notification badge listener set up");
     }
 
     // =================================================================================================================

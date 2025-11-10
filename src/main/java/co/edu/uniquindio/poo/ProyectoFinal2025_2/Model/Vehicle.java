@@ -8,6 +8,7 @@ import lombok.ToString;
 /**
  * Represents a vehicle used for shipments.
  * Each vehicle has a license plate, capacity, type and availability status.
+ * A vehicle is owned by a specific delivery person.
  */
 @Getter
 @Setter
@@ -18,6 +19,7 @@ public class Vehicle {
     private double capacity;
     private VehicleType type;
     private boolean available;
+    private String deliveryPersonId; // Owner of the vehicle
 
     /**
      * Default constructor.
@@ -38,6 +40,18 @@ public class Vehicle {
         this.capacity = capacity;
         this.type = type;
         this.available = available;
+        this.deliveryPersonId = null;
+    }
+
+    /**
+     * Full constructor with all fields.
+     */
+    public Vehicle(String plate, double capacity, VehicleType type, boolean available, String deliveryPersonId) {
+        this.plate = plate;
+        this.capacity = capacity;
+        this.type = type;
+        this.available = available;
+        this.deliveryPersonId = deliveryPersonId;
     }
 
     /**
@@ -49,6 +63,7 @@ public class Vehicle {
         this.capacity = builder.capacity;
         this.type = builder.type;
         this.available = builder.available;
+        this.deliveryPersonId = builder.deliveryPersonId;
     }
 
     // ======================================
@@ -63,6 +78,7 @@ public class Vehicle {
         private double capacity;
         private VehicleType type;
         private boolean available;
+        private String deliveryPersonId;
 
         public Builder withPlate(String plate) {
             this.plate = plate;
@@ -81,6 +97,11 @@ public class Vehicle {
 
         public Builder withAvailable(boolean available) {
             this.available = available;
+            return this;
+        }
+
+        public Builder withDeliveryPersonId(String deliveryPersonId) {
+            this.deliveryPersonId = deliveryPersonId;
             return this;
         }
 

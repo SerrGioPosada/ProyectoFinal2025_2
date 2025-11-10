@@ -5,6 +5,9 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.AvailabilityStatus;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.IncidentType;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.ServiceType;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.ShipmentStatus;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Observer.ShipmentObserver;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Observer.NotificationObserver;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Observer.LoggingObserver;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.*;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.*;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.DistanceCalculator;
@@ -32,6 +35,10 @@ public class ShipmentService {
     private final DeliveryPersonRepository deliveryPersonRepository;
     private final AddressRepository addressRepository;
     private final TariffService tariffService;
+    private final VehicleService vehicleService;
+
+    // Observer Pattern: List of observers for shipment events
+    private final List<ShipmentObserver> observers = new ArrayList<>();
 
     // Constants
     private static final int DEFAULT_DELIVERY_TIME_HOURS = 24; // 24 hours default
@@ -54,6 +61,7 @@ public class ShipmentService {
         this.deliveryPersonRepository = deliveryPersonRepository;
         this.addressRepository = addressRepository;
         this.tariffService = tariffService;
+        this.vehicleService = VehicleService.getInstance();
     }
 
     /**
@@ -65,6 +73,68 @@ public class ShipmentService {
              DeliveryPersonRepository.getInstance(),
              AddressRepository.getInstance(),
              new TariffService());
+
+        // Register default observers (Observer Pattern)
+        registerObserver(new LoggingObserver());
+        Logger.info("ShipmentService initialized with Observer pattern");
+    }
+
+    // ===========================
+    // Observer Pattern Methods
+    // ===========================
+
+    /**
+     * Registers an observer to receive shipment event notifications.
+     * @param observer The observer to register
+     */
+    public void registerObserver(ShipmentObserver observer) {
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+            Logger.info("Observer registered: " + observer.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * Removes an observer from the notification list.
+     * @param observer The observer to remove
+     */
+    public void removeObserver(ShipmentObserver observer) {
+        observers.remove(observer);
+        Logger.info("Observer removed: " + observer.getClass().getSimpleName());
+    }
+
+    /**
+     * Notifies all observers about a status change.
+     * @param shipment The shipment that changed
+     * @param oldStatus The previous status
+     * @param newStatus The new status
+     */
+    private void notifyStatusChange(Shipment shipment, ShipmentStatus oldStatus, ShipmentStatus newStatus) {
+        for (ShipmentObserver observer : observers) {
+            observer.onStatusChanged(shipment, oldStatus, newStatus);
+        }
+    }
+
+    /**
+     * Notifies all observers about shipment assignment.
+     * @param shipment The shipment that was assigned
+     * @param deliveryPersonId The ID of the assigned delivery person
+     */
+    private void notifyShipmentAssigned(Shipment shipment, String deliveryPersonId) {
+        for (ShipmentObserver observer : observers) {
+            observer.onShipmentAssigned(shipment, deliveryPersonId);
+        }
+    }
+
+    /**
+     * Notifies all observers about an incident.
+     * @param shipment The shipment with the incident
+     * @param incidentDescription Description of the incident
+     */
+    private void notifyIncidentReported(Shipment shipment, String incidentDescription) {
+        for (ShipmentObserver observer : observers) {
+            observer.onIncidentReported(shipment, incidentDescription);
+        }
     }
 
     // ===========================
@@ -487,6 +557,9 @@ public class ShipmentService {
         shipmentRepository.update(shipment);
         Logger.info("Shipment " + id + " status changed from " + oldStatus + " to " + newStatus);
 
+        // Observer Pattern: Notify all observers about the status change
+        notifyStatusChange(shipment, oldStatus, newStatus);
+
         return true;
     }
 
@@ -521,8 +594,33 @@ public class ShipmentService {
             throw new IllegalArgumentException("Repartidor no disponible");
         }
 
+        // Validate that delivery person has an active vehicle
+        if (deliveryPerson.getActiveVehiclePlate() == null || deliveryPerson.getActiveVehiclePlate().isEmpty()) {
+            throw new IllegalArgumentException("El repartidor no tiene un vehículo activo asignado");
+        }
+
+        // Validate that the active vehicle exists and is available
+        Optional<Vehicle> vehicleOpt = vehicleService.findVehicleByPlate(deliveryPerson.getActiveVehiclePlate());
+        if (!vehicleOpt.isPresent()) {
+            throw new IllegalArgumentException("El vehículo activo del repartidor no existe");
+        }
+
+        Vehicle activeVehicle = vehicleOpt.get();
+        if (!activeVehicle.isAvailable()) {
+            throw new IllegalArgumentException("El vehículo activo del repartidor no está disponible");
+        }
+
+        // Validate that the vehicle type matches the shipment requirement
+        if (shipment.getVehicleType() != null && shipment.getVehicleType() != activeVehicle.getType()) {
+            throw new IllegalArgumentException(
+                "El vehículo del repartidor (tipo: " + activeVehicle.getType().getDisplayName() +
+                ") no coincide con el requerido para este envío (tipo: " + shipment.getVehicleType().getDisplayName() + ")"
+            );
+        }
+
         shipment.setDeliveryPersonId(deliveryPersonId);
         shipment.setAssignmentDate(LocalDateTime.now());
+        shipment.setAssignedVehiclePlate(activeVehicle.getPlate()); // Assign vehicle plate to shipment
 
         // Change status from PENDING_ASSIGNMENT to READY_FOR_PICKUP
         if (shipment.getStatus() == ShipmentStatus.PENDING_ASSIGNMENT) {
@@ -530,7 +628,10 @@ public class ShipmentService {
         }
 
         shipmentRepository.update(shipment);
-        Logger.info("Shipment " + shipmentId + " assigned to " + deliveryPersonId);
+        Logger.info("Shipment " + shipmentId + " assigned to " + deliveryPersonId + " with vehicle " + activeVehicle.getPlate());
+
+        // Observer Pattern: Notify all observers about the assignment
+        notifyShipmentAssigned(shipment, deliveryPersonId);
 
         return true;
     }

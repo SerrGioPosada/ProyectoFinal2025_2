@@ -144,7 +144,7 @@ public class ManageUsersController {
     private void handleViewShipmentsForUser(UserSummaryDTO user) {
         Logger.info("View Shipments clicked for user: " + user.getFullName());
         if (indexController != null) {
-            indexController.loadViewWithUserFilter("ShipmentManagement.fxml", user.getEmail());
+            indexController.loadViewWithUserFilter("ShipmentManagement.fxml", user.getEmail(), "ManageUsers.fxml");
         }
     }
 
@@ -154,7 +154,7 @@ public class ManageUsersController {
     private void handleViewOrdersForUser(UserSummaryDTO user) {
         Logger.info("View Orders clicked for user: " + user.getFullName());
         if (indexController != null) {
-            indexController.loadViewWithUserFilter("AdminOrderManagement.fxml", user.getEmail());
+            indexController.loadViewWithUserFilter("AdminOrderManagement.fxml", user.getEmail(), "ManageUsers.fxml");
         }
     }
 
@@ -163,7 +163,40 @@ public class ManageUsersController {
      */
     private void handleViewAddressesForUser(UserSummaryDTO user) {
         Logger.info("View Addresses clicked for user: " + user.getFullName());
-        DialogUtil.showInfo("Función en Desarrollo", "La libreta de direcciones para " + user.getFullName() + " estará disponible pronto.");
+
+        // Get the full user object
+        var optionalUser = userService.getUserById(user.getId());
+        if (optionalUser.isEmpty()) {
+            DialogUtil.showError("No se pudo cargar la información del usuario.");
+            return;
+        }
+
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/UserAddressesDialog.fxml")
+            );
+            javafx.scene.Parent root = loader.load();
+
+            UserAddressesDialogController controller = loader.getController();
+            controller.setUser(optionalUser.get());
+            controller.setOnAddressDeleted(this::refreshUsers);
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Direcciones de " + user.getFullName());
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+
+            // Apply current theme
+            co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeManager.getInstance().applyThemeToScene(scene);
+
+            stage.setScene(scene);
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.showAndWait();
+
+        } catch (java.io.IOException e) {
+            Logger.error("Failed to load UserAddressesDialog", e);
+            DialogUtil.showError("Error al abrir el diálogo de direcciones.");
+        }
     }
 
     /**

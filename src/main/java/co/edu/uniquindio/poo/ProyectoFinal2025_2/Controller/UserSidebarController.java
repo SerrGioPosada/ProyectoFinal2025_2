@@ -36,6 +36,10 @@ public class UserSidebarController extends BaseSidebarController {
     @FXML
     private Button btnTrackShipment;
     @FXML
+    private Button btnPaymentReceipts;
+    @FXML
+    private Button btnNotifications;
+    @FXML
     private Button btnLogout;
 
     // =================================================================================================================
@@ -51,6 +55,19 @@ public class UserSidebarController extends BaseSidebarController {
         super.initialize(url, resourceBundle); // Initialize base controller features
         updateButtonVisibility();
         setupButtonActions();
+        setupNotificationBadge();
+    }
+
+    /**
+     * Sets up the notification badge on the notifications button.
+     * The badge shows the count of unread notifications and updates in real-time.
+     */
+    private void setupNotificationBadge() {
+        if (btnNotifications != null) {
+            createNotificationBadge(btnNotifications);
+            setupNotificationBadgeListener();
+            log("Notification badge initialized for user");
+        }
     }
 
     // =================================================================================================================
@@ -120,6 +137,22 @@ public class UserSidebarController extends BaseSidebarController {
     }
 
     /**
+     * Handles the Payment Receipts button click.
+     */
+    private void handlePaymentReceipts() {
+        Logger.info("Payment Receipts button clicked.");
+        indexController.loadView("UserPaymentReceipts.fxml");
+    }
+
+    /**
+     * Handles the Notifications button click.
+     */
+    private void handleNotifications() {
+        Logger.info("Notifications button clicked.");
+        indexController.loadView("NotificationsCenter.fxml");
+    }
+
+    /**
      * Handles the Logout button click - logs out the user and reloads the application.
      */
     private void handleLogout() {
@@ -164,6 +197,14 @@ public class UserSidebarController extends BaseSidebarController {
             setActiveButton(btnTrackShipment);
             handleTrackShipment();
         });
+        btnPaymentReceipts.setOnAction(event -> {
+            setActiveButton(btnPaymentReceipts);
+            handlePaymentReceipts();
+        });
+        if (btnNotifications != null) btnNotifications.setOnAction(event -> {
+            setActiveButton(btnNotifications);
+            handleNotifications();
+        });
         btnLogout.setOnAction(event -> handleLogout());
     }
 
@@ -184,6 +225,8 @@ public class UserSidebarController extends BaseSidebarController {
         setButtonVisibility(btnNewShipment, isLoggedIn);
         setButtonVisibility(btnOrders, isLoggedIn);
         setButtonVisibility(btnTrackShipment, isLoggedIn);
+        setButtonVisibility(btnPaymentReceipts, isLoggedIn);
+        setButtonVisibility(btnNotifications, isLoggedIn);
         setButtonVisibility(btnLogout, isLoggedIn);
     }
 
@@ -214,6 +257,8 @@ public class UserSidebarController extends BaseSidebarController {
             case "CreateShipmentWizard.fxml" -> btnNewShipment;
             case "MyShipments.fxml" -> btnOrders;
             case "TrackShipment.fxml" -> btnTrackShipment;
+            case "UserPaymentReceipts.fxml" -> btnPaymentReceipts;
+            case "NotificationsCenter.fxml" -> btnNotifications;
             default -> null;
         };
 

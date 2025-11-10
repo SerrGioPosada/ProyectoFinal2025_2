@@ -17,6 +17,7 @@ import lombok.ToString;
 public class PaymentMethod {
 
     private String id;                       // Unique identifier for the payment method
+    private String userId;                   // ID of the user who owns this payment method
     private PaymentMethodType type;          // Enum type (Credit Card, Debit Card, Cash, etc.)
     private PaymentProvider provider;        // Enum provider (Visa, PayPal, etc.)
     private String accountNumber;            // For cards/accounts (masked for security)
@@ -31,12 +32,14 @@ public class PaymentMethod {
      * Constructs a new PaymentMethod with the specified details.
      *
      * @param id            unique identifier for this payment method
+     * @param userId        ID of the user who owns this payment method
      * @param type          type of payment method (enum)
      * @param provider      provider or brand (enum)
      * @param accountNumber account or card number (can be masked)
      */
-    public PaymentMethod(String id, PaymentMethodType type, PaymentProvider provider, String accountNumber) {
+    public PaymentMethod(String id, String userId, PaymentMethodType type, PaymentProvider provider, String accountNumber) {
         this.id = id;
+        this.userId = userId;
         this.type = type;
         this.provider = provider;
         this.accountNumber = accountNumber;
@@ -48,6 +51,7 @@ public class PaymentMethod {
      */
     private PaymentMethod(Builder builder) {
         this.id = builder.id;
+        this.userId = builder.userId;
         this.type = builder.type;
         this.provider = builder.provider;
         this.accountNumber = builder.accountNumber;
@@ -62,12 +66,18 @@ public class PaymentMethod {
      */
     public static class Builder {
         private String id;
+        private String userId;
         private PaymentMethodType type;
         private PaymentProvider provider;
         private String accountNumber;
 
         public Builder withId(String id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder withUserId(String userId) {
+            this.userId = userId;
             return this;
         }
 

@@ -14,9 +14,11 @@
 
     <!-- Header Section -->
     <HBox alignment="CENTER_LEFT" spacing="15" styleClass="header-section">
-        <Label text="Rastrear Envío" styleClass="page-title"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="Volver" styleClass="btn-secondary" onAction="#handleBack"/>
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label text="Rastrear Envío" styleClass="page-title"/>
+            <Label text="Conoce el estado de tu envío en tiempo real" styleClass="info-label"
+                   style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+        </VBox>
     </HBox>
 
     <!-- Search Section -->
@@ -25,8 +27,47 @@
         <Button text="Rastrear" styleClass="btn-primary" onAction="#handleTrack" prefWidth="100"/>
     </HBox>
 
+    <!-- Empty State (When not tracking) -->
+    <VBox fx:id="emptyState" spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS" managed="true" visible="true">
+        <padding>
+            <Insets top="40" right="20" bottom="40" left="20"/>
+        </padding>
+
+        <Label text="📦" style="-fx-font-size: 72px;"/>
+        <VBox spacing="8" alignment="CENTER">
+            <Label text="Rastrea tu Envío en Tiempo Real" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+            <Label text="Ingresa el ID de tu envío para ver su estado actual y ubicación" style="-fx-font-size: 14px; -fx-text-fill: #6c757d;" wrapText="true" alignment="CENTER" maxWidth="500"/>
+        </VBox>
+
+        <VBox spacing="12" styleClass="dashboard-stat-card" maxWidth="600">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="¿Cómo rastrear tu envío?" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #032d4d;"/>
+            <VBox spacing="8">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="1." style="-fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
+                    <Label text="Busca el ID de tu envío en el correo de confirmación o en 'Mis Envíos'" wrapText="true" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="2." style="-fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
+                    <Label text="Ingresa el ID en el campo de búsqueda arriba" wrapText="true" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="3." style="-fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
+                    <Label text="Presiona 'Rastrear' para ver el estado en tiempo real" wrapText="true" HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+        </VBox>
+
+        <HBox spacing="15" alignment="CENTER">
+            <Button text="Ver Mis Envíos" styleClass="btn-primary" onAction="#handleGoToMyShipments"/>
+            <Button text="Nuevo Envío" styleClass="btn-secondary" onAction="#handleNewShipment"/>
+        </HBox>
+    </VBox>
+
     <!-- Tracking Content -->
-    <VBox fx:id="trackingContent" spacing="20" VBox.vgrow="ALWAYS">
+    <VBox fx:id="trackingContent" spacing="20" VBox.vgrow="ALWAYS" managed="false" visible="false">
 
         <!-- Shipment Info Card -->
         <VBox spacing="10" styleClass="info-card">

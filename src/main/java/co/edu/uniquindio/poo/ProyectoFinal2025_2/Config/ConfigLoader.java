@@ -1,4 +1,4 @@
-package co.edu.uniquindio.poo.ProyectoFinal2025_2.Util;
+package co.edu.uniquindio.poo.ProyectoFinal2025_2.Config;
 
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 

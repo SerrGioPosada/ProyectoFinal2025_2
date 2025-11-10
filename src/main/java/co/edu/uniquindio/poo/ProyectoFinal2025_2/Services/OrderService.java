@@ -4,9 +4,12 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Address;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Invoice;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Shipment;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Vehicle;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.AvailabilityStatus;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.CoverageArea;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.OrderStatus;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Observer.NotificationObserver;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.OrderRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.ShipmentRepository;
@@ -15,6 +18,7 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilService.IdGenerationUt
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -28,6 +32,8 @@ public class OrderService {
     private final InvoiceService invoiceService;
     private final ShipmentService shipmentService;
     private final DeliveryPersonRepository deliveryPersonRepository;
+    private final VehicleService vehicleService;
+    private final ShipmentRepository shipmentRepository;
 
     /**
      * Constructor with dependency injection for repositories and services.
@@ -43,6 +49,8 @@ public class OrderService {
         this.invoiceService = invoiceService;
         this.shipmentService = shipmentService;
         this.deliveryPersonRepository = deliveryPersonRepository;
+        this.vehicleService = VehicleService.getInstance();
+        this.shipmentRepository = ShipmentRepository.getInstance();
     }
 
     /**
@@ -132,13 +140,15 @@ public class OrderService {
 
     /**
      * Retrieves all orders for a specific user.
+     * Excludes APPROVED orders as they are now shipments.
      *
      * @param userId The ID of the user whose orders to retrieve.
-     * @return A list of orders belonging to the user.
+     * @return A list of orders belonging to the user (excluding approved ones).
      */
     public java.util.List<Order> getOrdersByUser(String userId) {
         return orderRepository.findAll().stream()
                 .filter(order -> order.getUserId().equals(userId))
+                .filter(order -> order.getStatus() != OrderStatus.APPROVED) // Exclude approved orders
                 .collect(java.util.stream.Collectors.toList());
     }
 
@@ -212,6 +222,9 @@ public class OrderService {
             return false;
         }
 
+        // Observer Pattern: Register NotificationObserver for this user's shipment
+        shipmentService.registerObserver(new NotificationObserver(order.getUserId()));
+
         // Update order with shipment ID and change status to APPROVED
         order.setShipmentId(shipmentId);
         order.setStatus(OrderStatus.APPROVED);
@@ -234,13 +247,14 @@ public class OrderService {
                 .filter(order -> order.getStatus() == OrderStatus.PAID && order.getDeliveryPersonId() == null)
                 .collect(Collectors.toList());
 
-        // Get all available delivery persons
+        // Get all available delivery persons with active vehicles
         List<DeliveryPerson> availableDeliveryPersons = deliveryPersonRepository.getAllDeliveryPersons().stream()
                 .filter(dp -> dp.getAvailability() == AvailabilityStatus.AVAILABLE)
+                .filter(dp -> hasValidActiveVehicle(dp)) // Must have an active vehicle
                 .collect(Collectors.toList());
 
         if (availableDeliveryPersons.isEmpty()) {
-            return 0; // No delivery persons available
+            return 0; // No delivery persons available with valid vehicles
         }
 
         // Try to assign each pending order
@@ -311,5 +325,35 @@ public class OrderService {
                 .filter(order -> order.getStatus() != OrderStatus.APPROVED &&
                                order.getStatus() != OrderStatus.CANCELLED)
                 .count();
+    }
+
+    /**
+     * Checks if a delivery person has a valid active vehicle.
+     * A valid active vehicle must exist, be available, and be owned by the delivery person.
+     *
+     * @param deliveryPerson The delivery person to check.
+     * @return true if the delivery person has a valid active vehicle, false otherwise.
+     */
+    private boolean hasValidActiveVehicle(DeliveryPerson deliveryPerson) {
+        // Check if delivery person has an active vehicle plate set
+        if (deliveryPerson.getActiveVehiclePlate() == null || deliveryPerson.getActiveVehiclePlate().isEmpty()) {
+            return false;
+        }
+
+        // Check if the vehicle exists
+        Optional<Vehicle> vehicleOpt = vehicleService.findVehicleByPlate(deliveryPerson.getActiveVehiclePlate());
+        if (!vehicleOpt.isPresent()) {
+            return false;
+        }
+
+        Vehicle vehicle = vehicleOpt.get();
+
+        // Check if vehicle is available
+        if (!vehicle.isAvailable()) {
+            return false;
+        }
+
+        // Check if vehicle belongs to this delivery person
+        return deliveryPerson.getId().equals(vehicle.getDeliveryPersonId());
     }
 }

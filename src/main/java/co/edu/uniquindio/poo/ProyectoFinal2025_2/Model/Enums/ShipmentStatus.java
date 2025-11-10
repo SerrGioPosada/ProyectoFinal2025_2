@@ -2,24 +2,25 @@ package co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums;
 
 /**
  * Represents the lifecycle status of a shipment.
- * <p>In the new workflow, shipments are created when orders are approved.
- * Delivery person assignment happens at the shipment level.</p>
+ * <p>Flujo completo:</p>
  * <ul>
- *     <li>{@code PENDING_ASSIGNMENT}: The shipment has been created but no delivery person assigned yet.</li>
- *     <li>{@code READY_FOR_PICKUP}: The shipment has a delivery person assigned and is ready for pickup.</li>
- *     <li>{@code IN_TRANSIT}: The shipment has been picked up and is on its way.</li>
- *     <li>{@code OUT_FOR_DELIVERY}: The shipment is in the final stage of delivery.</li>
- *     <li>{@code DELIVERED}: The shipment has been successfully delivered.</li>
- *     <li>{@code RETURNED}: The shipment could not be delivered and was returned.</li>
- *     <li>{@code CANCELLED}: The shipment has been cancelled.</li>
+ *     <li>{@code PENDING_ASSIGNMENT}: Admin aprob\u00f3 la orden, esperando asignaci\u00f3n de repartidor.</li>
+ *     <li>{@code READY_FOR_PICKUP}: Repartidor asignado, notifica al usuario que est\u00e1 listo para recoger.</li>
+ *     <li>{@code PICKED_UP}: El usuario recogi\u00f3 el paquete del repartidor (estado final exitoso).</li>
+ *     <li>{@code IN_TRANSIT}: DEPRECATED - Ya no se usa en el nuevo flujo.</li>
+ *     <li>{@code OUT_FOR_DELIVERY}: DEPRECATED - Ya no se usa en el nuevo flujo.</li>
+ *     <li>{@code DELIVERED}: DEPRECATED - Ahora se usa PICKED_UP.</li>
+ *     <li>{@code RETURNED}: El env\u00edo no pudo completarse y fue devuelto.</li>
+ *     <li>{@code CANCELLED}: El env\u00edo ha sido cancelado.</li>
  * </ul>
  */
 public enum ShipmentStatus {
     PENDING_ASSIGNMENT("Pendiente de Asignación", "#FF9800"),
     READY_FOR_PICKUP("Listo para Recoger", "#FFA726"),
-    IN_TRANSIT("En Tránsito", "#42A5F5"),
-    OUT_FOR_DELIVERY("En Reparto", "#66BB6A"),
-    DELIVERED("Entregado", "#4CAF50"),
+    PICKED_UP("Recogido por el Usuario", "#4CAF50"),
+    IN_TRANSIT("En Tránsito", "#42A5F5"), // Deprecated
+    OUT_FOR_DELIVERY("En Reparto", "#66BB6A"), // Deprecated
+    DELIVERED("Entregado", "#4CAF50"), // Deprecated - Use PICKED_UP instead
     RETURNED("Devuelto", "#FF9800"),
     CANCELLED("Cancelado", "#EF5350");
 

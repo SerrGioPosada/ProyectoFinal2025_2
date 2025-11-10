@@ -5,8 +5,10 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.ShipmentStatus;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.*;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.CsvUtility;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.PdfUtility;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -187,11 +189,25 @@ public class ReportService {
 
     /**
      * Generates general report in PDF format.
-     * TODO: Implement when PDF generation utilities are ready.
      */
     public File generateGeneralReportPDF(LocalDate from, LocalDate to) {
-        Logger.info("PDF generation not yet implemented - using CSV alternative");
-        return generateGeneralReportCSV(from, to);
+        try {
+            String fileName = "general_report_" + from + "_to_" + to;
+            String title = "Reporte General";
+            String subtitle = "Periodo: " + from.format(DATE_FORMATTER) + " - " + to.format(DATE_FORMATTER);
+
+            List<PdfUtility.StatisticItem> statistics = new ArrayList<>();
+            statistics.add(new PdfUtility.StatisticItem("Total de Envios", String.valueOf(countTotalShipments(from, to))));
+            statistics.add(new PdfUtility.StatisticItem("Ingresos Totales", String.format("$%.2f", calculateTotalRevenue(from, to))));
+            statistics.add(new PdfUtility.StatisticItem("Tasa de Exito", String.format("%.2f%%", calculateSuccessRate(from, to))));
+            statistics.add(new PdfUtility.StatisticItem("Usuarios Activos", String.valueOf(countActiveUsers(from, to))));
+            statistics.add(new PdfUtility.StatisticItem("Tiempo Promedio de Entrega", String.format("%.2f horas", calculateAverageDeliveryTime(from, to))));
+
+            return PdfUtility.generateStatisticsPdfReport(fileName, title, subtitle, statistics);
+        } catch (IOException e) {
+            Logger.error("Error generating general PDF report: " + e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -221,11 +237,38 @@ public class ReportService {
 
     /**
      * Generates financial report in PDF format.
-     * TODO: Implement when PDF generation utilities are ready.
      */
     public File generateFinancialReportPDF(LocalDate from, LocalDate to) {
-        Logger.info("PDF generation not yet implemented - using CSV alternative");
-        return generateFinancialReportCSV(from, to);
+        try {
+            String fileName = "financial_report_" + from + "_to_" + to;
+            String title = "Reporte Financiero";
+            String subtitle = "Periodo: " + from.format(DATE_FORMATTER) + " - " + to.format(DATE_FORMATTER);
+
+            List<String> headers = Arrays.asList("ID Factura", "ID Orden", "Usuario", "Monto Total", "Fecha Emision");
+            List<List<String>> rows = new ArrayList<>();
+
+            invoiceRepository.findAll().stream()
+                    .filter(invoice -> isInDateRange(invoice.getIssuedAt(), from, to))
+                    .forEach(invoice -> {
+                        Order order = orderRepository.findById(invoice.getOrderId()).orElse(null);
+                        User user = null;
+                        if (order != null) {
+                            user = userRepository.findById(order.getUserId()).orElse(null);
+                        }
+                        rows.add(Arrays.asList(
+                                invoice.getId(),
+                                invoice.getOrderId() != null ? invoice.getOrderId() : "N/A",
+                                user != null ? user.getEmail() : "Desconocido",
+                                String.format("$%.2f", invoice.getTotalAmount()),
+                                invoice.getIssuedAt().format(DATETIME_FORMATTER)
+                        ));
+                    });
+
+            return PdfUtility.generatePdfReport(fileName, title, subtitle, headers, rows);
+        } catch (IOException e) {
+            Logger.error("Error generating financial PDF report: " + e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -266,11 +309,36 @@ public class ReportService {
 
     /**
      * Generates shipments report in PDF format.
-     * TODO: Implement when PDF generation utilities are ready.
      */
     public File generateShipmentsReportPDF(LocalDate from, LocalDate to) {
-        Logger.info("PDF generation not yet implemented - using CSV alternative");
-        return generateShipmentsReportCSV(from, to);
+        try {
+            String fileName = "shipments_report_" + from + "_to_" + to;
+            String title = "Reporte de Envios";
+            String subtitle = "Periodo: " + from.format(DATE_FORMATTER) + " - " + to.format(DATE_FORMATTER);
+
+            List<String> headers = Arrays.asList("ID Envio", "Usuario", "Estado", "Peso (kg)", "Costo Total", "Fecha Creacion", "Fecha Entrega");
+            List<List<String>> rows = new ArrayList<>();
+
+            shipmentRepository.findAll().stream()
+                    .filter(shipment -> isInDateRange(shipment.getCreatedAt(), from, to))
+                    .forEach(shipment -> {
+                        User user = userRepository.findById(shipment.getUserId()).orElse(null);
+                        rows.add(Arrays.asList(
+                                shipment.getId(),
+                                user != null ? user.getEmail() : "Desconocido",
+                                shipment.getStatus().getDisplayName(),
+                                String.format("%.2f", shipment.getWeightKg()),
+                                String.format("$%.2f", shipment.getTotalCost()),
+                                shipment.getCreatedAt().format(DATETIME_FORMATTER),
+                                shipment.getDeliveredDate() != null ? shipment.getDeliveredDate().format(DATETIME_FORMATTER) : "Pendiente"
+                        ));
+                    });
+
+            return PdfUtility.generatePdfReport(fileName, title, subtitle, headers, rows);
+        } catch (IOException e) {
+            Logger.error("Error generating shipments PDF report: " + e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -309,11 +377,36 @@ public class ReportService {
 
     /**
      * Generates users report in PDF format.
-     * TODO: Implement when PDF generation utilities are ready.
      */
     public File generateUsersReportPDF(LocalDate from, LocalDate to) {
-        Logger.info("PDF generation not yet implemented - using CSV alternative");
-        return generateUsersReportCSV(from, to);
+        try {
+            String fileName = "users_report_" + from + "_to_" + to;
+            String title = "Reporte de Usuarios";
+            String subtitle = "Periodo: " + from.format(DATE_FORMATTER) + " - " + to.format(DATE_FORMATTER);
+
+            List<String> headers = Arrays.asList("ID Usuario", "Email", "Nombre", "Telefono", "Envios Totales");
+            List<List<String>> rows = new ArrayList<>();
+
+            userRepository.getUsers().forEach(user -> {
+                long shipmentCount = orderRepository.findAll().stream()
+                        .filter(order -> order.getUserId().equals(user.getId()))
+                        .filter(order -> isInDateRange(order.getCreatedAt(), from, to))
+                        .count();
+
+                rows.add(Arrays.asList(
+                        user.getId(),
+                        user.getEmail(),
+                        user.getName() + " " + user.getLastName(),
+                        user.getPhone() != null ? user.getPhone() : "N/A",
+                        String.valueOf(shipmentCount)
+                ));
+            });
+
+            return PdfUtility.generatePdfReport(fileName, title, subtitle, headers, rows);
+        } catch (IOException e) {
+            Logger.error("Error generating users PDF report: " + e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -352,11 +445,37 @@ public class ReportService {
 
     /**
      * Generates delivery personnel report in PDF format.
-     * TODO: Implement when PDF generation utilities are ready.
      */
     public File generateDeliveryPersonnelReportPDF(LocalDate from, LocalDate to) {
-        Logger.info("PDF generation not yet implemented - using CSV alternative");
-        return generateDeliveryPersonnelReportCSV(from, to);
+        try {
+            String fileName = "delivery_personnel_report_" + from + "_to_" + to;
+            String title = "Reporte de Personal de Entrega";
+            String subtitle = "Periodo: " + from.format(DATE_FORMATTER) + " - " + to.format(DATE_FORMATTER);
+
+            List<String> headers = Arrays.asList("ID Repartidor", "Nombre", "Email", "Estado", "Envios Completados");
+            List<List<String>> rows = new ArrayList<>();
+
+            deliveryPersonRepository.getAllDeliveryPersons().forEach(person -> {
+                long completedShipments = shipmentRepository.findAll().stream()
+                        .filter(s -> s.getDeliveryPersonId() != null && s.getDeliveryPersonId().equals(person.getId()))
+                        .filter(s -> s.getStatus() == ShipmentStatus.DELIVERED)
+                        .filter(s -> isInDateRange(s.getCreatedAt(), from, to))
+                        .count();
+
+                rows.add(Arrays.asList(
+                        person.getId(),
+                        person.getName() + " " + person.getLastName(),
+                        person.getEmail(),
+                        person.getAvailability().name(),
+                        String.valueOf(completedShipments)
+                ));
+            });
+
+            return PdfUtility.generatePdfReport(fileName, title, subtitle, headers, rows);
+        } catch (IOException e) {
+            Logger.error("Error generating delivery personnel PDF report: " + e.getMessage());
+            return null;
+        }
     }
 
     /**

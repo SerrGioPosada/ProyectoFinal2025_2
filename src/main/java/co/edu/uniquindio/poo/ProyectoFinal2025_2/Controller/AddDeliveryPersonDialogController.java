@@ -156,6 +156,19 @@ public class AddDeliveryPersonDialogController implements Initializable {
         // Setup Coverage Area ComboBox
         cmbCoverageArea.getItems().addAll(CoverageArea.values());
 
+        // Set StringConverter to convert enum to String
+        cmbCoverageArea.setConverter(new javafx.util.StringConverter<CoverageArea>() {
+            @Override
+            public String toString(CoverageArea area) {
+                return area == null ? "" : area.getDisplayName();
+            }
+
+            @Override
+            public CoverageArea fromString(String string) {
+                return null; // Not needed for this use case
+            }
+        });
+
         // Custom cell factory to display Spanish names in the dropdown
         cmbCoverageArea.setCellFactory(lv -> new javafx.scene.control.ListCell<CoverageArea>() {
             @Override
@@ -179,6 +192,9 @@ public class AddDeliveryPersonDialogController implements Initializable {
                 }
             }
         });
+
+        // Force update to show placeholder initially
+        cmbCoverageArea.getButtonCell().updateItem(null, true);
     }
 
     /**

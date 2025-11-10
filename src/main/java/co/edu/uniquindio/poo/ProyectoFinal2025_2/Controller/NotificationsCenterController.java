@@ -1,10 +1,13 @@
 package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.AuthenticablePerson;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.NotificationDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.NotificationService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
+import javafx.collections.ListChangeListener;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -27,8 +30,9 @@ import java.util.stream.Collectors;
 /**
  * Controller for the Notifications Center view (NotificationsCenter.fxml).
  * <p>
- * This controller manages the notification center where delivery persons can view
- * system notifications, new shipment assignments, alerts, and messages.
+ * This controller manages the notification center for all user types (Admin, User, DeliveryPerson).
+ * It displays system notifications, shipment updates, alerts, and messages in card format.
+ * Integrates with NotificationService using Observer pattern for real-time updates.
  * </p>
  */
 public class NotificationsCenterController implements Initializable {
@@ -90,7 +94,9 @@ public class NotificationsCenterController implements Initializable {
     // =================================================================================================================
 
     private final AuthenticationService authService;
-    private DeliveryPerson currentDeliveryPerson;
+    private final NotificationService notificationService;
+    private AuthenticablePerson currentPerson;
+    private IndexController indexController;
 
     private List<NotificationDTO> allNotifications;
     private List<NotificationDTO> filteredNotifications;
@@ -109,6 +115,7 @@ public class NotificationsCenterController implements Initializable {
      */
     public NotificationsCenterController() {
         this.authService = AuthenticationService.getInstance();
+        this.notificationService = NotificationService.getInstance();
         this.allNotifications = new ArrayList<>();
         this.filteredNotifications = new ArrayList<>();
     }
@@ -121,24 +128,26 @@ public class NotificationsCenterController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         Logger.info("Initializing NotificationsCenterController");
 
-        // Get current delivery person
-        this.currentDeliveryPerson = (DeliveryPerson) authService.getCurrentPerson();
-
-        if (currentDeliveryPerson == null) {
-            DialogUtil.showError("Error", "No se pudo obtener la información del repartidor.");
+        // Get current logged-in person (Admin, User, or DeliveryPerson)
+        if (!(authService.getCurrentPerson() instanceof AuthenticablePerson person)) {
+            DialogUtil.showError("Error", "No se pudo obtener la información del usuario.");
             return;
         }
+        this.currentPerson = person;
 
         // Initialize retention period options
         initializeRetentionPeriod();
 
-        // Load notifications
+        // Load notifications from NotificationService
         loadNotifications();
 
         // Set up search functionality
         setupSearchFilter();
 
-        Logger.info("NotificationsCenterController initialized successfully");
+        // Set up real-time notification listener (Observer pattern)
+        setupNotificationListener();
+
+        Logger.info("NotificationsCenterController initialized for user: " + currentPerson.getId());
     }
 
     /**
@@ -163,18 +172,42 @@ public class NotificationsCenterController implements Initializable {
         });
     }
 
+    /**
+     * Sets up real-time notification listener using Observer pattern.
+     * Listens to changes in the NotificationService's observable list.
+     */
+    private void setupNotificationListener() {
+        // Get the observable list from NotificationService
+        javafx.collections.ObservableList<NotificationDTO> userNotifications =
+                notificationService.getUserNotifications(currentPerson.getId());
+
+        // Add listener for new notifications
+        userNotifications.addListener((ListChangeListener<NotificationDTO>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    Logger.info("New notifications detected, refreshing view");
+                    loadNotifications();
+                }
+            }
+        });
+    }
+
     // =================================================================================================================
     // Data Loading
     // =================================================================================================================
 
     /**
-     * Loads notifications from the system.
-     * In a real implementation, this would fetch from a NotificationService.
+     * Loads notifications from NotificationService.
+     * Uses Observer pattern - notifications are automatically updated in real-time.
      */
     private void loadNotifications() {
         try {
-            // Generate sample notifications for demonstration
-            allNotifications = generateSampleNotifications();
+            // Get notifications from NotificationService
+            javafx.collections.ObservableList<NotificationDTO> userNotifications =
+                    notificationService.getUserNotifications(currentPerson.getId());
+
+            // Convert to ArrayList for filtering
+            allNotifications = new ArrayList<>(userNotifications);
 
             // Apply current filter
             filterNotifications();
@@ -190,66 +223,6 @@ public class NotificationsCenterController implements Initializable {
         }
     }
 
-    /**
-     * Generates sample notifications for demonstration purposes.
-     * In a real app, this would fetch from a database or service.
-     */
-    private List<NotificationDTO> generateSampleNotifications() {
-        List<NotificationDTO> notifications = new ArrayList<>();
-
-        // Sample notifications
-        notifications.add(new NotificationDTO(
-                "NOTIF-001",
-                "Nuevo Envío Asignado",
-                "Se te ha asignado un nuevo envío #ORD-12345 para entregar hoy.",
-                "NEW_SHIPMENT",
-                LocalDateTime.now().minusHours(2),
-                false,
-                "high"
-        ));
-
-        notifications.add(new NotificationDTO(
-                "NOTIF-002",
-                "Actualización de Sistema",
-                "El sistema estará en mantenimiento el próximo domingo de 2:00 AM a 4:00 AM.",
-                "SYSTEM_ALERT",
-                LocalDateTime.now().minusHours(5),
-                true,
-                "medium"
-        ));
-
-        notifications.add(new NotificationDTO(
-                "NOTIF-003",
-                "Envío Completado",
-                "Has completado exitosamente el envío #ORD-12340.",
-                "STATUS_UPDATE",
-                LocalDateTime.now().minusHours(8),
-                true,
-                "low"
-        ));
-
-        notifications.add(new NotificationDTO(
-                "NOTIF-004",
-                "Mensaje del Administrador",
-                "Recordatorio: Por favor actualiza tu disponibilidad diaria antes de las 8:00 AM.",
-                "MESSAGE",
-                LocalDateTime.now().minusDays(1),
-                false,
-                "high"
-        ));
-
-        notifications.add(new NotificationDTO(
-                "NOTIF-005",
-                "Nuevo Envío Asignado",
-                "Se te ha asignado un nuevo envío #ORD-12350 para mañana.",
-                "NEW_SHIPMENT",
-                LocalDateTime.now().minusDays(2),
-                true,
-                "medium"
-        ));
-
-        return notifications;
-    }
 
     /**
      * Updates the statistics labels.
@@ -485,11 +458,10 @@ public class NotificationsCenterController implements Initializable {
      */
     @FXML
     private void handleMarkAllAsRead() {
-        allNotifications.forEach(n -> n.setRead(true));
-        updateStatistics();
-        displayNotifications();
+        notificationService.markAllAsRead(currentPerson.getId());
+        loadNotifications();
         DialogUtil.showSuccess("Todas las notificaciones marcadas como leídas");
-        Logger.info("All notifications marked as read");
+        Logger.info("All notifications marked as read for user: " + currentPerson.getId());
     }
 
     /**
@@ -497,8 +469,10 @@ public class NotificationsCenterController implements Initializable {
      */
     private void handleToggleRead(NotificationDTO notification) {
         notification.setRead(!notification.isRead());
+        notificationService.markAsRead(notification.getId());
         updateStatistics();
         displayNotifications();
+        Logger.info("Notification " + notification.getId() + " marked as " + (notification.isRead() ? "read" : "unread"));
     }
 
     /**
@@ -511,9 +485,13 @@ public class NotificationsCenterController implements Initializable {
         );
 
         if (confirmed) {
-            allNotifications.remove(notification);
-            filterNotifications();
-            updateStatistics();
+            // Remove from NotificationService
+            javafx.collections.ObservableList<NotificationDTO> userNotifications =
+                    notificationService.getUserNotifications(currentPerson.getId());
+            userNotifications.remove(notification);
+
+            // Reload notifications
+            loadNotifications();
             DialogUtil.showSuccess("Notificación eliminada");
             Logger.info("Notification deleted: " + notification.getId());
         }
@@ -582,5 +560,33 @@ public class NotificationsCenterController implements Initializable {
     private void handleSaveSettings() {
         DialogUtil.showSuccess("Configuración guardada exitosamente");
         Logger.info("Notification settings saved");
+    }
+
+    // =================================================================================================================
+    // IndexController Integration
+    // =================================================================================================================
+
+    /**
+     * Sets the IndexController reference.
+     * This allows the notifications center to return to the previous view.
+     *
+     * @param indexController The IndexController instance
+     */
+    public void setIndexController(IndexController indexController) {
+        this.indexController = indexController;
+    }
+
+    /**
+     * Handles the back button click.
+     * Returns to the previous view via IndexController.
+     */
+    @FXML
+    private void handleBackButton() {
+        if (indexController != null) {
+            Logger.info("Back button clicked, returning to previous view");
+            indexController.returnToPreviousView();
+        } else {
+            Logger.warn("IndexController is null, cannot return to previous view");
+        }
     }
 }

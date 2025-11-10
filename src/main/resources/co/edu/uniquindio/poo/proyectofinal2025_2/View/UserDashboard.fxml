@@ -125,4 +125,45 @@
         </GridPane>
     </VBox>
 
+    <!-- Recent Activity Section -->
+    <VBox spacing="15.0" VBox.vgrow="ALWAYS">
+        <Label text="Actividad Reciente" styleClass="section-title"/>
+
+        <VBox spacing="10" styleClass="dashboard-stat-card" VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets top="15.0" right="15.0" bottom="15.0" left="15.0"/>
+            </padding>
+
+            <!-- Recent Shipments List -->
+            <VBox fx:id="recentShipmentsContainer" spacing="8">
+                <Label text="Últimos Envíos" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #032d4d;"/>
+                <javafx.scene.control.ListView fx:id="listRecentShipments" prefHeight="150" styleClass="recent-activity-list">
+                    <placeholder>
+                        <Label text="No hay envíos recientes" style="-fx-text-fill: #6c757d;"/>
+                    </placeholder>
+                </javafx.scene.control.ListView>
+            </VBox>
+
+            <javafx.scene.control.Separator/>
+
+            <!-- Quick Info -->
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="Último Envío:" style="-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
+                    <Label fx:id="lblLastShipmentDate" text="--" style="-fx-font-size: 13px; -fx-text-fill: #032d4d;"/>
+                </VBox>
+
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="Envíos en Tránsito:" style="-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
+                    <Label fx:id="lblInTransitCount" text="0" style="-fx-font-size: 13px; -fx-text-fill: #17a2b8;"/>
+                </VBox>
+
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="Total Gastado:" style="-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
+                    <Label fx:id="lblTotalSpent" text="$0.00" style="-fx-font-size: 13px; -fx-text-fill: #28a745;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </VBox>
+
 </VBox>

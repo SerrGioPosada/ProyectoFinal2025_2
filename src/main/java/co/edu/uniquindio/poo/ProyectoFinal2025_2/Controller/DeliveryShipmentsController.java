@@ -2,8 +2,13 @@ package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.ShipmentStatus;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Invoice;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Shipment;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.InvoiceRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.OrderRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.OrderService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ShipmentService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.TabStateManager;
@@ -20,6 +25,7 @@ import javafx.scene.layout.VBox;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -123,6 +129,9 @@ public class DeliveryShipmentsController implements Initializable {
 
     private final ShipmentService shipmentService = new ShipmentService();
     private final AuthenticationService authService = AuthenticationService.getInstance();
+    private final OrderService orderService = new OrderService();
+    private final OrderRepository orderRepository = OrderRepository.getInstance();
+    private final InvoiceRepository invoiceRepository = InvoiceRepository.getInstance();
     private DeliveryPerson currentDeliveryPerson;
     private ObservableList<Shipment> allShipments;
     private String currentTab = "All"; // Track current active tab
@@ -247,6 +256,15 @@ public class DeliveryShipmentsController implements Initializable {
             }
         });
 
+        // Ver Orden Asociada
+        MenuItem viewOrder = new MenuItem("Ver Orden Asociada");
+        viewOrder.setOnAction(event -> {
+            Shipment selected = table.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                showAssociatedOrder(selected);
+            }
+        });
+
         // Marcar En Tránsito
         MenuItem markInTransit = new MenuItem("Marcar En Tránsito");
         markInTransit.setOnAction(event -> {
@@ -294,6 +312,7 @@ public class DeliveryShipmentsController implements Initializable {
 
         contextMenu.getItems().addAll(
                 viewDetails,
+                viewOrder,
                 new SeparatorMenuItem(),
                 markInTransit,
                 markOutForDelivery,
@@ -803,6 +822,64 @@ public class DeliveryShipmentsController implements Initializable {
                 "Fecha Creación: " + formatDate(shipment) + "\n" +
                 "Entrega Estimada: " + formatEstimatedDelivery(shipment)
         );
+    }
+
+    /**
+     * Shows the associated order for a shipment.
+     */
+    private void showAssociatedOrder(Shipment shipment) {
+        if (shipment == null || shipment.getOrderId() == null) {
+            DialogUtil.showWarning("Sin Orden Asociada", "Este envío no tiene una orden asociada.");
+            return;
+        }
+
+        try {
+            Optional<Order> orderOpt = orderRepository.findById(shipment.getOrderId());
+            if (!orderOpt.isPresent()) {
+                DialogUtil.showError("Error", "No se pudo encontrar la orden asociada.");
+                return;
+            }
+
+            Order order = orderOpt.get();
+            StringBuilder details = new StringBuilder();
+            details.append("===== ORDEN ASOCIADA =====\n\n");
+            details.append("ID Orden: ").append(order.getId()).append("\n");
+            details.append("Estado: ").append(order.getStatus().getDisplayName()).append("\n");
+            details.append("Fecha Creación: ").append(order.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).append("\n");
+
+            // Get cost from invoice
+            String costStr = "N/A";
+            if (order.getInvoiceId() != null) {
+                Optional<Invoice> invoiceOpt = invoiceRepository.findById(order.getInvoiceId());
+                if (invoiceOpt.isPresent()) {
+                    costStr = String.format("%.2f", invoiceOpt.get().getTotalAmount());
+                }
+            }
+            details.append("Costo Total: $").append(costStr).append("\n");
+            details.append("\n--- Origen ---\n");
+            if (order.getOrigin() != null) {
+                details.append(order.getOrigin().getStreet()).append(", ")
+                       .append(order.getOrigin().getCity()).append("\n");
+            }
+            details.append("\n--- Destino ---\n");
+            if (order.getDestination() != null) {
+                details.append(order.getDestination().getStreet()).append(", ")
+                       .append(order.getDestination().getCity()).append("\n");
+            }
+            if (order.getPaymentId() != null) {
+                details.append("\nID Pago: ").append(order.getPaymentId()).append("\n");
+            }
+            if (order.getInvoiceId() != null) {
+                details.append("ID Factura: ").append(order.getInvoiceId()).append("\n");
+            }
+
+            DialogUtil.showInfo("Orden Asociada al Envío", details.toString());
+            Logger.info("Delivery person viewed associated order " + order.getId() + " for shipment " + shipment.getId());
+
+        } catch (Exception e) {
+            Logger.error("Failed to view associated order: " + e.getMessage());
+            DialogUtil.showError("Error", "No se pudo mostrar la orden asociada: " + e.getMessage());
+        }
     }
 
     /**

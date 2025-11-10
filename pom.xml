@@ -31,6 +31,11 @@
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
 
         <!-- Google OAuth2 -->
         <dependency>
@@ -87,6 +92,20 @@
             <groupId>jakarta.activation</groupId>
             <artifactId>jakarta.activation-api</artifactId>
             <version>2.1.2</version>
+        </dependency>
+
+        <!-- Mercado Pago SDK -->
+        <dependency>
+            <groupId>com.mercadopago</groupId>
+            <artifactId>sdk-java</artifactId>
+            <version>2.1.24</version>
+        </dependency>
+
+        <!-- HTTP Client (requerido por Mercado Pago) -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version>
         </dependency>
 
         <!-- Lombok (compile-time only) -->

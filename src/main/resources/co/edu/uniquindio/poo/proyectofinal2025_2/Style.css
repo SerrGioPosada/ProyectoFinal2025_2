@@ -2809,8 +2809,8 @@ DatePicker .arrow-button {
     -fx-min-height: 50px;
     -fx-pref-height: 50px;
     -fx-max-height: 50px;
-    -fx-min-width: 140px;
-    -fx-pref-width: 140px;
+    -fx-min-width: 180px;
+    -fx-pref-width: 180px;
 }
 
 .tab-button:hover {
@@ -2826,8 +2826,8 @@ DatePicker .arrow-button {
     -fx-border-width: 0 0 3px 0 !important;
     -fx-font-weight: bold !important;
     -fx-font-size: 14px !important;
-    -fx-min-width: 140px !important;
-    -fx-pref-width: 140px !important;
+    -fx-min-width: 180px !important;
+    -fx-pref-width: 180px !important;
 }
 
 .tab-button-active:hover {
@@ -2909,4 +2909,178 @@ DatePicker .arrow-button {
     -fx-text-fill: #6c757d;
     -fx-font-size: 15px;
     -fx-font-weight: 500;
+}
+
+/* ============================================
+   USER ADDRESSES DIALOG
+   ============================================ */
+
+/* Dialog Container */
+.addresses-dialog-container {
+    -fx-background-color: white;
+    -fx-spacing: 20;
+}
+
+/* Dialog Title */
+.addresses-dialog-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* User Info Section */
+.addresses-user-info {
+    -fx-background-color: #f8f9fa;
+    -fx-padding: 15;
+    -fx-background-radius: 8px;
+    -fx-spacing: 10;
+}
+
+.addresses-info-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.addresses-info-value {
+    -fx-font-size: 13px;
+}
+
+/* Addresses Section Title */
+.addresses-section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #495057;
+}
+
+/* Address Count Badge */
+.addresses-count-badge {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #1976d2;
+    -fx-padding: 5 10;
+    -fx-background-radius: 12px;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Address Card */
+.address-card {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 8px;
+    -fx-border-color: #dee2e6;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 15;
+    -fx-spacing: 10;
+}
+
+.address-card-header {
+    -fx-spacing: 10;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.address-alias {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.address-card-details {
+    -fx-spacing: 8;
+    -fx-padding: 10 0 0 0;
+}
+
+.address-street {
+    -fx-font-size: 14px;
+    -fx-text-fill: #495057;
+    -fx-font-weight: 500;
+}
+
+.address-city {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6c757d;
+}
+
+.address-coordinates {
+    -fx-font-size: 11px;
+    -fx-text-fill: #868e96;
+    -fx-padding: 5 0 0 0;
+    -fx-font-style: italic;
+}
+
+/* Address Delete Button */
+.address-delete-btn {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 8 20;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.address-delete-btn-hover {
+    -fx-background-color: #c82333;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 8 20;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+/* Dialog Close Button */
+.addresses-close-btn {
+    -fx-background-color: #6c757d;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 10 30;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.addresses-close-btn-hover {
+    -fx-background-color: #5a6268;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 10 30;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+/* Footer */
+.addresses-footer {
+    -fx-spacing: 15;
+    -fx-alignment: CENTER_RIGHT;
+    -fx-padding: 10 0 0 0;
+}
+
+/* Empty State */
+.addresses-empty-state {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 8px;
+    -fx-spacing: 15;
+    -fx-alignment: CENTER;
+    -fx-padding: 60;
+}
+
+.addresses-empty-message {
+    -fx-font-size: 18px;
+    -fx-text-fill: #6c757d;
+    -fx-font-weight: bold;
+}
+
+.addresses-empty-submessage {
+    -fx-font-size: 14px;
+    -fx-text-fill: #999999;
+}
+
+/* ScrollPane for Addresses */
+.addresses-scroll-pane {
+    -fx-background: white;
+    -fx-background-color: transparent;
+}
+
+.addresses-list-container {
+    -fx-spacing: 12;
+    -fx-padding: 5;
 }

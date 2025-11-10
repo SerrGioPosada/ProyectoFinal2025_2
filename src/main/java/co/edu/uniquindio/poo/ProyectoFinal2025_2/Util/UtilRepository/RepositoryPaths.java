@@ -137,6 +137,14 @@ public final class RepositoryPaths {
     public static final String PAYMENTS_PATH = DATA_DIR + "/payments.json";
 
     /**
+     * File path for payment methods data.
+     *
+     * <p><b>Used by:</b> {@code PaymentMethodRepository}</p>
+     * <p><b>Contains:</b> Payment method entities registered by users</p>
+     */
+    public static final String PAYMENT_METHODS_PATH = DATA_DIR + "/payment_methods.json";
+
+    /**
      * File path for invoices data.
      *
      * <p><b>Used by:</b> {@code InvoiceRepository}</p>

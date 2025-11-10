@@ -84,6 +84,23 @@ public class ReportsController implements Initializable {
         // Initialize table
         setupActivityTable();
 
+        // Add listeners to date pickers to auto-refresh when dates change
+        if (dateFrom != null) {
+            dateFrom.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null && dateTo.getValue() != null) {
+                    handleRefresh();
+                }
+            });
+        }
+
+        if (dateTo != null) {
+            dateTo.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null && dateFrom.getValue() != null) {
+                    handleRefresh();
+                }
+            });
+        }
+
         // Load initial data
         handleRefresh();
 

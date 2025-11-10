@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.MercadoPagoPaymentController"
+            prefHeight="700.0" prefWidth="900.0"
+            styleClass="main-container">
+
+    <VBox spacing="20" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0"
+          AnchorPane.rightAnchor="20.0" AnchorPane.bottomAnchor="20.0">
+
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <Text text="Procesamiento de Pago" styleClass="page-title"/>
+        </HBox>
+
+        <Separator/>
+
+        <!-- Order Information Card -->
+        <VBox styleClass="card" spacing="15">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Información de la Orden" styleClass="section-header"/>
+
+            <GridPane hgap="20" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="150" prefWidth="150"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <Label text="Número de Orden:" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                       styleClass="label-bold"/>
+                <Label fx:id="lblOrderId" text="#12345" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                <Label text="Monto Total:" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                       styleClass="label-bold"/>
+                <Label fx:id="lblTotalAmount" text="$0.00 COP" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+            </GridPane>
+
+            <Separator>
+                <padding>
+                    <Insets top="10" bottom="10"/>
+                </padding>
+            </Separator>
+
+            <Label text="Desglose de Costos:" styleClass="label-bold"/>
+            <VBox fx:id="costBreakdownContainer" spacing="8">
+                <!-- Cost breakdown items will be added dynamically -->
+            </VBox>
+        </VBox>
+
+        <!-- Payment Method Selection Card -->
+        <VBox styleClass="card" spacing="15">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Seleccione Método de Pago" styleClass="section-header"/>
+
+            <VBox spacing="15">
+                <!-- Mercado Pago Option -->
+                <VBox spacing="10" styleClass="payment-option-container">
+                    <RadioButton fx:id="rbMercadoPago" text="Pagar con Mercado Pago"
+                                 styleClass="payment-option-radio">
+                        <graphic>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="💳" style="-fx-font-size: 20px;"/>
+                                <VBox>
+                                    <Label text="Mercado Pago" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                                    <Label text="Pago seguro con tarjetas, PSE, y más"
+                                           style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                                </VBox>
+                            </HBox>
+                        </graphic>
+                    </RadioButton>
+
+                    <Label fx:id="lblMercadoPagoInfo"
+                           text="Se abrirá una ventana del navegador para completar el pago de forma segura."
+                           wrapText="true"
+                           style="-fx-text-fill: #6c757d; -fx-font-size: 12px; -fx-padding: 0 0 0 30;">
+                        <padding>
+                            <Insets left="30"/>
+                        </padding>
+                    </Label>
+                </VBox>
+
+                <Separator/>
+
+                <!-- Saved Payment Method Option -->
+                <VBox spacing="10" styleClass="payment-option-container">
+                    <RadioButton fx:id="rbSavedMethod" text="Usar Método de Pago Guardado"
+                                 styleClass="payment-option-radio">
+                        <graphic>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="💰" style="-fx-font-size: 20px;"/>
+                                <VBox>
+                                    <Label text="Métodos Guardados" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                                    <Label text="Usa uno de tus métodos de pago guardados"
+                                           style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                                </VBox>
+                            </HBox>
+                        </graphic>
+                    </RadioButton>
+
+                    <ComboBox fx:id="cmbPaymentMethod" promptText="Seleccione un método de pago"
+                              prefWidth="400" disable="true" visible="false">
+                        <padding>
+                            <Insets left="30"/>
+                        </padding>
+                    </ComboBox>
+                </VBox>
+            </VBox>
+        </VBox>
+
+        <!-- Action Buttons and Progress -->
+        <HBox spacing="15" alignment="CENTER">
+            <ProgressIndicator fx:id="progressIndicator" prefWidth="30" prefHeight="30" visible="false"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button text="Cancelar" onAction="#handleCancel" styleClass="button-secondary"
+                    prefWidth="150" prefHeight="40"/>
+
+            <Button fx:id="btnProceedPayment" text="Proceder al Pago" onAction="#handleProceedPayment"
+                    styleClass="button-primary" prefWidth="180" prefHeight="40"/>
+        </HBox>
+
+        <!-- Security Info -->
+        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10;">
+            <Label text="🔒" style="-fx-font-size: 16px;"/>
+            <Label text="Transacción segura. Tus datos están protegidos."
+                   style="-fx-text-fill: #6c757d; -fx-font-size: 12px; -fx-font-style: italic;"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

@@ -68,6 +68,23 @@
                         </ImageView>
                      </graphic>
                   </Label>
+
+                  <!-- Notification Bell (next to menu button, before first separator) -->
+                  <StackPane fx:id="notificationBellContainer" visible="false" managed="false" AnchorPane.leftAnchor="145.0" AnchorPane.topAnchor="34.0">
+                     <children>
+                        <HBox alignment="CENTER" spacing="3">
+                           <!-- Notification Count Label (Badge) -->
+                           <Label fx:id="lblNotificationCount" text="0" visible="false" managed="false"
+                                  style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 2 5 2 5; -fx-background-radius: 10; -fx-min-width: 16px; -fx-alignment: center;"/>
+
+                           <!-- Bell Icon Button -->
+                           <Button fx:id="btnNotificationBell" styleClass="icon-button"
+                                   style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 0; -fx-font-size: 16px; -fx-text-fill: #032d4d;"
+                                   text="🔔"/>
+                        </HBox>
+                     </children>
+                  </StackPane>
+
                </children>
             </AnchorPane>
          </top>

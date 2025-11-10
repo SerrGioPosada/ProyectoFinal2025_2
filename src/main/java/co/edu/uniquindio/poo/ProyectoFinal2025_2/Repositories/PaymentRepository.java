@@ -106,4 +106,13 @@ public class PaymentRepository {
     public List<Payment> findAll() {
         return new ArrayList<>(paymentsById.values());
     }
+
+    public Optional<Payment> findByInvoiceId(String invoiceId) {
+        if (!RepositoryValidator.validateId(invoiceId, "Invoice")) {
+            return Optional.empty();
+        }
+        return paymentsById.values().stream()
+                .filter(payment -> payment.getInvoiceId().equals(invoiceId))
+                .findFirst();
+    }
 }

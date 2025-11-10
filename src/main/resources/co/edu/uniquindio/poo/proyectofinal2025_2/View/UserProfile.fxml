@@ -88,8 +88,17 @@
                        onAction="#handleManageAddresses"/>
             </VBox>
 
+            <!-- Payment Methods Card -->
+            <VBox styleClass="profile-option-card" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <Label text="Métodos de Pago" styleClass="option-card-title"/>
+                <Label text="Administra tus tarjetas y métodos de pago"
+                       styleClass="option-card-description" wrapText="true"/>
+                <Button text="Gestionar Métodos" styleClass="btn-primary" maxWidth="Infinity"
+                       onAction="#handleManagePaymentMethods"/>
+            </VBox>
+
             <!-- Delete Account Card -->
-            <VBox styleClass="profile-option-card-danger" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <VBox styleClass="profile-option-card-danger" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="2">
                 <Label text="Eliminar Cuenta" styleClass="option-card-title"/>
                 <Label text="Elimina permanentemente tu cuenta y todos tus datos"
                        styleClass="option-card-description" wrapText="true"/>

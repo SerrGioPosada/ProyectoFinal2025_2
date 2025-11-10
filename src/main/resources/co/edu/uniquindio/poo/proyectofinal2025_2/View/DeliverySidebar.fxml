@@ -33,9 +33,9 @@
                         <Button fx:id="btnMyShipments" text="Mis Envíos" styleClass="sidebar-button"/>
                         <Button fx:id="btnRouteMap" text="Hoja de Ruta" styleClass="sidebar-button"/>
                         <Button fx:id="btnHistory" text="Historial y Ganancias" styleClass="sidebar-button"/>
-                        <Button fx:id="btnNotifications" text="Notificaciones" styleClass="sidebar-button"/>
                         <Button fx:id="btnMyVehicles" text="Mis Vehículos" styleClass="sidebar-button"/>
                         <Button fx:id="btnProfile" text="Mi Perfil" styleClass="sidebar-button"/>
+                        <Button fx:id="btnToggleTheme" text="🌙" onAction="#handleToggleTheme" styleClass="sidebar-button" style="-fx-font-size: 18px;"/>
                     </children>
                 </VBox>
 

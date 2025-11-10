@@ -1,7 +1,9 @@
 package co.edu.uniquindio.poo.ProyectoFinal2025_2.Services;
 
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.VehicleType;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Vehicle;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.VehicleRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.ValidationUtil;
 
@@ -20,6 +22,7 @@ public class VehicleService {
 
     private static VehicleService instance;
     private final VehicleRepository vehicleRepository;
+    private final DeliveryPersonRepository deliveryPersonRepository;
 
     /**
      * Package-private constructor for testing and dependency injection.
@@ -28,6 +31,7 @@ public class VehicleService {
      */
     VehicleService(VehicleRepository vehicleRepository) {
         this.vehicleRepository = vehicleRepository;
+        this.deliveryPersonRepository = DeliveryPersonRepository.getInstance();
     }
 
     /**
@@ -191,5 +195,148 @@ public class VehicleService {
         return (int) vehicleRepository.findAll().stream()
                 .filter(Vehicle::isAvailable)
                 .count();
+    }
+
+    // ======================
+    // Delivery Person Vehicle Management
+    // ======================
+
+    /**
+     * Creates a vehicle for a specific delivery person.
+     *
+     * @param plate The license plate.
+     * @param capacity The load capacity.
+     * @param type The vehicle type.
+     * @param available The availability status.
+     * @param deliveryPersonId The owner's ID.
+     * @return true if created successfully, false if plate already exists.
+     */
+    public boolean createVehicleForDeliveryPerson(String plate, double capacity, VehicleType type, boolean available, String deliveryPersonId) {
+        ValidationUtil.requireNonNull(plate, "Vehicle plate cannot be null");
+        ValidationUtil.requireNonNull(type, "Vehicle type cannot be null");
+        ValidationUtil.requireNonNull(deliveryPersonId, "Delivery person ID cannot be null");
+
+        // Check if vehicle with this plate already exists
+        if (vehicleRepository.findByPlate(plate).isPresent()) {
+            return false;
+        }
+
+        // Create the vehicle
+        Vehicle vehicle = new Vehicle.Builder()
+                .withPlate(plate)
+                .withCapacity(capacity)
+                .withType(type)
+                .withAvailable(available)
+                .withDeliveryPersonId(deliveryPersonId)
+                .build();
+
+        vehicleRepository.addVehicle(vehicle);
+
+        // Add vehicle plate to delivery person's list
+        DeliveryPerson dp = deliveryPersonRepository.getDeliveryPersonById(deliveryPersonId);
+        if (dp != null) {
+            dp.addVehiclePlate(plate);
+            deliveryPersonRepository.updateDeliveryPerson(dp);
+        }
+
+        return true;
+    }
+
+    /**
+     * Gets all vehicles owned by a specific delivery person.
+     *
+     * @param deliveryPersonId The delivery person's ID.
+     * @return List of vehicles owned by this delivery person.
+     */
+    public List<Vehicle> getVehiclesByDeliveryPerson(String deliveryPersonId) {
+        return vehicleRepository.findByDeliveryPersonId(deliveryPersonId);
+    }
+
+    /**
+     * Gets all active (available) vehicles owned by a specific delivery person.
+     *
+     * @param deliveryPersonId The delivery person's ID.
+     * @return List of active vehicles.
+     */
+    public List<Vehicle> getActiveVehiclesByDeliveryPerson(String deliveryPersonId) {
+        return vehicleRepository.findByDeliveryPersonId(deliveryPersonId).stream()
+                .filter(Vehicle::isAvailable)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Sets a vehicle as the active vehicle for a delivery person.
+     * The vehicle must be available and owned by the delivery person.
+     *
+     * @param deliveryPersonId The delivery person's ID.
+     * @param plate The vehicle plate to set as active.
+     * @return true if successful, false otherwise.
+     */
+    public boolean setActiveVehicle(String deliveryPersonId, String plate) {
+        DeliveryPerson dp = deliveryPersonRepository.getDeliveryPersonById(deliveryPersonId);
+        if (dp == null) {
+            return false;
+        }
+
+        Optional<Vehicle> vehicleOpt = vehicleRepository.findByPlate(plate);
+        if (vehicleOpt.isEmpty()) {
+            return false;
+        }
+
+        Vehicle vehicle = vehicleOpt.get();
+
+        // Validate ownership
+        if (!deliveryPersonId.equals(vehicle.getDeliveryPersonId())) {
+            return false;
+        }
+
+        // Validate availability
+        if (!vehicle.isAvailable()) {
+            return false;
+        }
+
+        // Set as active
+        dp.setActiveVehiclePlate(plate);
+        deliveryPersonRepository.updateDeliveryPerson(dp);
+        return true;
+    }
+
+    /**
+     * Deletes a vehicle and removes it from the delivery person's list.
+     *
+     * @param plate The vehicle plate to delete.
+     * @return true if deleted successfully, false otherwise.
+     */
+    public boolean deleteVehicle(String plate) {
+        Optional<Vehicle> vehicleOpt = vehicleRepository.findByPlate(plate);
+        if (vehicleOpt.isEmpty()) {
+            return false;
+        }
+
+        Vehicle vehicle = vehicleOpt.get();
+        String deliveryPersonId = vehicle.getDeliveryPersonId();
+
+        // Remove from repository
+        boolean deleted = vehicleRepository.delete(plate);
+
+        // Remove from delivery person's list if applicable
+        if (deleted && deliveryPersonId != null) {
+            DeliveryPerson dp = deliveryPersonRepository.getDeliveryPersonById(deliveryPersonId);
+            if (dp != null) {
+                dp.removeVehiclePlate(plate);
+                deliveryPersonRepository.updateDeliveryPerson(dp);
+            }
+        }
+
+        return deleted;
+    }
+
+    /**
+     * Updates a vehicle's information.
+     *
+     * @param vehicle The vehicle to update.
+     */
+    public void updateVehicle(Vehicle vehicle) {
+        vehicleRepository.update(vehicle);
     }
 }

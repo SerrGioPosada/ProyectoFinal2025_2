@@ -11,6 +11,7 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.PaymentService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilService.IdGenerationUtil;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -222,6 +223,12 @@ public class PaymentController implements Initializable {
                 return;
             }
 
+            // If Mercado Pago is selected, open specialized window
+            if (rbMercadoPago.isSelected()) {
+                handleOpenMercadoPago();
+                return;
+            }
+
             // Create payment method based on selection
             PaymentMethod paymentMethod = createPaymentMethod();
             if (paymentMethod == null) {
@@ -352,57 +359,36 @@ public class PaymentController implements Initializable {
     }
 
     /**
-     * Opens Mercado Pago payment (for when MP integration is ready).
-     * TODO: Implement MP Checkout Pro or Checkout API
+     * Opens Mercado Pago payment window.
+     * Launches the MercadoPagoPayment.fxml view with order details.
      */
     @FXML
     private void handleOpenMercadoPago() {
-        // TODO: Implementation steps for Mercado Pago:
-        /*
-        1. Add dependency to pom.xml:
-           <dependency>
-               <groupId>com.mercadopago</groupId>
-               <artifactId>sdk-java</artifactId>
-               <version>2.1.x</version>
-           </dependency>
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/MercadoPagoPayment.fxml"));
+            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
 
-        2. Configure credentials in config.properties:
-           mercadopago.access_token=YOUR_ACCESS_TOKEN
-           mercadopago.public_key=YOUR_PUBLIC_KEY
+            // Get controller and pass order data
+            MercadoPagoPaymentController mpController = loader.getController();
+            mpController.setOrder(order, orderDetail);
 
-        3. Create preference:
-           MercadoPago.SDK.setAccessToken(ConfigLoader.get("mercadopago.access_token"));
+            javafx.stage.Stage mpStage = new javafx.stage.Stage();
+            mpStage.setTitle("Pago con Mercado Pago - Orden #" + order.getId());
+            mpStage.setScene(scene);
+            mpStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            mpStage.setResizable(false);
 
-           Preference preference = new Preference();
-           preference.setBackUrls(
-               new BackUrls()
-                   .setSuccess("http://localhost:8080/payment/success")
-                   .setFailure("http://localhost:8080/payment/failure")
-                   .setPending("http://localhost:8080/payment/pending")
-           );
+            // Close payment window when MP window closes
+            mpStage.setOnHidden(e -> {
+                closeWindow();
+            });
 
-           Item item = new Item();
-           item.setTitle("Envío - Orden #" + order.getId())
-               .setQuantity(1)
-               .setUnitPrice((float) orderDetail.getTotalCost());
-           preference.appendItem(item);
+            mpStage.showAndWait();
 
-           preference.save();
-           String initPoint = preference.getInitPoint();
-
-        4. Open initPoint in browser or WebView
-
-        5. Handle webhook notifications in separate endpoint
-        */
-
-        showInfo("Integración de Mercado Pago",
-                "La integración con Mercado Pago está preparada pero no implementada.\n\n" +
-                "Para completar la integración:\n" +
-                "1. Agregar SDK de Mercado Pago al pom.xml\n" +
-                "2. Configurar credenciales de API\n" +
-                "3. Implementar creación de preferencia\n" +
-                "4. Manejar webhooks de notificación\n\n" +
-                "Por ahora, use otro método de pago.");
+        } catch (Exception e) {
+            Logger.error("Error opening Mercado Pago payment window: " + e.getMessage());
+            showError("Error al abrir ventana de Mercado Pago:\n" + e.getMessage());
+        }
     }
 
     /**

@@ -41,6 +41,9 @@ public class AdminOrderManagementController implements Initializable {
     // Root pane
     @FXML private VBox rootPane;
 
+    // Back button (for contextual navigation)
+    @FXML private Button btnBack;
+
     // Table and Columns
     @FXML private TableView<Order> ordersTable;
     @FXML private TableColumn<Order, String> colId;
@@ -83,6 +86,10 @@ public class AdminOrderManagementController implements Initializable {
     // Data
     private ObservableList<Order> ordersData;
 
+    // Navigation context
+    private String sourceView = null; // The view that navigated to this view (e.g., "ManageUsers.fxml")
+    private IndexController indexController;
+
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @Override
@@ -104,7 +111,7 @@ public class AdminOrderManagementController implements Initializable {
         colUser.setCellValueFactory(data -> {
             String userId = data.getValue().getUserId();
             return userRepository.findById(userId)
-                    .map(user -> new SimpleStringProperty(user.getName()))
+                    .map(user -> new SimpleStringProperty(user.getEmail()))
                     .orElse(new SimpleStringProperty("N/A"));
         });
         colOrigin.setCellValueFactory(data -> {
@@ -336,18 +343,25 @@ public class AdminOrderManagementController implements Initializable {
     private void viewOrderDetails(Order order) {
         if (order == null) return;
 
-        StringBuilder details = new StringBuilder();
-        details.append("ID: ").append(order.getId()).append("\n");
-        details.append("Usuario: ").append(order.getUserId()).append("\n");
-        details.append("Estado: ").append(order.getStatus()).append("\n");
-        details.append("Fecha Creación: ").append(order.getCreatedAt().format(DATE_FORMATTER)).append("\n");
-        details.append("Origen: ").append(order.getOrigin() != null ? order.getOrigin().getCity() : "N/A").append("\n");
-        details.append("Destino: ").append(order.getDestination() != null ? order.getDestination().getCity() : "N/A").append("\n");
-        details.append("ID Envío: ").append(order.getShipmentId() != null ? order.getShipmentId() : "N/A").append("\n");
-        details.append("ID Pago: ").append(order.getPaymentId() != null ? order.getPaymentId() : "N/A").append("\n");
-        details.append("ID Factura: ").append(order.getInvoiceId() != null ? order.getInvoiceId() : "N/A");
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/OrderDetail.fxml")
+            );
+            Parent root = loader.load();
 
-        DialogUtil.showInfo("Detalles de la Orden", details.toString());
+            OrderDetailController controller = loader.getController();
+            controller.loadOrderDetails(order.getId());
+
+            Stage stage = new Stage();
+            stage.setTitle("Detalles de la Orden");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+        } catch (Exception e) {
+            Logger.error("Error loading order details: " + e.getMessage());
+            DialogUtil.showError("Error", "No se pudo cargar los detalles de la orden: " + e.getMessage());
+        }
     }
 
     /**
@@ -726,5 +740,99 @@ public class AdminOrderManagementController implements Initializable {
         }
 
         showTabContent(contentToRestore, tabIdToRestore, false); // false = don't auto-expand
+    }
+
+    // =================================================================================================================
+    // Public API Methods (for navigation from other views)
+    // =================================================================================================================
+
+    /**
+     * Applies a user filter when navigating from ManageUsers view.
+     * Sets the search field to the user's email and ensures filters tab is open.
+     *
+     * @param userEmail The email of the user to filter by
+     */
+    public void applyUserFilter(String userEmail) {
+        applyUserFilter(userEmail, null);
+    }
+
+    /**
+     * Applies a user filter with source view information.
+     *
+     * @param userEmail  The email of the user to filter by
+     * @param sourceView The view that initiated this navigation
+     */
+    public void applyUserFilter(String userEmail, String sourceView) {
+        if (userEmail == null || userEmail.isEmpty()) {
+            Logger.warning("applyUserFilter called with null or empty email");
+            return;
+        }
+
+        this.sourceView = sourceView;
+        Logger.info("Applying user filter for email: " + userEmail + " from source: " + sourceView);
+
+        // Show back button if we came from another view
+        if (sourceView != null && btnBack != null) {
+            btnBack.setVisible(true);
+            btnBack.setManaged(true);
+        }
+
+        // Ensure the filters tab is open and expanded
+        javafx.application.Platform.runLater(() -> {
+            setActiveTab(btnTabFilters);
+            showTabContent(filtersTabContent, "filters", true);
+
+            // Set the email in the search field
+            searchField.setText(userEmail);
+
+            // This will trigger the listener and apply the filter
+            applyFilters();
+
+            Logger.info("User filter applied successfully for: " + userEmail);
+        });
+    }
+
+    /**
+     * Clears any active filters and hides the back button.
+     * Called when navigating directly from the sidebar.
+     */
+    public void clearContextualFilter() {
+        this.sourceView = null;
+
+        // Hide back button
+        if (btnBack != null) {
+            btnBack.setVisible(false);
+            btnBack.setManaged(false);
+        }
+
+        // Clear search field
+        if (searchField != null) {
+            searchField.clear();
+        }
+
+        // Reset filters
+        applyFilters();
+
+        Logger.info("Contextual filter cleared");
+    }
+
+    /**
+     * Sets the IndexController reference for navigation.
+     *
+     * @param indexController The IndexController instance
+     */
+    public void setIndexController(IndexController indexController) {
+        this.indexController = indexController;
+    }
+
+    /**
+     * Handles the back button click - returns to the source view.
+     */
+    @FXML
+    private void handleBack() {
+        if (sourceView != null && indexController != null) {
+            Logger.info("Navigating back to: " + sourceView);
+            indexController.loadView(sourceView);
+        }
     }
 }

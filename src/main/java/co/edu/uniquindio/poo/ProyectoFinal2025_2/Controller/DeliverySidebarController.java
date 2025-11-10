@@ -32,8 +32,6 @@ public class DeliverySidebarController extends BaseSidebarController {
     @FXML
     private Button btnHistory;
     @FXML
-    private Button btnNotifications;
-    @FXML
     private Button btnMyVehicles;
     @FXML
     private Button btnProfile;
@@ -62,6 +60,7 @@ public class DeliverySidebarController extends BaseSidebarController {
         setupButtonActions();
     }
 
+
     // =================================================================================================================
     // Event Binding
     // =================================================================================================================
@@ -78,7 +77,6 @@ public class DeliverySidebarController extends BaseSidebarController {
                 btnMyShipments, "DeliveryShipments.fxml",
                 btnRouteMap, "DeliveryRouteMap.fxml",
                 btnHistory, "DeliveryHistory.fxml",
-                btnNotifications, "NotificationsCenter.fxml",
                 btnMyVehicles, "DeliveryMyVehicles.fxml",
                 btnProfile, "DeliveryProfile.fxml"
         );
@@ -137,7 +135,6 @@ public class DeliverySidebarController extends BaseSidebarController {
             case "DeliveryShipments.fxml" -> btnMyShipments;
             case "DeliveryRouteMap.fxml" -> btnRouteMap;
             case "DeliveryHistory.fxml" -> btnHistory;
-            case "NotificationsCenter.fxml" -> btnNotifications;
             case "DeliveryMyVehicles.fxml" -> btnMyVehicles;
             case "DeliveryProfile.fxml" -> btnProfile;
             default -> null;

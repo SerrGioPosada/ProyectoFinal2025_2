@@ -17,6 +17,7 @@
 
         <!-- Header Section -->
         <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-section">
+            <Button text="← Volver" onAction="#handleBackButton" styleClass="btn-secondary"/>
             <VBox spacing="3" HBox.hgrow="ALWAYS">
                 <Label text="Centro de Notificaciones" styleClass="page-title"/>
                 <Label fx:id="lblSubtitle" text="Mantente al día con las actualizaciones importantes"

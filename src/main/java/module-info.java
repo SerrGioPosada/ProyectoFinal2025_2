@@ -2,6 +2,7 @@ module co.edu.uniquindio.poo.ProyectoFinal2025_2 {
     // JavaFX
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.web;
 
     // Java Desktop (para abrir navegador)
     requires java.desktop;
@@ -29,6 +30,7 @@ module co.edu.uniquindio.poo.ProyectoFinal2025_2 {
     requires com.google.api.client.auth;
     requires com.google.api.client.json.jackson2;
     requires com.google.common;
+    requires sdk.java;
 
     // Exports y Opens
     opens co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller to

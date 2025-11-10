@@ -49,19 +49,26 @@ public class PersonFactory {
                     .withPermissionLevel(data.getPermissionLevel())
                     .build();
 
-            case DELIVERY_PERSON -> new DeliveryPerson.Builder()
-                    .withId(data.getId())
-                    .withName(data.getName())
-                    .withLastName(data.getLastName())
-                    .withEmail(data.getEmail())
-                    .withPhone(data.getPhone())
-                    .withPassword(data.getPassword())
-                    .withProfileImagePath(data.getProfileImagePath())
-                    .withDocumentId(data.getDocumentId())
-                    .withAvailability(data.getAvailability())
-                    .withAssignedVehicle(data.getAssignedVehicle())
-                    .withCoverageArea(data.getCoverageArea())
-                    .build();
+            case DELIVERY_PERSON -> {
+                DeliveryPerson.Builder builder = new DeliveryPerson.Builder()
+                        .withId(data.getId())
+                        .withName(data.getName())
+                        .withLastName(data.getLastName())
+                        .withEmail(data.getEmail())
+                        .withPhone(data.getPhone())
+                        .withPassword(data.getPassword())
+                        .withProfileImagePath(data.getProfileImagePath())
+                        .withDocumentId(data.getDocumentId())
+                        .withAvailability(data.getAvailability())
+                        .withCoverageArea(data.getCoverageArea());
+
+                // If assigned vehicle is provided, extract its plate
+                if (data.getAssignedVehicle() != null) {
+                    builder.withActiveVehiclePlate(data.getAssignedVehicle().getPlate());
+                }
+
+                yield builder.build();
+            }
         };
     }
 }

@@ -1,9 +1,12 @@
 package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Invoice;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.User;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.OrderShipmentViewDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.ShipmentDTO;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.InvoiceRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.OrderRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.OrderService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ShipmentService;
@@ -26,6 +29,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -57,6 +61,8 @@ public class MyShipmentsController implements Initializable {
     // Services
     private final ShipmentService shipmentService = new ShipmentService();
     private final OrderService orderService = new OrderService();
+    private final OrderRepository orderRepository = OrderRepository.getInstance();
+    private final InvoiceRepository invoiceRepository = InvoiceRepository.getInstance();
     private final AuthenticationService authService = AuthenticationService.getInstance();
 
     // Data
@@ -185,6 +191,15 @@ public class MyShipmentsController implements Initializable {
                 }
             });
 
+            // Ver Orden Asociada (solo para envíos)
+            MenuItem viewOrderItem = new MenuItem("Ver Orden Asociada");
+            viewOrderItem.setOnAction(event -> {
+                OrderShipmentViewDTO selected = row.getItem();
+                if (selected != null && selected.getItemType() == OrderShipmentViewDTO.ItemType.SHIPMENT) {
+                    handleViewAssociatedOrder(selected);
+                }
+            });
+
             // Cancelar
             MenuItem cancelItem = new MenuItem("Cancelar");
             cancelItem.setOnAction(event -> {
@@ -200,7 +215,7 @@ public class MyShipmentsController implements Initializable {
                 if (newItem != null && newItem.getItemType() == OrderShipmentViewDTO.ItemType.ORDER) {
                     contextMenu.getItems().setAll(viewDetailsItem, cancelItem);
                 } else if (newItem != null) {
-                    contextMenu.getItems().setAll(viewDetailsItem, trackItem, new SeparatorMenuItem(), cancelItem);
+                    contextMenu.getItems().setAll(viewDetailsItem, trackItem, viewOrderItem, new SeparatorMenuItem(), cancelItem);
                 }
             });
 
@@ -531,6 +546,73 @@ public class MyShipmentsController implements Initializable {
         } catch (IOException e) {
             Logger.error("Failed to load TrackShipment view: " + e.getMessage());
             DialogUtil.showError("Error", "No se pudo abrir la vista de rastreo");
+        }
+    }
+
+    /**
+     * Handles view associated order for a shipment from context menu.
+     */
+    private void handleViewAssociatedOrder(OrderShipmentViewDTO shipmentDto) {
+        if (shipmentDto == null || shipmentDto.getItemType() != OrderShipmentViewDTO.ItemType.SHIPMENT) {
+            return;
+        }
+
+        try {
+            // Get the shipment to access orderId
+            Optional<ShipmentDTO> shipmentOpt = shipmentService.getShipment(shipmentDto.getId());
+            if (!shipmentOpt.isPresent() || shipmentOpt.get().getOrderId() == null) {
+                DialogUtil.showWarning("Sin Orden Asociada", "Este envío no tiene una orden asociada.");
+                return;
+            }
+
+            // Get the associated order
+            ShipmentDTO shipment = shipmentOpt.get();
+            Optional<Order> orderOpt = orderRepository.findById(shipment.getOrderId());
+            if (!orderOpt.isPresent()) {
+                DialogUtil.showError("Error", "No se pudo encontrar la orden asociada.");
+                return;
+            }
+
+            // Display order details
+            Order order = orderOpt.get();
+            StringBuilder details = new StringBuilder();
+            details.append("===== ORDEN ASOCIADA =====\n\n");
+            details.append("ID Orden: ").append(order.getId()).append("\n");
+            details.append("Estado: ").append(order.getStatus().getDisplayName()).append("\n");
+            details.append("Fecha Creación: ").append(order.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).append("\n");
+
+            // Get cost from invoice
+            String costStr = "N/A";
+            if (order.getInvoiceId() != null) {
+                Optional<Invoice> invoiceOpt = invoiceRepository.findById(order.getInvoiceId());
+                if (invoiceOpt.isPresent()) {
+                    costStr = String.format("%.2f", invoiceOpt.get().getTotalAmount());
+                }
+            }
+            details.append("Costo Total: $").append(costStr).append("\n");
+            details.append("\n--- Origen ---\n");
+            if (order.getOrigin() != null) {
+                details.append(order.getOrigin().getStreet()).append(", ")
+                       .append(order.getOrigin().getCity()).append("\n");
+            }
+            details.append("\n--- Destino ---\n");
+            if (order.getDestination() != null) {
+                details.append(order.getDestination().getStreet()).append(", ")
+                       .append(order.getDestination().getCity()).append("\n");
+            }
+            if (order.getPaymentId() != null) {
+                details.append("\nID Pago: ").append(order.getPaymentId()).append("\n");
+            }
+            if (order.getInvoiceId() != null) {
+                details.append("ID Factura: ").append(order.getInvoiceId()).append("\n");
+            }
+
+            DialogUtil.showInfo("Orden Asociada al Envío", details.toString());
+            Logger.info("Viewed associated order " + order.getId() + " for shipment " + shipmentDto.getId());
+
+        } catch (Exception e) {
+            Logger.error("Failed to view associated order: " + e.getMessage());
+            DialogUtil.showError("Error", "No se pudo mostrar la orden asociada: " + e.getMessage());
         }
     }
 

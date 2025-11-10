@@ -48,6 +48,7 @@ public class Shipment {
     // Additional features
     private int priority; // 1-5
     private VehicleType vehicleType; // Type of vehicle assigned/recommended
+    private String assignedVehiclePlate; // Plate of the vehicle assigned to this shipment
     private List<AdditionalService> additionalServices;
     private Incident incident;
     private String userNotes;
@@ -92,6 +93,7 @@ public class Shipment {
         this.totalCost = builder.totalCost;
         this.priority = builder.priority;
         this.vehicleType = builder.vehicleType;
+        this.assignedVehiclePlate = builder.assignedVehiclePlate;
         this.additionalServices = builder.additionalServices != null ? builder.additionalServices : new ArrayList<>();
         this.incident = builder.incident;
         this.userNotes = builder.userNotes;
@@ -130,6 +132,7 @@ public class Shipment {
         private double totalCost;
         private int priority = 3;
         private VehicleType vehicleType;
+        private String assignedVehiclePlate;
         private List<AdditionalService> additionalServices;
         private Incident incident;
         private String userNotes;
@@ -244,6 +247,11 @@ public class Shipment {
 
         public Builder withVehicleType(VehicleType vehicleType) {
             this.vehicleType = vehicleType;
+            return this;
+        }
+
+        public Builder withAssignedVehiclePlate(String assignedVehiclePlate) {
+            this.assignedVehiclePlate = assignedVehiclePlate;
             return this;
         }
 

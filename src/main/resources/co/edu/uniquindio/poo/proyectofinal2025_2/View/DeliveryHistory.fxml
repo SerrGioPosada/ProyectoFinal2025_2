@@ -42,31 +42,31 @@
                 <!-- Total Earnings -->
                 <VBox styleClass="stat-card-compact-success" spacing="8" GridPane.columnIndex="0">
                     <Label text="Ganancias Totales" styleClass="stat-label-compact"/>
-                    <Label fx:id="lblTotalEarnings" text="$0.00" styleClass="stat-value-large-success"/>
+                    <Label fx:id="lblTotalEarnings" text="\$0.00" styleClass="stat-value-large-success"/>
                 </VBox>
 
                 <!-- This Month -->
                 <VBox styleClass="stat-card-compact" spacing="8" GridPane.columnIndex="1">
                     <Label text="Este Mes" styleClass="stat-label-compact"/>
-                    <Label fx:id="lblMonthEarnings" text="$0.00" styleClass="stat-value-compact"/>
+                    <Label fx:id="lblMonthEarnings" text="\$0.00" styleClass="stat-value-compact"/>
                 </VBox>
 
                 <!-- This Week -->
                 <VBox styleClass="stat-card-compact-info" spacing="8" GridPane.columnIndex="2">
                     <Label text="Esta Semana" styleClass="stat-label-compact"/>
-                    <Label fx:id="lblWeekEarnings" text="$0.00" styleClass="stat-value-compact"/>
+                    <Label fx:id="lblWeekEarnings" text="\$0.00" styleClass="stat-value-compact"/>
                 </VBox>
 
                 <!-- Today -->
                 <VBox styleClass="stat-card-compact-warning" spacing="8" GridPane.columnIndex="3">
                     <Label text="Hoy" styleClass="stat-label-compact"/>
-                    <Label fx:id="lblTodayEarnings" text="$0.00" styleClass="stat-value-compact"/>
+                    <Label fx:id="lblTodayEarnings" text="\$0.00" styleClass="stat-value-compact"/>
                 </VBox>
 
                 <!-- Average per Delivery -->
                 <VBox styleClass="stat-card-compact" spacing="8" GridPane.columnIndex="4">
                     <Label text="Promedio/Entrega" styleClass="stat-label-compact"/>
-                    <Label fx:id="lblAverageEarnings" text="$0.00" styleClass="stat-value-compact"/>
+                    <Label fx:id="lblAverageEarnings" text="\$0.00" styleClass="stat-value-compact"/>
                 </VBox>
             </GridPane>
         </VBox>
@@ -175,7 +175,7 @@
                     <TableColumn fx:id="colRating" text="Calificación" prefWidth="100" minWidth="80"/>
                 </columns>
                 <columnResizePolicy>
-                    <TableView.CONSTRAINED_RESIZE_POLICY/>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                 </columnResizePolicy>
                 <placeholder>
                     <VBox alignment="CENTER" spacing="10" style="-fx-padding: 40;">

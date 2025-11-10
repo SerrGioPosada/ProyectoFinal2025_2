@@ -19,6 +19,7 @@
             <Label text="Administra todos los envíos del sistema" styleClass="info-label"
                    style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
         </VBox>
+        <Button fx:id="btnBack" text="← Regresar" styleClass="btn-secondary" onAction="#handleBack" visible="false" managed="false"/>
         <Button text="Auto-Asignar" styleClass="btn-primary" onAction="#handleAutoAssign"/>
         <Button text="Exportar" styleClass="btn-secondary" onAction="#handleExport"/>
         <Button text="Actualizar" styleClass="btn-secondary" onAction="#handleRefresh"/>
@@ -66,9 +67,12 @@
             </HBox>
 
             <!-- Filters Tab Content -->
-            <VBox fx:id="filtersTabContent" spacing="10" managed="false" visible="false">
+            <VBox fx:id="filtersTabContent" spacing="15" managed="false" visible="false">
+                <padding>
+                    <Insets top="15" right="25" bottom="15" left="25"/>
+                </padding>
                 <!-- Primera fila de filtros -->
-                <HBox spacing="10" alignment="CENTER_LEFT">
+                <HBox spacing="15" alignment="CENTER_LEFT">
                     <ComboBox fx:id="filterStatus" styleClass="filter-combo" prefWidth="220"/>
                     <ComboBox fx:id="filterZone" styleClass="filter-combo" prefWidth="180"/>
                     <ComboBox fx:id="filterUser" styleClass="filter-combo" prefWidth="220"/>
@@ -76,7 +80,7 @@
                 </HBox>
 
                 <!-- Segunda fila de filtros -->
-                <HBox spacing="10" alignment="CENTER_LEFT">
+                <HBox spacing="15" alignment="CENTER_LEFT">
                     <DatePicker fx:id="filterDateFrom" promptText="Desde" styleClass="filter-date" prefWidth="150"/>
                     <DatePicker fx:id="filterDateTo" promptText="Hasta" styleClass="filter-date" prefWidth="150"/>
                     <TextField fx:id="searchField" promptText="Buscar por ID o dirección..."
@@ -106,7 +110,7 @@
             <TableColumn fx:id="colCreationDate" text="Creado" prefWidth="150" minWidth="130"/>
             <TableColumn fx:id="colEstimatedDate" text="Estimado" prefWidth="150" minWidth="130"/>
             <TableColumn fx:id="colCost" text="Costo" prefWidth="100" minWidth="80"/>
-            <TableColumn fx:id="colPriority" text="Prioridad" prefWidth="80" minWidth="70"/>
+            <TableColumn fx:id="colPriority" text="Prioridad" prefWidth="100" minWidth="90"/>
         </columns>
         <placeholder>
             <Label text="No se encontraron envíos" styleClass="table-placeholder"/>

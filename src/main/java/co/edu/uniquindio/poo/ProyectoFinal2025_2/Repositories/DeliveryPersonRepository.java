@@ -222,6 +222,17 @@ public class DeliveryPersonRepository {
         return Optional.ofNullable(personsByDocumentId.get(documentId));
     }
 
+    /**
+     * Gets a delivery person by their unique ID.
+     * This is a convenience method that returns the delivery person directly or null if not found.
+     *
+     * @param id The ID to search for.
+     * @return The delivery person if found, null otherwise.
+     */
+    public DeliveryPerson getDeliveryPersonById(String id) {
+        return findDeliveryPersonById(id).orElse(null);
+    }
+
     // =================================================================================================================
     // UTILITY AND DEBUG METHODS
     // =================================================================================================================

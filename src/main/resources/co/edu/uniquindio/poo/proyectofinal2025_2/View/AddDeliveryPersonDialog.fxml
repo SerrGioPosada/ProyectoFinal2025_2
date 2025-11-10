@@ -20,7 +20,7 @@
                 <!-- Header with Circle Logo Style -->
                 <HBox alignment="CENTER">
                     <StackPane styleClass="logo-circle">
-                        <Label text="RP" styleClass="logo-text"/>
+                        <Label text="SD" styleClass="logo-text"/>
                     </StackPane>
                 </HBox>
 
@@ -73,28 +73,38 @@
                     <!-- Password Field -->
                     <VBox spacing="3">
                         <Label fx:id="lblPasswordFloat" text="CONTRASEÑA" styleClass="floating-label-top"/>
-                        <StackPane styleClass="input-container">
-                            <PasswordField fx:id="txtPassword" styleClass="modern-input" promptText="CONTRASEÑA"/>
-                            <TextField fx:id="txtPasswordVisible" styleClass="modern-input" promptText="CONTRASEÑA" visible="false" managed="false"/>
+                        <HBox spacing="0" alignment="CENTER_LEFT">
+                            <StackPane styleClass="input-container" HBox.hgrow="ALWAYS">
+                                <PasswordField fx:id="txtPassword" styleClass="modern-input" promptText="CONTRASEÑA" prefWidth="340" maxWidth="340"/>
+                                <TextField fx:id="txtPasswordVisible" styleClass="modern-input" promptText="CONTRASEÑA" visible="false" managed="false" prefWidth="340" maxWidth="340"/>
+                            </StackPane>
                             <Button fx:id="btnTogglePassword" onAction="#togglePasswordVisibility"
                                     styleClass="icon-button"
-                                    StackPane.alignment="CENTER_RIGHT"
-                                    style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 5 10;"/>
-                        </StackPane>
+                                    style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 5 10;">
+                                <HBox.margin>
+                                    <Insets left="5"/>
+                                </HBox.margin>
+                            </Button>
+                        </HBox>
                         <Label fx:id="lblPasswordError" styleClass="validation-error" visible="false" managed="false"/>
                     </VBox>
 
                     <!-- Confirm Password Field -->
                     <VBox spacing="3">
                         <Label fx:id="lblConfirmPasswordFloat" text="CONFIRMAR CONTRASEÑA" styleClass="floating-label-top"/>
-                        <StackPane styleClass="input-container">
-                            <PasswordField fx:id="txtConfirmPassword" styleClass="modern-input" promptText="CONFIRMAR CONTRASEÑA"/>
-                            <TextField fx:id="txtConfirmPasswordVisible" styleClass="modern-input" promptText="CONFIRMAR CONTRASEÑA" visible="false" managed="false"/>
+                        <HBox spacing="0" alignment="CENTER_LEFT">
+                            <StackPane styleClass="input-container" HBox.hgrow="ALWAYS">
+                                <PasswordField fx:id="txtConfirmPassword" styleClass="modern-input" promptText="CONFIRMAR CONTRASEÑA" prefWidth="340" maxWidth="340"/>
+                                <TextField fx:id="txtConfirmPasswordVisible" styleClass="modern-input" promptText="CONFIRMAR CONTRASEÑA" visible="false" managed="false" prefWidth="340" maxWidth="340"/>
+                            </StackPane>
                             <Button fx:id="btnToggleConfirmPassword" onAction="#toggleConfirmPasswordVisibility"
                                     styleClass="icon-button"
-                                    StackPane.alignment="CENTER_RIGHT"
-                                    style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 5 10;"/>
-                        </StackPane>
+                                    style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 5 10;">
+                                <HBox.margin>
+                                    <Insets left="5"/>
+                                </HBox.margin>
+                            </Button>
+                        </HBox>
                         <Label fx:id="lblConfirmPasswordError" styleClass="validation-error" visible="false" managed="false"/>
                     </VBox>
 

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.UserAddressesDialogController"
+      styleClass="addresses-dialog-container"
+      spacing="20"
+      prefWidth="600"
+      prefHeight="700">
+
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <!-- Header -->
+    <VBox spacing="15">
+        <Label fx:id="lblUserName" text="Direcciones de Usuario"
+               styleClass="addresses-dialog-title"/>
+        <Separator/>
+    </VBox>
+
+    <!-- User Info -->
+    <VBox spacing="10" styleClass="addresses-user-info">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Usuario:" styleClass="addresses-info-label" prefWidth="80"/>
+            <Label fx:id="lblFullName" styleClass="addresses-info-value"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Email:" styleClass="addresses-info-label" prefWidth="80"/>
+            <Label fx:id="lblEmail" styleClass="addresses-info-value"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Teléfono:" styleClass="addresses-info-label" prefWidth="80"/>
+            <Label fx:id="lblPhone" styleClass="addresses-info-value"/>
+        </HBox>
+    </VBox>
+
+    <!-- Addresses List -->
+    <VBox spacing="12" VBox.vgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Direcciones Registradas"
+                   styleClass="addresses-section-title"
+                   HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblAddressCount" text="0 direcciones"
+                   styleClass="addresses-count-badge"/>
+        </HBox>
+
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                    styleClass="addresses-scroll-pane">
+            <VBox fx:id="vboxAddresses" spacing="12" styleClass="addresses-list-container"/>
+        </ScrollPane>
+    </VBox>
+
+    <!-- Footer -->
+    <HBox spacing="15" alignment="CENTER_RIGHT" styleClass="addresses-footer">
+        <Button text="Cerrar" onAction="#handleClose"
+                styleClass="addresses-close-btn"
+                onMouseEntered="#onCloseButtonHover"
+                onMouseExited="#onCloseButtonExit"
+                prefWidth="120"/>
+    </HBox>
+</VBox>
