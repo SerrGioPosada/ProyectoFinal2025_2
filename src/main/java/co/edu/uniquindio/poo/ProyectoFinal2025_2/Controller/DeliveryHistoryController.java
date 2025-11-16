@@ -15,6 +15,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
@@ -73,6 +74,7 @@ public class DeliveryHistoryController implements Initializable {
     // =================================================================================================================
 
     @FXML private LineChart<String, Number> chartEarningsTrend;
+    @FXML private BarChart<String, Number> chartEarningsByWeekday;
     @FXML private PieChart chartDeliveriesByStatus;
 
     // =================================================================================================================
@@ -82,6 +84,9 @@ public class DeliveryHistoryController implements Initializable {
     @FXML private DatePicker dateFrom;
     @FXML private DatePicker dateTo;
     @FXML private TextField searchField;
+    @FXML private ComboBox<String> filterStatus;
+    @FXML private TextField filterMinAmount;
+    @FXML private TextField filterMaxAmount;
 
     @FXML private TableView<DeliveryHistoryEntry> historyTable;
     @FXML private TableColumn<DeliveryHistoryEntry, String> colDate;
@@ -332,6 +337,7 @@ public class DeliveryHistoryController implements Initializable {
 
     private void updateCharts() {
         updateEarningsTrendChart();
+        updateEarningsByWeekdayChart();
         updateDeliveriesByStatusChart();
     }
 
@@ -366,6 +372,47 @@ public class DeliveryHistoryController implements Initializable {
         }
 
         chartEarningsTrend.getData().add(series);
+    }
+
+    private void updateEarningsByWeekdayChart() {
+        if (chartEarningsByWeekday == null) return;
+
+        chartEarningsByWeekday.getData().clear();
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Ganancias por Día");
+
+        Map<String, Double> weekdayEarnings = new LinkedHashMap<>();
+        weekdayEarnings.put("Lun", 0.0);
+        weekdayEarnings.put("Mar", 0.0);
+        weekdayEarnings.put("Mié", 0.0);
+        weekdayEarnings.put("Jue", 0.0);
+        weekdayEarnings.put("Vie", 0.0);
+        weekdayEarnings.put("Sáb", 0.0);
+        weekdayEarnings.put("Dom", 0.0);
+
+        for (ShipmentDTO shipment : completedShipments) {
+            if (shipment.getCreationDate() != null) {
+                int dayOfWeek = shipment.getCreationDate().getDayOfWeek().getValue();
+                String dayName = switch (dayOfWeek) {
+                    case 1 -> "Lun";
+                    case 2 -> "Mar";
+                    case 3 -> "Mié";
+                    case 4 -> "Jue";
+                    case 5 -> "Vie";
+                    case 6 -> "Sáb";
+                    case 7 -> "Dom";
+                    default -> "---";
+                };
+                double cost = shipment.getTotalCost();
+                weekdayEarnings.merge(dayName, cost, Double::sum);
+            }
+        }
+
+        for (Map.Entry<String, Double> entry : weekdayEarnings.entrySet()) {
+            series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+        }
+
+        chartEarningsByWeekday.getData().add(series);
     }
 
     private void updateDeliveriesByStatusChart() {
@@ -573,6 +620,38 @@ public class DeliveryHistoryController implements Initializable {
     private void handleLastWeek() {
         dateTo.setValue(LocalDate.now());
         dateFrom.setValue(LocalDate.now().minusWeeks(1));
+    }
+
+    @FXML
+    private void handleToday() {
+        dateTo.setValue(LocalDate.now());
+        dateFrom.setValue(LocalDate.now());
+    }
+
+    @FXML
+    private void handleThisWeek() {
+        LocalDate now = LocalDate.now();
+        dateTo.setValue(now);
+        dateFrom.setValue(now.minusDays(now.getDayOfWeek().getValue() - 1));
+    }
+
+    @FXML
+    private void handleThisMonth() {
+        LocalDate now = LocalDate.now();
+        dateTo.setValue(now);
+        dateFrom.setValue(now.withDayOfMonth(1));
+    }
+
+    @FXML
+    private void handleLast3Months() {
+        dateTo.setValue(LocalDate.now());
+        dateFrom.setValue(LocalDate.now().minusMonths(3));
+    }
+
+    @FXML
+    private void handleApplyDateFilter() {
+        Logger.info("Applying date filter...");
+        loadHistoryData();
     }
 
     @FXML

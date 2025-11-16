@@ -41,11 +41,11 @@
         </HBox>
 
         <!-- Tab Content Container -->
-        <StackPane styleClass="tab-content-container" maxHeight="540">
+        <StackPane styleClass="tab-content-container" maxHeight="540" prefHeight="540">
             <!-- Earnings Tab Content -->
             <VBox fx:id="earningsTabContent" spacing="15" managed="true" visible="true">
                 <padding>
-                    <Insets top="20" right="35" bottom="20" left="35"/>
+                    <Insets top="30" right="35" bottom="20" left="35"/>
                 </padding>
                 <!-- Summary Statistics -->
                 <HBox spacing="15">
@@ -80,28 +80,49 @@
                     </VBox>
                 </HBox>
 
-                <!-- Earnings Trend Chart -->
-                <VBox spacing="10" prefHeight="300">
-                    <Label text="Tendencia de Ganancias (Últimos 30 Días)" styleClass="chart-title"/>
-                    <LineChart fx:id="chartEarningsTrend"
-                              legendVisible="false"
-                              createSymbols="true"
-                              VBox.vgrow="ALWAYS"
-                              prefHeight="250">
-                        <xAxis>
-                            <CategoryAxis side="BOTTOM"/>
-                        </xAxis>
-                        <yAxis>
-                            <NumberAxis label="Ganancias ($)" side="LEFT"/>
-                        </yAxis>
-                    </LineChart>
-                </VBox>
+                <!-- Charts Row -->
+                <HBox spacing="15" prefHeight="300">
+                    <!-- Earnings Trend Chart -->
+                    <VBox spacing="10" HBox.hgrow="ALWAYS">
+                        <Label text="Tendencia de Ganancias (Últimos 30 Días)" styleClass="chart-title"/>
+                        <LineChart fx:id="chartEarningsTrend"
+                                  legendVisible="false"
+                                  createSymbols="true"
+                                  VBox.vgrow="ALWAYS"
+                                  prefHeight="250">
+                            <xAxis>
+                                <CategoryAxis side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Ganancias ($)" side="LEFT"/>
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+
+                    <!-- Earnings by Weekday Chart -->
+                    <VBox spacing="10" HBox.hgrow="ALWAYS">
+                        <Label text="Ganancias por Día de la Semana" styleClass="chart-title"/>
+                        <BarChart fx:id="chartEarningsByWeekday"
+                                 legendVisible="false"
+                                 VBox.vgrow="ALWAYS"
+                                 prefHeight="250"
+                                 barGap="3"
+                                 categoryGap="10">
+                            <xAxis>
+                                <CategoryAxis side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Ganancias ($)" side="LEFT"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                </HBox>
             </VBox>
 
             <!-- Delivery Stats Tab Content -->
             <VBox fx:id="deliveryStatsTabContent" spacing="15" managed="false" visible="false">
                 <padding>
-                    <Insets top="20" right="35" bottom="20" left="35"/>
+                    <Insets top="30" right="35" bottom="20" left="35"/>
                 </padding>
                 <!-- Delivery Statistics -->
                 <HBox spacing="15">
@@ -140,8 +161,10 @@
             <!-- Filters Tab Content -->
             <VBox fx:id="filtersTabContent" spacing="15" managed="false" visible="false">
                 <padding>
-                    <Insets top="20" right="35" bottom="20" left="35"/>
+                    <Insets top="30" right="35" bottom="20" left="35"/>
                 </padding>
+
+                <!-- Date Range Filters -->
                 <HBox spacing="15" alignment="CENTER_LEFT">
                     <Label text="Desde:" styleClass="label-bold"/>
                     <DatePicker fx:id="dateFrom" prefWidth="150" styleClass="date-picker"/>
@@ -149,14 +172,31 @@
                     <Label text="Hasta:" styleClass="label-bold"/>
                     <DatePicker fx:id="dateTo" prefWidth="150" styleClass="date-picker"/>
 
+                    <Button text="Aplicar" onAction="#handleApplyDateFilter" styleClass="btn-primary"/>
                     <Button text="Limpiar" onAction="#handleClearDateFilter" styleClass="btn-secondary"/>
                 </HBox>
 
                 <!-- Quick Filter Buttons -->
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label text="Filtros rápidos:" styleClass="label-bold"/>
-                    <Button text="Último Mes" onAction="#handleLastMonth" styleClass="btn-filter-quick"/>
+                    <Button text="Hoy" onAction="#handleToday" styleClass="btn-filter-quick"/>
+                    <Button text="Esta Semana" onAction="#handleThisWeek" styleClass="btn-filter-quick"/>
                     <Button text="Última Semana" onAction="#handleLastWeek" styleClass="btn-filter-quick"/>
+                    <Button text="Este Mes" onAction="#handleThisMonth" styleClass="btn-filter-quick"/>
+                    <Button text="Último Mes" onAction="#handleLastMonth" styleClass="btn-filter-quick"/>
+                    <Button text="Últimos 3 Meses" onAction="#handleLast3Months" styleClass="btn-filter-quick"/>
+                </HBox>
+
+                <!-- Additional Filters -->
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <Label text="Filtrar por estado:" styleClass="label-bold"/>
+                    <ComboBox fx:id="filterStatus" prefWidth="180" styleClass="filter-combo"/>
+
+                    <Label text="Monto mínimo:" styleClass="label-bold"/>
+                    <TextField fx:id="filterMinAmount" promptText="0.00" prefWidth="100" styleClass="search-field"/>
+
+                    <Label text="Monto máximo:" styleClass="label-bold"/>
+                    <TextField fx:id="filterMaxAmount" promptText="999.99" prefWidth="100" styleClass="search-field"/>
                 </HBox>
             </VBox>
         </StackPane>

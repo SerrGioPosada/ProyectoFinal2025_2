@@ -23,7 +23,7 @@
 
     <!-- Collapsible Tab System -->
     <VBox fx:id="collapsibleTabSection" spacing="0" styleClass="collapsible-tab-section tab-section-expanded"
-          VBox.vgrow="NEVER" minHeight="60" maxHeight="220">
+          VBox.vgrow="NEVER" minHeight="60" maxHeight="280">
         <!-- Header with Collapse Button -->
         <HBox styleClass="tab-header-with-collapse" minHeight="60" prefHeight="60" maxHeight="60">
             <HBox styleClass="tab-nav-bar" HBox.hgrow="ALWAYS">
@@ -37,11 +37,11 @@
         </HBox>
 
         <!-- Tab Content Container -->
-        <StackPane styleClass="tab-content-container" maxHeight="160" prefHeight="160">
+        <StackPane styleClass="tab-content-container" maxHeight="220" prefHeight="220">
             <!-- Stats Tab Content -->
             <HBox fx:id="statsTabContent" spacing="15" managed="true" visible="true">
                 <padding>
-                    <Insets top="15" right="25" bottom="15" left="25"/>
+                    <Insets top="25" right="25" bottom="15" left="25"/>
                 </padding>
                 <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
                     <Label text="Total" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
@@ -64,7 +64,7 @@
             <!-- Filters Tab Content -->
             <VBox fx:id="filtersTabContent" spacing="15" managed="false" visible="false">
                 <padding>
-                    <Insets top="15" right="25" bottom="15" left="25"/>
+                    <Insets top="25" right="25" bottom="15" left="25"/>
                 </padding>
                 <HBox spacing="15" alignment="CENTER_LEFT">
                     <Label text="Filtrar por estado:" styleClass="label-bold"/>
