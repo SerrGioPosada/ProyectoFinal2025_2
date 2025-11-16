@@ -24,11 +24,11 @@ module co.edu.uniquindio.poo.ProyectoFinal2025_2 {
     requires jakarta.mail;
     requires jakarta.activation;
 
-    // Google OAuth2 - Estas dependencias pueden que no sean de 'jpro-auth',
-    // si usas jpro-auth, las correctas son 'one.jpro.platform.auth.core' y 'one.jpro.platform.auth.google'
+    // Google OAuth2
     requires com.google.api.client;
     requires com.google.api.client.auth;
     requires com.google.api.client.json.jackson2;
+    requires com.fasterxml.jackson.core;
     requires com.google.common;
     requires sdk.java;
 
