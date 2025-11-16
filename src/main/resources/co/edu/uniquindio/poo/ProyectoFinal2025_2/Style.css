@@ -3759,3 +3759,104 @@ DatePicker .arrow-button {
 .stat-card-purple {
     -fx-background-color: white;
 }
+
+/* ======================
+   PAYMENT PROCESSOR SELECTION STYLES
+   ====================== */
+
+/* Payment option card - clickable */
+.payment-option-card {
+    -fx-cursor: hand;
+    -fx-border-width: 2px;
+}
+
+.payment-option-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 15, 0, 0, 3);
+}
+
+/* Payment option title */
+.payment-option-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #032d4d;
+}
+
+/* Payment option subtitle - real payment */
+.payment-option-subtitle-success {
+    -fx-text-fill: #28a745;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* Payment option subtitle - simulated */
+.payment-option-subtitle-warning {
+    -fx-text-fill: #ff9800;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* Payment option details */
+.payment-option-details {
+    -fx-text-fill: #6c757d;
+    -fx-font-size: 12px;
+}
+
+/* Payment option icon/emoji */
+.payment-option-icon {
+    -fx-font-size: 40px;
+}
+
+/* Payment option arrow */
+.payment-option-arrow {
+    -fx-font-size: 30px;
+    -fx-text-fill: #032d4d;
+}
+
+/* Security badge - green */
+.security-badge-success {
+    -fx-background-color: #e8f5e9;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+}
+
+.security-badge-success-text {
+    -fx-text-fill: #2e7d32;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Warning badge - orange */
+.warning-badge {
+    -fx-background-color: #fff3e0;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+}
+
+.warning-badge-text {
+    -fx-text-fill: #e65100;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Badge icon */
+.badge-icon {
+    -fx-font-size: 16px;
+}
+
+/* Info label with specific font size */
+.info-label-large {
+    -fx-font-size: 14px;
+}
+
+
+/* Info badge */
+.info-badge {
+    -fx-background-color: #e3f2fd;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+}
+
+.info-badge-text {
+    -fx-text-fill: #495057;
+}
+

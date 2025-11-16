@@ -26,8 +26,7 @@
         <VBox spacing="12" alignment="CENTER" styleClass="header-section">
             <Label text="Seleccionar Método de Pago" styleClass="page-title"/>
             <Label text="Elige cómo deseas procesar el pago de tu envío"
-                   styleClass="info-label" style="-fx-font-size: 14px;"/>
-        </VBox>
+                   styleClass="info-label, info-label-large"/></VBox>
 
         <Separator styleClass="divider"/>
 
@@ -49,56 +48,48 @@
         <VBox spacing="20">
 
             <!-- Option 1: Mercado Pago (Real Payment) -->
-            <VBox styleClass="card-base" spacing="15" onMouseClicked="#handleSelectMercadoPago"
-                  style="-fx-cursor: hand; -fx-border-width: 2px;">
+            <VBox styleClass="card-base, payment-option-card" spacing="15" onMouseClicked="#handleSelectMercadoPago">
                 <padding>
                     <Insets top="25" right="25" bottom="25" left="25"/>
                 </padding>
 
                 <HBox spacing="15" alignment="CENTER_LEFT">
-                    <Label text="💳" style="-fx-font-size: 40px;"/>
+                    <Label text="💳" styleClass="payment-option-icon"/>
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Pagar con Mercado Pago"
-                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
-                        <Label text="Pago real procesado por Mercado Pago"
-                               style="-fx-text-fill: #28a745; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <Label text="Pagar con Mercado Pago" styleClass="payment-option-title"/>
+                        <Label text="Pago real procesado por Mercado Pago" styleClass="payment-option-subtitle-success"/>
                         <Label text="• Pago seguro con tarjetas de crédito/débito&#10;• PSE y transferencias bancarias&#10;• Efectivo en puntos autorizados&#10;• Billeteras digitales"
-                               wrapText="true" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                               wrapText="true" styleClass="payment-option-details"/>
                     </VBox>
-                    <Label text="→" style="-fx-font-size: 30px; -fx-text-fill: #032d4d;"/>
+                    <Label text="→" styleClass="payment-option-arrow"/>
                 </HBox>
 
-                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #e8f5e9; -fx-padding: 10; -fx-background-radius: 5;">
-                    <Label text="🔒" style="-fx-font-size: 16px;"/>
-                    <Label text="Transacción real y segura procesada por Mercado Pago"
-                           style="-fx-text-fill: #2e7d32; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="security-badge-success">
+                    <Label text="🔒" styleClass="badge-icon"/>
+                    <Label text="Transacción real y segura procesada por Mercado Pago" styleClass="security-badge-success-text"/>
                 </HBox>
             </VBox>
 
             <!-- Option 2: App Payment (Simulated) -->
-            <VBox styleClass="card-base" spacing="15" onMouseClicked="#handleSelectAppPayment"
-                  style="-fx-cursor: hand; -fx-border-width: 2px;">
+            <VBox styleClass="card-base, payment-option-card" spacing="15" onMouseClicked="#handleSelectAppPayment">
                 <padding>
                     <Insets top="25" right="25" bottom="25" left="25"/>
                 </padding>
 
                 <HBox spacing="15" alignment="CENTER_LEFT">
-                    <Label text="📱" style="-fx-font-size: 40px;"/>
+                    <Label text="📱" styleClass="payment-option-icon"/>
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Pagar desde la Aplicación"
-                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
-                        <Label text="Pago simulado (solo para demostración)"
-                               style="-fx-text-fill: #ff9800; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <Label text="Pagar desde la Aplicación" styleClass="payment-option-title"/>
+                        <Label text="Pago simulado (solo para demostración)" styleClass="payment-option-subtitle-warning"/>
                         <Label text="• Tarjeta de crédito&#10;• Tarjeta de débito&#10;• Efectivo contra entrega&#10;• Métodos de pago guardados"
-                               wrapText="true" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                               wrapText="true" styleClass="payment-option-details"/>
                     </VBox>
-                    <Label text="→" style="-fx-font-size: 30px; -fx-text-fill: #032d4d;"/>
+                    <Label text="→" styleClass="payment-option-arrow"/>
                 </HBox>
 
-                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #fff3e0; -fx-padding: 10; -fx-background-radius: 5;">
-                    <Label text="⚠️" style="-fx-font-size: 16px;"/>
-                    <Label text="Esta es una simulación - no se procesará un pago real"
-                           style="-fx-text-fill: #e65100; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="warning-badge">
+                    <Label text="⚠️" styleClass="badge-icon"/>
+                    <Label text="Esta es una simulación - no se procesará un pago real" styleClass="warning-badge-text"/>
                 </HBox>
             </VBox>
 

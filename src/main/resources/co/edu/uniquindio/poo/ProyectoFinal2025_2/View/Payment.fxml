@@ -39,11 +39,10 @@
                     <Insets top="20" right="20" bottom="20" left="20"/>
                 </padding>
                 <Label text="Método de Pago (Simulado)" styleClass="section-title"/>
-                <HBox spacing="10" alignment="CENTER_LEFT"
-                      style="-fx-background-color: #fff3e0; -fx-padding: 12; -fx-background-radius: 8;">
-                    <Label text="⚠️" style="-fx-font-size: 16px;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="warning-badge">
+                    <Label text="⚠️" styleClass="badge-icon"/>
                     <Label text="Los siguientes métodos son simulados para demostración"
-                           style="-fx-text-fill: #e65100; -fx-font-size: 12px; -fx-font-weight: bold;"
+                           styleClass="warning-badge-text"
                            wrapText="true"/>
                 </HBox>
 
@@ -124,11 +123,11 @@
                 </padding>
                 <Label text="Pago en Efectivo" styleClass="section-title"/>
 
-                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="warning-box">
-                    <Label text="ℹ️" style="-fx-font-size: 16px;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="info-badge">
+                    <Label text="ℹ️" styleClass="badge-icon"/>
                     <Label fx:id="lblCashInstructions"
                            text="El pago se realizará en efectivo al momento de la entrega. Tenga listo el monto exacto."
-                           wrapText="true" style="-fx-text-fill: #495057;"/>
+                           wrapText="true" styleClass="info-badge-text"/>
                 </HBox>
             </VBox>
 
