@@ -207,35 +207,106 @@ public class ManagePaymentMethodsController implements Initializable {
             "Modifique los datos del método de pago");
 
         ButtonType saveButtonType = new ButtonType("Guardar", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+        ButtonType cancelButtonType = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, cancelButtonType);
+
+        // Style the dialog pane
+        dialog.getDialogPane().setStyle(
+            "-fx-background-color: white;" +
+            "-fx-padding: 20;" +
+            "-fx-font-family: 'Segoe UI';"
+        );
 
         GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setPadding(new Insets(20, 20, 10, 20));
+        grid.setStyle("-fx-background-color: white;");
+
+        // Style labels
+        Label lblType = new Label("Tipo:");
+        lblType.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        Label lblProvider = new Label("Proveedor:");
+        lblProvider.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        Label lblNumber = new Label("Número:");
+        lblNumber.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
         ComboBox<PaymentMethodType> cmbType = new ComboBox<>();
         cmbType.getItems().addAll(PaymentMethodType.values());
         cmbType.setPromptText("Seleccione tipo");
+        cmbType.setPrefWidth(250);
+
+        // Configure cell factory for PaymentMethodType with Spanish labels
+        cmbType.setCellFactory(lv -> new ListCell<PaymentMethodType>() {
+            @Override
+            protected void updateItem(PaymentMethodType item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(getTypeLabel(item));
+                }
+            }
+        });
+
+        cmbType.setButtonCell(new ListCell<PaymentMethodType>() {
+            @Override
+            protected void updateItem(PaymentMethodType item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("Seleccione tipo");
+                } else {
+                    setText(getTypeLabel(item));
+                }
+            }
+        });
 
         ComboBox<PaymentProvider> cmbProvider = new ComboBox<>();
         cmbProvider.getItems().addAll(PaymentProvider.values());
         cmbProvider.setPromptText("Seleccione proveedor");
+        cmbProvider.setPrefWidth(250);
+
+        // Configure cell factory for PaymentProvider with Spanish labels
+        cmbProvider.setCellFactory(lv -> new ListCell<PaymentProvider>() {
+            @Override
+            protected void updateItem(PaymentProvider item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(getProviderLabel(item));
+                }
+            }
+        });
+
+        cmbProvider.setButtonCell(new ListCell<PaymentProvider>() {
+            @Override
+            protected void updateItem(PaymentProvider item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("Seleccione proveedor");
+                } else {
+                    setText(getProviderLabel(item));
+                }
+            }
+        });
 
         TextField txtAccountNumber = new TextField();
         txtAccountNumber.setPromptText("Número de cuenta/tarjeta");
+        txtAccountNumber.setPrefWidth(250);
+        txtAccountNumber.setStyle("-fx-font-size: 14px; -fx-padding: 8;");
 
         if (existingMethod != null) {
             cmbType.setValue(existingMethod.getType());
             cmbProvider.setValue(existingMethod.getProvider());
-            // Don't prefill account number for security
+            txtAccountNumber.setText(existingMethod.getAccountNumber());
         }
 
-        grid.add(new Label("Tipo:"), 0, 0);
+        grid.add(lblType, 0, 0);
         grid.add(cmbType, 1, 0);
-        grid.add(new Label("Proveedor:"), 0, 1);
+        grid.add(lblProvider, 0, 1);
         grid.add(cmbProvider, 1, 1);
-        grid.add(new Label("Número:"), 0, 2);
+        grid.add(lblNumber, 0, 2);
         grid.add(txtAccountNumber, 1, 2);
 
         dialog.getDialogPane().setContent(grid);
@@ -258,6 +329,19 @@ public class ManagePaymentMethodsController implements Initializable {
         });
 
         return dialog;
+    }
+
+    private String getProviderLabel(PaymentProvider provider) {
+        return switch (provider) {
+            case VISA -> "Visa";
+            case MASTERCARD -> "Mastercard";
+            case AMERICAN_EXPRESS -> "American Express";
+            case PAYPAL -> "PayPal";
+            case STRIPE -> "Stripe";
+            case MERCADO_PAGO -> "Mercado Pago";
+            case CASH -> "Efectivo";
+            case OTHER -> "Otro";
+        };
     }
 
     private void showEmptyState() {

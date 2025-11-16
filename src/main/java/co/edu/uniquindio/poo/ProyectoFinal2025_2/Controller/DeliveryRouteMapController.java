@@ -101,6 +101,22 @@ public class DeliveryRouteMapController implements Initializable {
                 "Solo Entregas",
                 "Vista Satélite"
         );
+
+        // Configure ButtonCell to show selected item properly
+        cmbMapView.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("Seleccione vista");
+                    setStyle("-fx-text-fill: #6c757d;");
+                } else {
+                    setText(item);
+                    setStyle("-fx-text-fill: #495057;");
+                }
+            }
+        });
+
         cmbMapView.getSelectionModel().selectFirst();
         cmbMapView.setOnAction(e -> handleMapViewChange());
     }

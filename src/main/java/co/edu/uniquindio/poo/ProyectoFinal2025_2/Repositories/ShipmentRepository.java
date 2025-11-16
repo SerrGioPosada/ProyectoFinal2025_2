@@ -130,6 +130,30 @@ public class ShipmentRepository {
         return true;
     }
 
+    /**
+     * Permanently deletes a shipment from the repository.
+     *
+     * @param id the ID of the shipment to delete
+     * @return true if deleted successfully, false otherwise
+     */
+    public boolean deleteShipment(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            Logger.warning("Cannot delete shipment: Invalid ID");
+            return false;
+        }
+
+        Shipment shipmentToDelete = shipmentsById.get(id);
+        if (shipmentToDelete != null) {
+            Logger.info("Permanently deleting shipment: " + id);
+            shipmentsById.remove(id);
+            saveToFile();
+            return true;
+        } else {
+            Logger.warning("Cannot delete shipment: Shipment with ID " + id + " not found");
+            return false;
+        }
+    }
+
     // ======================
     // Query methods
     // ======================

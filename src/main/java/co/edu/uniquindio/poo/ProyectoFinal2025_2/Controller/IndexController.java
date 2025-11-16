@@ -5,6 +5,7 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Person;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.NotificationDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.NotificationService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.TabStateManager;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeManager;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 import javafx.animation.TranslateTransition;
@@ -12,6 +13,7 @@ import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -67,13 +69,22 @@ public class IndexController implements Initializable {
     private Label lblNotificationCount;
     @FXML
     private Button btnNotificationBell;
+    @FXML
+    private Button btnInicio;
+    @FXML
+    private Button btnQuienesSomos;
+    @FXML
+    private Button btnSoporte;
     // =================================================================================================================
     // Dependencies and State
     // =================================================================================================================
+    private Button currentActiveNavButton = null; // Track active navigation button
     private AnchorPane sidebar;
     private BaseSidebarController sidebarController;
     private String previousViewName = null; // Track the previous view for back navigation
     private Object currentController = null; // Track the currently loaded controller
+    private boolean isSidebarOpen = false; // Track sidebar state
+    private boolean isAnimating = false; // Prevent multiple animations at once
 
     // =================================================================================================================
     // Initialization
@@ -81,9 +92,32 @@ public class IndexController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadSidebar();
+
+        // Initialize sidebar as CLOSED when app starts (no user logged in)
+        if (sidebar != null) {
+            sidebar.setPrefWidth(0);
+            sidebar.setMinWidth(0);
+            sidebar.setMaxWidth(0);
+            sidebar.setManaged(true);  // Keep managed for smooth animations
+            sidebar.setVisible(true);
+
+            // Position slider content off-screen
+            javafx.scene.Node sliderNode = sidebar.lookup("#slider");
+            if (sliderNode != null) {
+                sliderNode.setTranslateX(-SIDEBAR_WIDTH);
+            }
+
+            isSidebarOpen = false;
+            Logger.info("Sidebar initialized in CLOSED state (no user logged in)");
+        }
+
         setupTopBarEventHandlers();
         setupNotificationBell();
+        setupNavigationButtons();
         updateNotificationBellVisibility();
+
+        // Load Welcome Home view by default
+        loadLandingView("WelcomeHome.fxml", btnInicio);
     }
 
     // =================================================================================================================
@@ -112,6 +146,9 @@ public class IndexController implements Initializable {
             Object controller = loader.getController();
             this.currentController = controller; // Save current controller reference
             injectIndexController(controller);
+
+            // Clear navigation button active state when loading from sidebar
+            clearNavigationButtonsActiveState();
 
             // Update active button in sidebar
             updateSidebarActiveButton(fxmlName);
@@ -215,18 +252,103 @@ public class IndexController implements Initializable {
     }
 
     /**
+     * Loads a view and applies a delivery person filter with source tracking.
+     *
+     * @param fxmlName The FXML file name (e.g., "ManageVehicles.fxml")
+     * @param deliveryPersonEmail The email of the delivery person to filter by
+     * @param sourceView The view that is navigating to this view (e.g., "ManageDeliveryPersons.fxml")
+     */
+    public void loadViewWithDeliveryPersonFilter(String fxmlName, String deliveryPersonEmail, String sourceView) {
+        Logger.info("Loading view: " + fxmlName + " with delivery person filter: " + deliveryPersonEmail + " from source: " + sourceView);
+        try {
+            URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/" + fxmlName);
+            if (fxmlUrl == null) {
+                Logger.error("Cannot find FXML resource: " + fxmlName + ". Showing placeholder.");
+                showPlaceholder(fxmlName.replace(".fxml", ""));
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Node view = loader.load();
+
+            // Inject IndexController to child if needed
+            Object controller = loader.getController();
+            this.currentController = controller; // Save current controller reference
+            injectIndexController(controller);
+
+            // If it's ManageVehiclesController, apply the delivery person filter
+            if (controller instanceof ManageVehiclesController vehiclesController) {
+                vehiclesController.applyDeliveryPersonFilter(deliveryPersonEmail, sourceView);
+            }
+
+            paneIndex.getChildren().setAll(view);
+
+        } catch (IOException e) {
+            Logger.error("Failed to load view FXML: " + fxmlName, e);
+        }
+    }
+
+    /**
      * Called after successful login.
      * Reloads the sidebar and opens the appropriate dashboard.
      */
     public void onLoginSuccess() {
+        // Set current user ID in TabStateManager for scoped preferences
+        Person currentPerson = authService.getCurrentPerson();
+        if (currentPerson instanceof AuthenticablePerson authPerson) {
+            TabStateManager.setCurrentUserId(authPerson.getId());
+        }
+
+        // Check sidebar state BEFORE loading
+        boolean shouldOpenSidebar = TabStateManager.isSidebarExpanded();
+
         loadSidebar();
 
-        // Reinitialize menu button states after loading sidebar
-        if (lblMenuBack != null && lblMenu != null) {
+        // Configure sidebar state immediately after loading (before it's visible)
+        if (shouldOpenSidebar) {
+            // Sidebar should start open
+            lblMenu.setVisible(false);
+            lblMenu.setMouseTransparent(true);
+            lblMenuBack.setVisible(true);
+            lblMenuBack.setMouseTransparent(false);
+            // Open sidebar immediately without animation
+            if (sidebar != null) {
+                sidebar.setPrefWidth(SIDEBAR_WIDTH);
+                sidebar.setMinWidth(SIDEBAR_WIDTH);
+                sidebar.setMaxWidth(SIDEBAR_WIDTH);
+                sidebar.setManaged(true);
+                sidebar.setVisible(true);
+
+                // Position slider content on-screen
+                javafx.scene.Node sliderNode = sidebar.lookup("#slider");
+                if (sliderNode != null) {
+                    sliderNode.setTranslateX(0);
+                }
+
+                isSidebarOpen = true;
+            }
+        } else {
+            // Sidebar should start closed
             lblMenu.setVisible(true);
             lblMenu.setMouseTransparent(false);
             lblMenuBack.setVisible(false);
             lblMenuBack.setMouseTransparent(true);
+            // Keep sidebar closed - width 0 but managed for smooth animations
+            if (sidebar != null) {
+                sidebar.setPrefWidth(0);
+                sidebar.setMinWidth(0);
+                sidebar.setMaxWidth(0);
+                sidebar.setManaged(true);
+                sidebar.setVisible(true);
+
+                // Position slider content off-screen
+                javafx.scene.Node sliderNode = sidebar.lookup("#slider");
+                if (sliderNode != null) {
+                    sliderNode.setTranslateX(-SIDEBAR_WIDTH);
+                }
+
+                isSidebarOpen = false;
+            }
         }
 
         // Refresh notification bell visibility and badge
@@ -286,6 +408,10 @@ public class IndexController implements Initializable {
 
             stage.showAndWait();
 
+            // Clear navigation button state after window closes
+            // (showAndWait blocks until the window is closed)
+            clearNavigationButtonsActiveState();
+
         } catch (IOException e) {
             Logger.error("Failed to load Signup window.", e);
         }
@@ -324,14 +450,79 @@ public class IndexController implements Initializable {
 
     /**
      * Toggles the sidebar animation based on open/close state.
+     * Animates width smoothly while sliding content to avoid jarring jumps.
      *
      * @param open true to open, false to close
      */
     private void toggleSidebar(boolean open) {
-        if (sidebar == null) return;
-        TranslateTransition slide = new TranslateTransition(Duration.seconds(0.35), sidebar);
-        slide.setToX(open ? 0 : -SIDEBAR_WIDTH);
-        slide.play();
+        if (sidebar == null || rootPane == null) return;
+
+        // Prevent multiple animations at once and ignore if already in target state
+        if (isAnimating || isSidebarOpen == open) {
+            Logger.info("Toggle ignored: isAnimating=" + isAnimating + ", isSidebarOpen=" + isSidebarOpen + ", requestedOpen=" + open);
+            return;
+        }
+
+        isAnimating = true;
+        Logger.info("Toggling sidebar: " + (open ? "OPENING" : "CLOSING"));
+
+        // Animation duration
+        Duration duration = Duration.seconds(0.35);
+
+        // Keep sidebar always managed to avoid layout jumps
+        sidebar.setManaged(true);
+        sidebar.setVisible(true);
+
+        // Get the inner slider (content container) from sidebar controller
+        javafx.scene.Node sliderNode = sidebar.lookup("#slider");
+
+        // Determine start and end values
+        double fromWidth = open ? 0 : SIDEBAR_WIDTH;
+        double toWidth = open ? SIDEBAR_WIDTH : 0;
+        double fromTranslate = open ? -SIDEBAR_WIDTH : 0;
+        double toTranslate = open ? 0 : -SIDEBAR_WIDTH;
+
+        // Create combined animation for width and content slide
+        javafx.animation.Timeline animation = new javafx.animation.Timeline();
+
+        // Width animation keyframes
+        animation.getKeyFrames().addAll(
+            new javafx.animation.KeyFrame(
+                Duration.ZERO,
+                new javafx.animation.KeyValue(sidebar.prefWidthProperty(), fromWidth),
+                new javafx.animation.KeyValue(sidebar.minWidthProperty(), fromWidth),
+                new javafx.animation.KeyValue(sidebar.maxWidthProperty(), fromWidth)
+            ),
+            new javafx.animation.KeyFrame(
+                duration,
+                new javafx.animation.KeyValue(sidebar.prefWidthProperty(), toWidth, javafx.animation.Interpolator.EASE_BOTH),
+                new javafx.animation.KeyValue(sidebar.minWidthProperty(), toWidth, javafx.animation.Interpolator.EASE_BOTH),
+                new javafx.animation.KeyValue(sidebar.maxWidthProperty(), toWidth, javafx.animation.Interpolator.EASE_BOTH)
+            )
+        );
+
+        // Content slide animation keyframes (if slider found)
+        if (sliderNode != null) {
+            animation.getKeyFrames().addAll(
+                new javafx.animation.KeyFrame(
+                    Duration.ZERO,
+                    new javafx.animation.KeyValue(sliderNode.translateXProperty(), fromTranslate)
+                ),
+                new javafx.animation.KeyFrame(
+                    duration,
+                    new javafx.animation.KeyValue(sliderNode.translateXProperty(), toTranslate, javafx.animation.Interpolator.EASE_BOTH)
+                )
+            );
+        }
+
+        animation.setOnFinished(event -> {
+            isSidebarOpen = open;
+            TabStateManager.setSidebarExpanded(open);
+            isAnimating = false;
+            Logger.info("Sidebar " + (open ? "OPENED" : "CLOSED"));
+        });
+
+        animation.play();
     }
 
     /**
@@ -366,6 +557,96 @@ public class IndexController implements Initializable {
     }
 
     /**
+     * Sets up navigation button handlers for the top bar.
+     */
+    private void setupNavigationButtons() {
+        if (btnInicio != null) {
+            btnInicio.setOnAction(event -> loadLandingView("WelcomeHome.fxml", btnInicio));
+        }
+
+        if (btnQuienesSomos != null) {
+            btnQuienesSomos.setOnAction(event -> loadLandingView("AboutUs.fxml", btnQuienesSomos));
+        }
+
+        if (btnSoporte != null) {
+            btnSoporte.setOnAction(event -> loadLandingView("Support.fxml", btnSoporte));
+        }
+    }
+
+    /**
+     * Loads a landing page view and updates the active navigation button.
+     *
+     * @param fxmlName The FXML file to load
+     * @param button   The button that was clicked
+     */
+    private void loadLandingView(String fxmlName, Button button) {
+        Logger.info("Loading landing view: " + fxmlName);
+        try {
+            URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/" + fxmlName);
+            if (fxmlUrl == null) {
+                Logger.error("Cannot find FXML resource: " + fxmlName);
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Node view = loader.load();
+
+            // Inject IndexController to child if needed
+            Object controller = loader.getController();
+            injectIndexController(controller);
+
+            // Clear sidebar active button state when loading from header
+            if (sidebarController != null) {
+                if (sidebarController instanceof AdminSidebarController adminSidebar) {
+                    adminSidebar.clearActiveButton();
+                } else if (sidebarController instanceof UserSidebarController userSidebar) {
+                    userSidebar.clearActiveButton();
+                } else if (sidebarController instanceof DeliverySidebarController deliverySidebar) {
+                    deliverySidebar.clearActiveButton();
+                }
+            }
+
+            // Update active navigation button
+            updateActiveNavigationButton(button);
+
+            // Apply fade transition
+            loadViewWithTransition(view);
+
+        } catch (IOException e) {
+            Logger.error("Failed to load landing view: " + fxmlName, e);
+        }
+    }
+
+    /**
+     * Updates the active state of navigation buttons.
+     *
+     * @param activeButton The button to set as active
+     */
+    private void updateActiveNavigationButton(Button activeButton) {
+        // Remove active class from previous button
+        if (currentActiveNavButton != null) {
+            currentActiveNavButton.getStyleClass().remove("nav-button-active");
+        }
+
+        // Add active class to new button
+        if (activeButton != null && !activeButton.getStyleClass().contains("nav-button-active")) {
+            activeButton.getStyleClass().add("nav-button-active");
+            currentActiveNavButton = activeButton;
+        }
+    }
+
+    /**
+     * Clears all navigation button active states (header buttons).
+     * Called when loading views from sidebar to avoid having both header and sidebar buttons active.
+     */
+    private void clearNavigationButtonsActiveState() {
+        if (currentActiveNavButton != null) {
+            currentActiveNavButton.getStyleClass().remove("nav-button-active");
+            currentActiveNavButton = null;
+        }
+    }
+
+    /**
      * Loads the appropriate sidebar based on user role.
      */
     private void loadSidebar() {
@@ -384,7 +665,7 @@ public class IndexController implements Initializable {
             sidebarController = loader.getController();
             if (sidebarController != null) sidebarController.setIndexController(this);
 
-            sidebar.setTranslateX(-SIDEBAR_WIDTH);
+            // Don't use translateX - we use width + clip animation instead
             rootPane.setLeft(sidebar);
 
         } catch (IOException e) {
@@ -417,12 +698,19 @@ public class IndexController implements Initializable {
         else if (controller instanceof SignupController signup) signup.setIndexController(this);
         else if (controller instanceof ForgotPasswordController forgotPassword) forgotPassword.setIndexController(this);
         else if (controller instanceof ManageUsersController manage) manage.setIndexController(this);
+        else if (controller instanceof ManageDeliveryPersonsController manageDelivery) manageDelivery.setIndexController(this);
         else if (controller instanceof AdminProfileController adminProfile) adminProfile.setIndexController(this);
         else if (controller instanceof UserProfileController userProfile) userProfile.setIndexController(this);
         else if (controller instanceof EditUserDataController editUserData) editUserData.setIndexController(this);
         else if (controller instanceof ChangePasswordController changePassword) changePassword.setIndexController(this);
         else if (controller instanceof ManageAddressesController manageAddresses) manageAddresses.setIndexController(this);
         else if (controller instanceof UserDashboardController userDashboard) userDashboard.setIndexController(this);
+        else if (controller instanceof AdminOrderManagementController orderManagement) orderManagement.setIndexController(this);
+        else if (controller instanceof ShipmentManagementController shipmentManagement) shipmentManagement.setIndexController(this);
+        else if (controller instanceof ManageVehiclesController vehiclesController) vehiclesController.setIndexController(this);
+        else if (controller instanceof CreateShipmentWizardController wizardController) wizardController.setIndexController(this);
+        else if (controller instanceof WelcomeHomeController welcomeHome) welcomeHome.setIndexController(this);
+        else if (controller instanceof DeliveryDashboardController deliveryDashboard) deliveryDashboard.setIndexController(this);
     }
 
     /**
@@ -661,5 +949,15 @@ public class IndexController implements Initializable {
      */
     public Object getCurrentController() {
         return this.currentController;
+    }
+
+    /**
+     * Gets the content area (paneIndex) for direct manipulation.
+     * Use this when you need to load custom views that require special configuration.
+     *
+     * @return The StackPane that serves as the main content area
+     */
+    public StackPane getContentArea() {
+        return this.paneIndex;
     }
 }

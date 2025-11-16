@@ -65,8 +65,6 @@ public class ForgotPasswordController implements Initializable {
     @FXML private TextField txtConfirmPasswordVisible;
     @FXML private ImageView imgTogglePassword;
     @FXML private ImageView imgToggleConfirmPassword;
-    @FXML private ProgressBar progressPasswordStrength;
-    @FXML private Label lblPasswordStrength;
     @FXML private Button btnResetPassword;
     @FXML private Label lblResetError;
     @FXML private Label lblPasswordFloat;
@@ -99,7 +97,6 @@ public class ForgotPasswordController implements Initializable {
 
         resetDTO = new PasswordResetDTO();
         setupPasswordToggle();
-        setupPasswordStrengthIndicator();
         setupFloatingLabels();
 
         Logger.info("ForgotPasswordController initialized successfully");
@@ -185,50 +182,6 @@ public class ForgotPasswordController implements Initializable {
         }
     }
 
-    /**
-     * Sets up real-time password strength indicator.
-     * Updates progress bar and label as user types the password.
-     */
-    private void setupPasswordStrengthIndicator() {
-        txtPassword.textProperty().addListener((observable, oldValue, newValue) -> {
-            updatePasswordStrength(newValue);
-        });
-
-        txtPasswordVisible.textProperty().addListener((observable, oldValue, newValue) -> {
-            updatePasswordStrength(newValue);
-        });
-    }
-
-    /**
-     * Updates the password strength indicator based on the current password.
-     *
-     * @param password The current password value
-     */
-    private void updatePasswordStrength(String password) {
-        if (password == null || password.isEmpty()) {
-            progressPasswordStrength.setProgress(0);
-            lblPasswordStrength.setText("");
-            progressPasswordStrength.getStyleClass().removeAll(
-                "password-strength-weak", "password-strength-medium", "password-strength-strong");
-            return;
-        }
-
-        PasswordValidator.PasswordStrength strength = PasswordValidator.calculateStrength(password);
-        double progress = PasswordValidator.getStrengthPercentage(password) / 100.0;
-
-        progressPasswordStrength.setProgress(progress);
-        lblPasswordStrength.setText("Fortaleza: " + strength.getDisplayName());
-
-        // Update style class based on strength
-        progressPasswordStrength.getStyleClass().removeAll(
-            "password-strength-weak", "password-strength-medium", "password-strength-strong");
-
-        switch (strength) {
-            case WEAK -> progressPasswordStrength.getStyleClass().add("password-strength-weak");
-            case MEDIUM -> progressPasswordStrength.getStyleClass().add("password-strength-medium");
-            case STRONG -> progressPasswordStrength.getStyleClass().add("password-strength-strong");
-        }
-    }
 
     /**
      * Sets up floating label animations for input fields.

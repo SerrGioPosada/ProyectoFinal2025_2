@@ -125,6 +125,29 @@ public class OrderRepository {
         }
     }
 
+    /**
+     * Deletes an order from the repository.
+     *
+     * @param orderId The ID of the order to delete.
+     * @return true if the order was deleted successfully, false otherwise.
+     */
+    public boolean deleteOrder(String orderId) {
+        if (!RepositoryValidator.validateId(orderId, "Order")) {
+            return false;
+        }
+
+        Order orderToRemove = ordersById.get(orderId);
+        if (orderToRemove != null) {
+            Logger.info("Deleting order: " + orderId);
+            ordersById.remove(orderId);
+            saveToFile();
+            return true;
+        } else {
+            Logger.warning("Cannot delete order: Order with ID " + orderId + " not found");
+            return false;
+        }
+    }
+
     // =================================================================================================================
     // QUERY OPERATIONS
     // =================================================================================================================

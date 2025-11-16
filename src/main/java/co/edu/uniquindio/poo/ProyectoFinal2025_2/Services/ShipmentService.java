@@ -325,6 +325,40 @@ public class ShipmentService {
     }
 
     /**
+     * Deletes a shipment permanently from the repository.
+     * Only cancelled shipments can be deleted.
+     *
+     * @param id The ID of the shipment to delete.
+     * @return true if deletion was successful, false otherwise.
+     */
+    public boolean deleteShipment(String id) {
+        Optional<Shipment> shipmentOpt = shipmentRepository.findById(id);
+        if (!shipmentOpt.isPresent()) {
+            Logger.warning("deleteShipment: Shipment not found with ID: " + id);
+            return false;
+        }
+
+        Shipment shipment = shipmentOpt.get();
+
+        // Only allow deletion of cancelled shipments
+        if (shipment.getStatus() != ShipmentStatus.CANCELLED) {
+            Logger.warning("deleteShipment: Cannot delete shipment that is not cancelled. Current status: " + shipment.getStatus());
+            return false;
+        }
+
+        // Delete the shipment from repository
+        boolean deleted = shipmentRepository.deleteShipment(id);
+
+        if (deleted) {
+            Logger.info("Shipment " + id + " has been permanently deleted");
+        } else {
+            Logger.error("Failed to delete shipment " + id);
+        }
+
+        return deleted;
+    }
+
+    /**
      * Gets a shipment by ID as DTO.
      * @param id The shipment ID
      * @return Optional containing the shipment DTO

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.AssignVehicleDialogController"
+      spacing="20" styleClass="dialog-container" prefWidth="400" prefHeight="300">
+
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <!-- Header -->
+    <VBox spacing="8" alignment="CENTER">
+        <Label text="Asignar Vehículo" styleClass="dialog-title"
+               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+        <Label fx:id="lblDeliveryPersonName" text="" styleClass="dialog-subtitle"
+               style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
+    </VBox>
+
+    <Separator/>
+
+    <!-- Content -->
+    <VBox spacing="12" VBox.vgrow="ALWAYS">
+        <Label text="Selecciona un vehículo disponible:"
+               style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #495057;"/>
+
+        <VBox spacing="8">
+            <Label text="Vehículo:" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
+            <ComboBox fx:id="cmbVehicles" maxWidth="Infinity" styleClass="modern-combo"
+                      promptText="Seleccionar vehículo..." prefHeight="40"
+                      style="-fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Info message -->
+        <HBox spacing="8" alignment="CENTER_LEFT" styleClass="info-box"
+              style="-fx-background-color: #e7f3ff; -fx-padding: 10; -fx-background-radius: 6;">
+            <Label text="ℹ" style="-fx-font-size: 16px; -fx-text-fill: #0066cc;"/>
+            <Label text="El vehículo será asignado exclusivamente a este repartidor"
+                   wrapText="true" style="-fx-font-size: 11px; -fx-text-fill: #0066cc;" HBox.hgrow="ALWAYS"/>
+        </HBox>
+    </VBox>
+
+    <!-- Buttons -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancelar" onAction="#handleCancel" styleClass="btn-secondary"
+                prefWidth="110" prefHeight="36"
+                style="-fx-font-size: 13px;"/>
+        <Button text="Asignar" onAction="#handleAssign" styleClass="btn-primary"
+                prefWidth="110" prefHeight="36"
+                style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+    </HBox>
+</VBox>

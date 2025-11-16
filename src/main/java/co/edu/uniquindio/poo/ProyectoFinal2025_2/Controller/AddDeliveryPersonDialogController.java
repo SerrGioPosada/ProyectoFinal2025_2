@@ -160,7 +160,7 @@ public class AddDeliveryPersonDialogController implements Initializable {
         cmbCoverageArea.setConverter(new javafx.util.StringConverter<CoverageArea>() {
             @Override
             public String toString(CoverageArea area) {
-                return area == null ? "" : area.getDisplayName();
+                return area == null ? null : area.getDisplayName();
             }
 
             @Override
@@ -178,13 +178,14 @@ public class AddDeliveryPersonDialogController implements Initializable {
             }
         });
 
-        // Custom button cell to show placeholder when empty
+        // Custom button cell - CRITICAL: Must handle null properly for display
         cmbCoverageArea.setButtonCell(new javafx.scene.control.ListCell<CoverageArea>() {
             @Override
             protected void updateItem(CoverageArea item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("Seleccionar Área");
+                // IMPORTANT: Check item == null (not empty) to show placeholder
+                if (item == null) {
+                    setText("ÁREA DE COBERTURA");
                     setStyle("-fx-text-fill: #999999;");
                 } else {
                     setText(item.getDisplayName());
@@ -193,8 +194,8 @@ public class AddDeliveryPersonDialogController implements Initializable {
             }
         });
 
-        // Force update to show placeholder initially
-        cmbCoverageArea.getButtonCell().updateItem(null, true);
+        // Set initial value to null to show placeholder
+        cmbCoverageArea.setValue(null);
     }
 
     /**

@@ -76,6 +76,10 @@ public class MercadoPagoService {
             }
 
             // Create item for the preference
+            // IMPORTANT: COP currency requires integer amounts (no decimals)
+            // Round the total amount to the nearest integer
+            long roundedAmount = Math.round(totalAmount);
+
             PreferenceItemRequest item = PreferenceItemRequest.builder()
                     .id(order.getId())
                     .title("Envío - Orden #" + order.getId())
@@ -83,7 +87,7 @@ public class MercadoPagoService {
                     .categoryId("shipping")
                     .quantity(1)
                     .currencyId("COP")
-                    .unitPrice(BigDecimal.valueOf(totalAmount))
+                    .unitPrice(BigDecimal.valueOf(roundedAmount))
                     .build();
 
             List<PreferenceItemRequest> items = new ArrayList<>();
@@ -117,7 +121,8 @@ public class MercadoPagoService {
                     .items(items)
                     .payer(payer)
                     .backUrls(backUrls)
-                    .autoReturn("approved")
+                    // Remove autoReturn to avoid the error - user will manually click back
+                    // .autoReturn("approved")
                     .externalReference(order.getId())
                     .statementDescriptor("ENVIOS")
                     .notificationUrl("http://localhost:8080/webhooks/mercadopago") // TODO: Configure webhook
@@ -137,7 +142,7 @@ public class MercadoPagoService {
                     .orderId(order.getId())
                     .title("Envío - Orden #" + order.getId())
                     .description("Servicio de envío de paquete")
-                    .totalAmount(totalAmount)
+                    .totalAmount(roundedAmount) // Use rounded amount
                     .currency("COP")
                     .payerEmail(user.getEmail())
                     .build();

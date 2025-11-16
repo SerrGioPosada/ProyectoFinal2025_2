@@ -178,4 +178,45 @@ public class TabStateManager {
         expandedStates.clear();
         activeTabStates.clear();
     }
+
+    // =================================================================================================================
+    // Sidebar State Management
+    // =================================================================================================================
+
+    private static final String SIDEBAR_EXPANDED_KEY = "sidebar_expanded";
+    private static Boolean sidebarExpanded = null;
+
+    /**
+     * Checks if the sidebar is expanded (open).
+     * Defaults to true (expanded) if no state is saved.
+     *
+     * @return true if sidebar is expanded, false if collapsed
+     */
+    public static boolean isSidebarExpanded() {
+        // Check in-memory cache first
+        if (sidebarExpanded != null) {
+            return sidebarExpanded;
+        }
+
+        // Build scoped key for current user
+        String key = (currentUserId != null) ? currentUserId + "_" + SIDEBAR_EXPANDED_KEY : SIDEBAR_EXPANDED_KEY;
+
+        // Load from preferences - DEFAULT TO TRUE (OPEN)
+        sidebarExpanded = prefs.getBoolean(key, true);
+        return sidebarExpanded;
+    }
+
+    /**
+     * Saves the expanded state of the sidebar.
+     *
+     * @param expanded true if sidebar is expanded, false if collapsed
+     */
+    public static void setSidebarExpanded(boolean expanded) {
+        sidebarExpanded = expanded;
+
+        // Build scoped key for current user
+        String key = (currentUserId != null) ? currentUserId + "_" + SIDEBAR_EXPANDED_KEY : SIDEBAR_EXPANDED_KEY;
+
+        prefs.putBoolean(key, expanded);
+    }
 }

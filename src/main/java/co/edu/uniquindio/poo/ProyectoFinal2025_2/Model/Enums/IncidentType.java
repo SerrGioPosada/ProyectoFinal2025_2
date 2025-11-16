@@ -29,4 +29,12 @@ public enum IncidentType {
     public String getDescription() {
         return description;
     }
+
+    /**
+     * Gets the display name in Spanish (alias for getDescription).
+     * @return The incident display name
+     */
+    public String getDisplayName() {
+        return description;
+    }
 }

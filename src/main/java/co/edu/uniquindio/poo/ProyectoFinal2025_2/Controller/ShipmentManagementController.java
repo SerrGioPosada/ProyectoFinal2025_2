@@ -6,13 +6,16 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.CoverageArea;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.IncidentType;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.ShipmentStatus;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Shipment;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.User;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.ShipmentDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.ShipmentFilterDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.OrderRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.ShipmentRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.UserRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ReportService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ShipmentService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.TabStateManager;
@@ -32,10 +35,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -74,6 +79,7 @@ public class ShipmentManagementController implements Initializable {
     @FXML private DatePicker filterDateFrom;
     @FXML private DatePicker filterDateTo;
     @FXML private TextField searchField;
+    @FXML private TextField txtSearchIds;
     @FXML private CheckBox chkDelayed;
     @FXML private CheckBox chkIncidents;
 
@@ -97,9 +103,11 @@ public class ShipmentManagementController implements Initializable {
 
     // Services and Repositories
     private final ShipmentService shipmentService = new ShipmentService();
+    private final ShipmentRepository shipmentRepository = ShipmentRepository.getInstance();
     private final UserRepository userRepository = UserRepository.getInstance();
     private final DeliveryPersonRepository deliveryPersonRepository = DeliveryPersonRepository.getInstance();
     private final AuthenticationService authService = AuthenticationService.getInstance();
+    private final ReportService reportService = ReportService.getInstance();
 
     // Data
     private ObservableList<ShipmentDTO> shipmentsData;
@@ -131,7 +139,7 @@ public class ShipmentManagementController implements Initializable {
             String orderId = data.getValue().getOrderId();
             return new SimpleStringProperty(orderId != null ? orderId : "N/A");
         });
-        colUser.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getUserName()));
+        colUser.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getUserEmail()));
 
         colRoute.setCellValueFactory(data -> {
             String origin = data.getValue().getOriginAddressComplete();
@@ -148,8 +156,8 @@ public class ShipmentManagementController implements Initializable {
             new SimpleStringProperty(data.getValue().getStatusDisplayName()));
 
         colDeliveryPerson.setCellValueFactory(data -> {
-            String name = data.getValue().getDeliveryPersonName();
-            return new SimpleStringProperty(name != null ? name : "Unassigned");
+            String email = data.getValue().getDeliveryPersonEmail();
+            return new SimpleStringProperty(email != null ? email : "Unassigned");
         });
 
         colCreationDate.setCellValueFactory(data -> {
@@ -252,7 +260,7 @@ public class ShipmentManagementController implements Initializable {
                 }
             });
 
-            // Asignar Repartidor
+            // Asignar Repartidor - only show if status is PENDING_ASSIGNMENT
             MenuItem assignDeliveryItem = new MenuItem("Asignar Repartidor");
             assignDeliveryItem.setOnAction(event -> {
                 ShipmentDTO selected = row.getItem();
@@ -260,6 +268,14 @@ public class ShipmentManagementController implements Initializable {
                     showAssignDeliveryPersonDialog(selected);
                 }
             });
+
+            // Only show assign button if shipment status is PENDING_ASSIGNMENT
+            assignDeliveryItem.visibleProperty().bind(
+                javafx.beans.binding.Bindings.createBooleanBinding(() -> {
+                    ShipmentDTO shipment = row.getItem();
+                    return shipment != null && "Pendiente de Asignación".equals(shipment.getStatus());
+                }, row.itemProperty())
+            );
 
             // Cambiar Estado
             MenuItem changeStatusItem = new MenuItem("Cambiar Estado");
@@ -492,6 +508,9 @@ public class ShipmentManagementController implements Initializable {
         if (searchField != null) {
             searchField.textProperty().addListener((obs, oldVal, newVal) -> handleFilter());
         }
+        if (txtSearchIds != null) {
+            txtSearchIds.textProperty().addListener((obs, oldVal, newVal) -> handleFilter());
+        }
         if (chkDelayed != null) {
             chkDelayed.setOnAction(e -> handleFilter());
         }
@@ -610,6 +629,34 @@ public class ShipmentManagementController implements Initializable {
         }
 
         List<ShipmentDTO> filtered = shipmentService.filterShipments(filter);
+
+        // Additional filtering by IDs (shipment ID, order ID, user email, delivery person email)
+        String idsSearchText = txtSearchIds != null ? txtSearchIds.getText() : null;
+        if (idsSearchText != null && !idsSearchText.trim().isEmpty()) {
+            String searchLower = idsSearchText.trim().toLowerCase();
+            filtered = filtered.stream()
+                    .filter(shipment -> {
+                        // Search by shipment ID
+                        if (shipment.getId() != null && shipment.getId().toLowerCase().contains(searchLower)) {
+                            return true;
+                        }
+                        // Search by order ID
+                        if (shipment.getOrderId() != null && shipment.getOrderId().toLowerCase().contains(searchLower)) {
+                            return true;
+                        }
+                        // Search by user email
+                        if (shipment.getUserEmail() != null && shipment.getUserEmail().toLowerCase().contains(searchLower)) {
+                            return true;
+                        }
+                        // Search by delivery person email
+                        if (shipment.getDeliveryPersonEmail() != null && shipment.getDeliveryPersonEmail().toLowerCase().contains(searchLower)) {
+                            return true;
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toList());
+        }
+
         shipmentsData = FXCollections.observableArrayList(filtered);
         shipmentsTable.setItems(shipmentsData);
         updateCounters();
@@ -624,6 +671,7 @@ public class ShipmentManagementController implements Initializable {
         filterDateFrom.setValue(null);
         filterDateTo.setValue(null);
         searchField.clear();
+        if (txtSearchIds != null) txtSearchIds.clear();
         chkDelayed.setSelected(false);
         chkIncidents.setSelected(false);
         loadAllShipments();
@@ -727,8 +775,82 @@ public class ShipmentManagementController implements Initializable {
 
     @FXML
     private void handleExport() {
-        DialogUtil.showInfo("Export", "Export functionality will be implemented soon");
-        // TODO: Implement CSV/PDF export
+        if (shipmentsData == null || shipmentsData.isEmpty()) {
+            DialogUtil.showWarning("Sin Datos", "No hay envíos para exportar.");
+            return;
+        }
+
+        // Show dialog to choose export format
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Exportar Envíos");
+        alert.setHeaderText("Seleccione el formato de exportación");
+        alert.setContentText(String.format("Se exportarán %d envíos (filtrados).", shipmentsData.size()));
+
+        ButtonType btnCSV = new ButtonType("CSV");
+        ButtonType btnPDF = new ButtonType("PDF");
+        ButtonType btnCancel = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(btnCSV, btnPDF, btnCancel);
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == btnCSV) {
+                exportToCSV();
+            } else if (response == btnPDF) {
+                exportToPDF();
+            }
+        });
+    }
+
+    /**
+     * Exports current filtered shipments to CSV.
+     */
+    private void exportToCSV() {
+        try {
+            // Convert ShipmentDTO back to Shipment entities
+            List<Shipment> shipments = shipmentsData.stream()
+                    .map(dto -> shipmentRepository.findById(dto.getId()).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            File file = reportService.exportShipmentsToCSV(shipments);
+
+            if (file != null && file.exists()) {
+                DialogUtil.showSuccess("Exportación Exitosa",
+                        "Archivo exportado a: " + file.getAbsolutePath());
+                Logger.info("Shipments exported to CSV: " + file.getAbsolutePath());
+            } else {
+                DialogUtil.showError("Error", "No se pudo crear el archivo de exportación.");
+            }
+        } catch (Exception e) {
+            Logger.error("Error exporting shipments to CSV: " + e.getMessage());
+            DialogUtil.showError("Error", "Error al exportar: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Exports current filtered shipments to PDF.
+     */
+    private void exportToPDF() {
+        try {
+            // Convert ShipmentDTO back to Shipment entities
+            List<Shipment> shipments = shipmentsData.stream()
+                    .map(dto -> shipmentRepository.findById(dto.getId()).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            File file = reportService.exportShipmentsToPDF(shipments);
+
+            if (file != null && file.exists()) {
+                DialogUtil.showSuccess("Exportación Exitosa",
+                        "Archivo exportado a: " + file.getAbsolutePath());
+                Logger.info("Shipments exported to PDF: " + file.getAbsolutePath());
+            } else {
+                DialogUtil.showError("Error", "No se pudo crear el archivo de exportación.");
+            }
+        } catch (Exception e) {
+            Logger.error("Error exporting shipments to PDF: " + e.getMessage());
+            DialogUtil.showError("Error", "Error al exportar: " + e.getMessage());
+        }
     }
 
     // ===========================
@@ -747,14 +869,10 @@ public class ShipmentManagementController implements Initializable {
             controller.loadShipmentDetails(shipmentId);
 
             Stage stage = new Stage();
-            stage.setTitle("Shipment Details - " + shipmentId);
-            Scene scene = new Scene(root);
+            stage.setTitle("Detalles del Envío - " + shipmentId);
+            Scene scene = new Scene(root, 650, 800);
             co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeManager.getInstance().applyThemeToScene(scene);
             stage.setScene(scene);
-
-            // Set window size
-            stage.setWidth(1000);
-            stage.setHeight(700);
             stage.setResizable(true);
 
             stage.show();
@@ -773,21 +891,79 @@ public class ShipmentManagementController implements Initializable {
      */
     private void showChangeStatusDialog(ShipmentDTO shipment) {
         ChoiceDialog<ShipmentStatus> dialog = new ChoiceDialog<>(shipment.getStatus(), ShipmentStatus.values());
-        dialog.setTitle("Change Status");
-        dialog.setHeaderText("Change status for shipment " + shipment.getId());
-        dialog.setContentText("Select new status:");
+        dialog.setTitle("Cambiar Estado");
+        dialog.setHeaderText("Cambiar estado del envío: " + shipment.getId());
+        dialog.setContentText("Seleccione el nuevo estado:");
+
+        // Use custom converter to show display names in Spanish
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm());
+        dialog.getDialogPane().getStyleClass().add("dialog-pane");
+
+        // Apply styling to buttons
+        javafx.scene.control.ButtonType okButtonType = javafx.scene.control.ButtonType.OK;
+        javafx.scene.control.ButtonType cancelButtonType = javafx.scene.control.ButtonType.CANCEL;
+
+        javafx.scene.control.Button okButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(okButtonType);
+        javafx.scene.control.Button cancelButton = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(cancelButtonType);
+
+        if (okButton != null) {
+            okButton.setText("Aceptar");
+            okButton.getStyleClass().addAll("btn-primary");
+        }
+        if (cancelButton != null) {
+            cancelButton.setText("Cancelar");
+            cancelButton.getStyleClass().addAll("btn-secondary");
+        }
+
+        // Convert ComboBox to show Spanish names
+        @SuppressWarnings("unchecked")
+        javafx.scene.control.ComboBox<ShipmentStatus> comboBox =
+            (javafx.scene.control.ComboBox<ShipmentStatus>) dialog.getDialogPane().lookup(".combo-box");
+        if (comboBox != null) {
+            comboBox.setConverter(new javafx.util.StringConverter<ShipmentStatus>() {
+                @Override
+                public String toString(ShipmentStatus status) {
+                    return status == null ? "" : status.getDisplayName();
+                }
+
+                @Override
+                public ShipmentStatus fromString(String string) {
+                    return null; // Not needed for ChoiceDialog
+                }
+            });
+
+            // Custom cell factory for dropdown items
+            comboBox.setCellFactory(lv -> new javafx.scene.control.ListCell<ShipmentStatus>() {
+                @Override
+                protected void updateItem(ShipmentStatus item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : item.getDisplayName());
+                }
+            });
+
+            // Custom button cell to display properly
+            comboBox.setButtonCell(new javafx.scene.control.ListCell<ShipmentStatus>() {
+                @Override
+                protected void updateItem(ShipmentStatus item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(item == null ? "" : item.getDisplayName());
+                }
+            });
+        }
 
         Optional<ShipmentStatus> result = dialog.showAndWait();
         result.ifPresent(newStatus -> {
             if (newStatus == shipment.getStatus()) {
-                DialogUtil.showInfo("No Change", "Status is already " + newStatus.getDisplayName());
+                DialogUtil.showInfo("Sin Cambios", "El estado ya es " + newStatus.getDisplayName());
                 return;
             }
 
             TextInputDialog reasonDialog = new TextInputDialog();
-            reasonDialog.setTitle("Status Change Reason");
-            reasonDialog.setHeaderText("Provide reason for status change");
-            reasonDialog.setContentText("Reason:");
+            reasonDialog.setTitle("Razón del Cambio");
+            reasonDialog.setHeaderText("Proporcione una razón para el cambio de estado");
+            reasonDialog.setContentText("Razón:");
+            reasonDialog.getDialogPane().getStylesheets().add(getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm());
+            reasonDialog.getDialogPane().getStyleClass().add("dialog-pane");
 
             Optional<String> reason = reasonDialog.showAndWait();
             reason.ifPresent(r -> {
@@ -795,12 +971,12 @@ public class ShipmentManagementController implements Initializable {
                     String adminId = authService.getCurrentPerson().getId();
                     boolean success = shipmentService.changeStatus(shipment.getId(), newStatus, r, adminId);
                     if (success) {
-                        DialogUtil.showSuccess("Status Changed", "Status updated successfully");
+                        DialogUtil.showSuccess("Estado Actualizado", "El estado se actualizó exitosamente");
                         handleRefresh();
                     }
                 } catch (Exception e) {
                     Logger.error("Status change failed: " + e.getMessage());
-                    DialogUtil.showError("Error", "Status change failed: " + e.getMessage());
+                    DialogUtil.showError("Error", "Error al cambiar el estado: " + e.getMessage());
                 }
             });
         });
@@ -848,16 +1024,90 @@ public class ShipmentManagementController implements Initializable {
      */
     private void showRegisterIncidentDialog(ShipmentDTO shipment) {
         ChoiceDialog<IncidentType> typeDialog = new ChoiceDialog<>(IncidentType.DELAY, IncidentType.values());
-        typeDialog.setTitle("Register Incident");
-        typeDialog.setHeaderText("Register incident for shipment " + shipment.getId());
-        typeDialog.setContentText("Select incident type:");
+        typeDialog.setTitle("Registrar Incidente");
+        typeDialog.setHeaderText("Registrar incidente para el envío " + shipment.getId());
+        typeDialog.setContentText("Seleccione el tipo de incidente:");
+
+        // Apply stylesheet
+        typeDialog.getDialogPane().getStylesheets().add(
+            getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm());
+        typeDialog.getDialogPane().getStyleClass().add("dialog-pane");
+
+        // Style buttons
+        javafx.scene.control.Button okButton = (javafx.scene.control.Button)
+            typeDialog.getDialogPane().lookupButton(javafx.scene.control.ButtonType.OK);
+        javafx.scene.control.Button cancelButton = (javafx.scene.control.Button)
+            typeDialog.getDialogPane().lookupButton(javafx.scene.control.ButtonType.CANCEL);
+
+        if (okButton != null) {
+            okButton.setText("Aceptar");
+            okButton.getStyleClass().add("btn-primary");
+        }
+        if (cancelButton != null) {
+            cancelButton.setText("Cancelar");
+            cancelButton.getStyleClass().add("btn-secondary");
+        }
+
+        // Configure ComboBox to show Spanish names
+        @SuppressWarnings("unchecked")
+        javafx.scene.control.ComboBox<IncidentType> comboBox =
+            (javafx.scene.control.ComboBox<IncidentType>) typeDialog.getDialogPane().lookup(".combo-box");
+        if (comboBox != null) {
+            comboBox.setConverter(new javafx.util.StringConverter<IncidentType>() {
+                @Override
+                public String toString(IncidentType type) {
+                    return type == null ? null : type.getDisplayName();
+                }
+
+                @Override
+                public IncidentType fromString(String string) {
+                    return null;
+                }
+            });
+
+            comboBox.setCellFactory(lv -> new javafx.scene.control.ListCell<IncidentType>() {
+                @Override
+                protected void updateItem(IncidentType item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : item.getDisplayName());
+                }
+            });
+
+            comboBox.setButtonCell(new javafx.scene.control.ListCell<IncidentType>() {
+                @Override
+                protected void updateItem(IncidentType item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(item == null ? null : item.getDisplayName());
+                }
+            });
+        }
 
         Optional<IncidentType> typeResult = typeDialog.showAndWait();
         typeResult.ifPresent(type -> {
             TextInputDialog descDialog = new TextInputDialog();
-            descDialog.setTitle("Incident Description");
-            descDialog.setHeaderText("Describe the incident");
-            descDialog.setContentText("Description:");
+            descDialog.setTitle("Descripción del Incidente");
+            descDialog.setHeaderText("Describa el incidente");
+            descDialog.setContentText("Descripción:");
+
+            // Apply stylesheet to description dialog
+            descDialog.getDialogPane().getStylesheets().add(
+                getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm());
+            descDialog.getDialogPane().getStyleClass().add("dialog-pane");
+
+            // Style buttons
+            javafx.scene.control.Button okBtn = (javafx.scene.control.Button)
+                descDialog.getDialogPane().lookupButton(javafx.scene.control.ButtonType.OK);
+            javafx.scene.control.Button cancelBtn = (javafx.scene.control.Button)
+                descDialog.getDialogPane().lookupButton(javafx.scene.control.ButtonType.CANCEL);
+
+            if (okBtn != null) {
+                okBtn.setText("Registrar");
+                okBtn.getStyleClass().add("btn-primary");
+            }
+            if (cancelBtn != null) {
+                cancelBtn.setText("Cancelar");
+                cancelBtn.getStyleClass().add("btn-secondary");
+            }
 
             Optional<String> descResult = descDialog.showAndWait();
             descResult.ifPresent(description -> {
@@ -865,12 +1115,12 @@ public class ShipmentManagementController implements Initializable {
                     String adminId = authService.getCurrentPerson().getId();
                     boolean success = shipmentService.registerIncident(shipment.getId(), type, description, adminId);
                     if (success) {
-                        DialogUtil.showSuccess("Incident Registered", "Incident has been registered successfully");
+                        DialogUtil.showSuccess("Incidente Registrado", "El incidente se ha registrado exitosamente");
                         handleRefresh();
                     }
                 } catch (Exception e) {
                     Logger.error("Failed to register incident: " + e.getMessage());
-                    DialogUtil.showError("Error", "Failed to register incident: " + e.getMessage());
+                    DialogUtil.showError("Error", "No se pudo registrar el incidente: " + e.getMessage());
                 }
             });
         });
@@ -937,12 +1187,41 @@ public class ShipmentManagementController implements Initializable {
             details.append("  N/A\n");
         }
 
-        details.append("\n------- IDs Relacionados -------\n");
-        details.append("ID de Envío: ").append(order.getShipmentId() != null ? order.getShipmentId() : "N/A").append("\n");
-        details.append("ID de Pago: ").append(order.getPaymentId() != null ? order.getPaymentId() : "N/A").append("\n");
-        details.append("ID de Factura: ").append(order.getInvoiceId() != null ? order.getInvoiceId() : "N/A").append("\n");
+        // Open OrderDetail in a modal dialog window
+        try {
+            Logger.info("Opening OrderDetail dialog for order ID: " + order.getId());
 
-        DialogUtil.showInfo("Detalles de la Orden Asociada", details.toString());
+            // Load OrderDetail.fxml
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/OrderDetail.fxml")
+            );
+            javafx.scene.Parent dialogRoot = loader.load();
+
+            // Get controller and load order data
+            OrderDetailController orderDetailController = loader.getController();
+            orderDetailController.loadOrderDetails(order.getId());
+
+            // Create dialog stage
+            javafx.stage.Stage dialogStage = new javafx.stage.Stage();
+            dialogStage.setTitle("Detalles de la Orden - " + order.getId());
+            dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialogStage.setResizable(true);
+            dialogStage.setMinWidth(800);
+            dialogStage.setMinHeight(600);
+
+            // Create scene and apply stylesheet
+            javafx.scene.Scene scene = new javafx.scene.Scene(dialogRoot, 900, 700);
+            String stylesheet = getClass().getResource("/co/edu/uniquindio/poo/proyectofinal2025_2/Style.css").toExternalForm();
+            scene.getStylesheets().add(stylesheet);
+
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+
+        } catch (Exception e) {
+            Logger.error("Failed to open OrderDetail dialog: " + e.getMessage());
+            DialogUtil.showError("Error", "No se pudo abrir los detalles de la orden.");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -977,6 +1256,10 @@ public class ShipmentManagementController implements Initializable {
         dialog.setTitle("Asignar Repartidor");
         dialog.setHeaderText("Asignar repartidor al envío " + shipment.getId());
         dialog.setContentText("Seleccione un repartidor:");
+
+        // Apply CSS styling
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm());
+        dialog.getDialogPane().getStyleClass().add("dialog-pane");
 
         // Custom cell factory for better display
         dialog.getDialogPane().lookupAll(".combo-box").forEach(node -> {
@@ -1045,16 +1328,23 @@ public class ShipmentManagementController implements Initializable {
 
             javafx.stage.Stage stage = new javafx.stage.Stage();
             stage.setTitle("Historial Completo - " + shipment.getId());
-            javafx.scene.Scene scene = new javafx.scene.Scene(root);
-            co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeManager.getInstance().applyThemeToScene(scene);
-            stage.setScene(scene);
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            stage.setResizable(false);
-            stage.show();
+            stage.setResizable(true);
+            stage.setMinWidth(600);
+            stage.setMinHeight(500);
+
+            // Create scene and apply stylesheet
+            javafx.scene.Scene scene = new javafx.scene.Scene(root, 650, 550);
+            String stylesheet = getClass().getResource("/co/edu/uniquindio/poo/proyectofinal2025_2/Style.css").toExternalForm();
+            scene.getStylesheets().add(stylesheet);
+
+            stage.setScene(scene);
+            stage.showAndWait();
 
         } catch (Exception e) {
             Logger.error("Failed to load ShipmentHistoryDialog: " + e.getMessage());
             DialogUtil.showError("Error", "No se pudo abrir el historial del envío");
+            e.printStackTrace();
         }
     }
 
@@ -1172,10 +1462,20 @@ public class ShipmentManagementController implements Initializable {
      */
     @FXML
     private void handleBack() {
-        if (sourceView != null && indexController != null) {
-            Logger.info("Navigating back to: " + sourceView);
-            indexController.loadView(sourceView);
+        Logger.info("handleBack called - sourceView: " + sourceView + ", indexController: " + (indexController != null ? "set" : "null"));
+
+        if (sourceView == null) {
+            Logger.warning("sourceView is null, cannot navigate back");
+            return;
         }
+
+        if (indexController == null) {
+            Logger.error("indexController is null, cannot navigate back");
+            return;
+        }
+
+        Logger.info("Navigating back to: " + sourceView);
+        indexController.loadView(sourceView);
     }
 
     // =================================================================================================================

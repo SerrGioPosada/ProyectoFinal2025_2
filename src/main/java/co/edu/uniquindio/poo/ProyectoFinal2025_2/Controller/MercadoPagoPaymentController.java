@@ -4,26 +4,24 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.User;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Invoice;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.LineItem;
-import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.PaymentMethod;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.MercadoPagoPreferenceDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.OrderDetailDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.MercadoPagoService;
-import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.PaymentMethodService;
-import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.CheckoutService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.NotificationService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.OrderService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.InvoiceRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.AdminRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.WebView;
 import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.geometry.Insets;
-import javafx.stage.Stage;
 import javafx.concurrent.Worker;
 
 import java.net.URL;
@@ -32,33 +30,33 @@ import java.util.ResourceBundle;
 
 /**
  * Controller for Mercado Pago payment integration.
- * This controller handles the payment step of the checkout process.
+ * This controller handles REAL payment processing via Mercado Pago API.
+ * Uses WebView to display Mercado Pago checkout within the application.
+ * This view is loaded in the Index content area (not as a popup).
  */
 public class MercadoPagoPaymentController implements Initializable {
 
     @FXML private Label lblOrderId;
     @FXML private Label lblTotalAmount;
     @FXML private VBox costBreakdownContainer;
-    @FXML private ComboBox<PaymentMethod> cmbPaymentMethod;
-    @FXML private RadioButton rbMercadoPago;
-    @FXML private RadioButton rbSavedMethod;
     @FXML private Button btnProceedPayment;
-    @FXML private Label lblMercadoPagoInfo;
+    @FXML private Button btnGoBack;
+    @FXML private Button btnCancel;
     @FXML private ProgressIndicator progressIndicator;
-    @FXML private WebView webViewPayment;
-    @FXML private VBox vboxPaymentForm;
-    @FXML private VBox vboxWebView;
+    @FXML private WebView webView;
+    @FXML private VBox paymentInfoContainer;
 
     private final AuthenticationService authService = AuthenticationService.getInstance();
     private final MercadoPagoService mercadoPagoService = new MercadoPagoService();
-    private final PaymentMethodService paymentMethodService = new PaymentMethodService();
-    private final CheckoutService checkoutService = new CheckoutService();
     private final InvoiceRepository invoiceRepository = InvoiceRepository.getInstance();
+    private final OrderService orderService = new OrderService();
 
     private User currentUser;
     private Order currentOrder;
     private OrderDetailDTO orderDetail;
     private Invoice invoice;
+    private IndexController indexController;
+    private PaymentProcessorSelectionController selectionController;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -70,10 +68,22 @@ public class MercadoPagoPaymentController implements Initializable {
             return;
         }
 
-        setupPaymentMethodToggle();
-        loadUserPaymentMethods();
         setupUI();
         Logger.info("MercadoPagoPaymentController initialized");
+    }
+
+    /**
+     * Sets the IndexController reference.
+     */
+    public void setIndexController(IndexController indexController) {
+        this.indexController = indexController;
+    }
+
+    /**
+     * Sets the SelectionController reference.
+     */
+    public void setSelectionController(PaymentProcessorSelectionController selectionController) {
+        this.selectionController = selectionController;
     }
 
     /**
@@ -93,37 +103,6 @@ public class MercadoPagoPaymentController implements Initializable {
         }
 
         displayOrderInfo();
-    }
-
-    private void setupPaymentMethodToggle() {
-        ToggleGroup paymentTypeGroup = new ToggleGroup();
-        rbMercadoPago.setToggleGroup(paymentTypeGroup);
-        rbSavedMethod.setToggleGroup(paymentTypeGroup);
-        rbMercadoPago.setSelected(true);
-
-        paymentTypeGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == rbMercadoPago) {
-                cmbPaymentMethod.setDisable(true);
-                cmbPaymentMethod.setVisible(false);
-                lblMercadoPagoInfo.setVisible(true);
-            } else {
-                cmbPaymentMethod.setDisable(false);
-                cmbPaymentMethod.setVisible(true);
-                lblMercadoPagoInfo.setVisible(false);
-            }
-        });
-    }
-
-    private void loadUserPaymentMethods() {
-        List<PaymentMethod> methods = paymentMethodService.getPaymentMethodsByUserId(currentUser.getId());
-        cmbPaymentMethod.getItems().clear();
-        cmbPaymentMethod.getItems().addAll(methods);
-        if (!methods.isEmpty()) {
-            cmbPaymentMethod.setValue(methods.get(0));
-        } else {
-            rbSavedMethod.setDisable(true);
-            rbMercadoPago.setSelected(true);
-        }
     }
 
     private void displayOrderInfo() {
@@ -180,18 +159,12 @@ public class MercadoPagoPaymentController implements Initializable {
     }
 
     private void setupUI() {
-        progressIndicator.setVisible(false);
-        cmbPaymentMethod.setDisable(true);
-        cmbPaymentMethod.setVisible(false);
-
-        // Initially hide WebView and show payment form
-        if (vboxWebView != null) {
-            vboxWebView.setVisible(false);
-            vboxWebView.setManaged(false);
+        if (progressIndicator != null) {
+            progressIndicator.setVisible(false);
         }
-        if (vboxPaymentForm != null) {
-            vboxPaymentForm.setVisible(true);
-            vboxPaymentForm.setManaged(true);
+        if (webView != null) {
+            webView.setVisible(false);
+            webView.setManaged(false);
         }
     }
 
@@ -201,11 +174,7 @@ public class MercadoPagoPaymentController implements Initializable {
             DialogUtil.showError("Error", "No hay orden para procesar");
             return;
         }
-        if (rbMercadoPago.isSelected()) {
-            processMercadoPagoPayment();
-        } else {
-            processSavedMethodPayment();
-        }
+        processMercadoPagoPayment();
     }
 
     private void processMercadoPagoPayment() {
@@ -233,7 +202,9 @@ public class MercadoPagoPaymentController implements Initializable {
             );
 
             if (proceed) {
-                openWebViewPayment(checkoutUrl);
+                // Open in WebView within the application
+                Logger.info("Opening Mercado Pago checkout in WebView");
+                loadCheckoutInWebView(checkoutUrl);
             }
 
         } catch (Exception e) {
@@ -246,86 +217,62 @@ public class MercadoPagoPaymentController implements Initializable {
         }
     }
 
-    private void processSavedMethodPayment() {
-        Logger.info("Processing payment with saved method for order: " + currentOrder.getId());
-        PaymentMethod selectedMethod = cmbPaymentMethod.getValue();
-
-        if (selectedMethod == null) {
-            DialogUtil.showError("Error", "Seleccione un método de pago");
+    /**
+     * Loads the Mercado Pago checkout URL in the WebView.
+     */
+    private void loadCheckoutInWebView(String checkoutUrl) {
+        if (webView == null) {
+            Logger.error("WebView not initialized");
+            DialogUtil.showError("Error", "WebView no está disponible");
             return;
         }
 
-        progressIndicator.setVisible(true);
-        btnProceedPayment.setDisable(true);
-
-        try {
-            boolean success = checkoutService.processOrder(currentOrder);
-            if (success) {
-                DialogUtil.showSuccess("Pago Exitoso",
-                        "Su pago ha sido procesado exitosamente.\n\nOrden: " + currentOrder.getId());
-                closeWindow();
-            } else {
-                DialogUtil.showError("Error en el Pago",
-                        "No se pudo procesar el pago. Por favor intente de nuevo.");
-            }
-        } catch (Exception e) {
-            Logger.error("Failed to process payment: " + e.getMessage());
-            DialogUtil.showError("Error en el Pago",
-                    "Ocurrió un error al procesar el pago:\n" + e.getMessage());
-        } finally {
-            progressIndicator.setVisible(false);
-            btnProceedPayment.setDisable(false);
-        }
-    }
-
-    /**
-     * Opens Mercado Pago checkout in an embedded WebView.
-     * Monitors the payment flow and updates order status accordingly.
-     */
-    private void openWebViewPayment(String checkoutUrl) {
-        Logger.info("Opening Mercado Pago checkout in WebView: " + checkoutUrl);
-
-        // Hide payment form, show WebView
-        if (vboxPaymentForm != null) {
-            vboxPaymentForm.setVisible(false);
-            vboxPaymentForm.setManaged(false);
-        }
-        if (vboxWebView != null) {
-            vboxWebView.setVisible(true);
-            vboxWebView.setManaged(true);
+        // Hide payment info, show WebView
+        if (paymentInfoContainer != null) {
+            paymentInfoContainer.setVisible(false);
+            paymentInfoContainer.setManaged(false);
         }
 
-        // Configure WebView
-        if (webViewPayment != null) {
-            WebEngine webEngine = webViewPayment.getEngine();
+        webView.setVisible(true);
+        webView.setManaged(true);
 
-            // Enable JavaScript
-            webEngine.setJavaScriptEnabled(true);
+        // Hide "Proceder" button, show navigation buttons
+        btnProceedPayment.setVisible(false);
+        btnProceedPayment.setManaged(false);
+        if (btnGoBack != null) {
+            btnGoBack.setVisible(true);
+            btnGoBack.setManaged(true);
+        }
+        if (btnCancel != null) {
+            btnCancel.setVisible(true);
+            btnCancel.setManaged(true);
+        }
 
-            // Monitor page loading and URL changes
-            webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-                if (newState == Worker.State.SUCCEEDED) {
-                    String currentUrl = webEngine.getLocation();
-                    Logger.info("WebView loaded URL: " + currentUrl);
+        // Setup WebView
+        WebEngine webEngine = webView.getEngine();
 
-                    // Check if payment was completed (redirected to success URL)
-                    if (currentUrl != null && currentUrl.contains("/payment/success")) {
-                        handlePaymentSuccess();
-                    } else if (currentUrl != null && currentUrl.contains("/payment/failure")) {
-                        handlePaymentFailure();
-                    } else if (currentUrl != null && currentUrl.contains("/payment/pending")) {
-                        handlePaymentPending();
-                    }
+        // Monitor URL changes to detect payment completion
+        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            if (newState == Worker.State.SUCCEEDED) {
+                String currentUrl = webEngine.getLocation();
+                Logger.info("WebView loaded URL: " + currentUrl);
+
+                // Check if payment was completed, cancelled, or failed
+                if (currentUrl.contains("/success") || currentUrl.contains("payment_status=approved")) {
+                    handlePaymentSuccess();
+                } else if (currentUrl.contains("/failure") || currentUrl.contains("payment_status=rejected")) {
+                    handlePaymentFailure();
+                } else if (currentUrl.contains("/pending") || currentUrl.contains("payment_status=pending")) {
+                    handlePaymentPending();
                 }
-            });
+            }
+        });
 
-            // Load the checkout URL
-            webEngine.load(checkoutUrl);
-        } else {
-            Logger.error("WebView component not found in FXML");
-            DialogUtil.showError("Error", "No se pudo cargar el componente de pago");
-        }
+        // Load the checkout URL
+        webEngine.load(checkoutUrl);
+        Logger.info("Mercado Pago checkout loaded in WebView");
     }
+
 
     /**
      * Handles successful payment completion.
@@ -341,7 +288,7 @@ public class MercadoPagoPaymentController implements Initializable {
         // Notify admin about new order pending approval
         notifyAdminAboutNewOrder();
 
-        closeWindow();
+        returnToDashboard();
     }
 
     /**
@@ -354,8 +301,7 @@ public class MercadoPagoPaymentController implements Initializable {
                 "El pago no pudo ser completado.\n\n" +
                 "Por favor intenta nuevamente o contacta con soporte.");
 
-        // Return to payment form
-        showPaymentForm();
+        returnToPaymentSelection();
     }
 
     /**
@@ -368,21 +314,7 @@ public class MercadoPagoPaymentController implements Initializable {
                 "Tu pago está siendo procesado.\n\n" +
                 "Recibirás una confirmación cuando sea aprobado.");
 
-        closeWindow();
-    }
-
-    /**
-     * Shows the payment form (hides WebView).
-     */
-    private void showPaymentForm() {
-        if (vboxWebView != null) {
-            vboxWebView.setVisible(false);
-            vboxWebView.setManaged(false);
-        }
-        if (vboxPaymentForm != null) {
-            vboxPaymentForm.setVisible(true);
-            vboxPaymentForm.setManaged(true);
-        }
+        returnToDashboard();
     }
 
     /**
@@ -425,17 +357,87 @@ public class MercadoPagoPaymentController implements Initializable {
         }
     }
 
+    /**
+     * Handles "Volver" button - returns to payment selection.
+     */
+    @FXML
+    private void handleGoBack() {
+        Logger.info("Going back to payment selection");
+        returnToPaymentSelection();
+    }
+
+    /**
+     * Handles "Cancelar" button - cancels the order if possible and returns to dashboard.
+     */
     @FXML
     private void handleCancel() {
         boolean confirmed = DialogUtil.showConfirmation("Cancelar Pago",
                 "¿Está seguro que desea cancelar el proceso de pago?");
         if (confirmed) {
-            closeWindow();
+            Logger.info("Payment cancelled by user");
+
+            // Cancel the order if it can be cancelled
+            if (currentOrder != null) {
+                try {
+                    if (orderService.canCancelOrder(currentOrder.getId())) {
+                        orderService.cancelOrder(currentOrder.getId());
+                        Logger.info("Order " + currentOrder.getId() + " cancelled successfully");
+                    } else {
+                        Logger.warning("Order " + currentOrder.getId() + " cannot be cancelled in its current state");
+                    }
+                } catch (Exception e) {
+                    Logger.error("Error cancelling order: " + e.getMessage());
+                    // Continue with navigation even if cancellation fails
+                }
+            }
+
+            returnToDashboard();
         }
     }
 
-    private void closeWindow() {
-        Stage stage = (Stage) lblOrderId.getScene().getWindow();
-        stage.close();
+    /**
+     * Returns to the payment processor selection view.
+     */
+    private void returnToPaymentSelection() {
+        if (selectionController != null && indexController != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/PaymentProcessorSelection.fxml")
+                );
+
+                indexController.getContentArea().getChildren().clear();
+                indexController.getContentArea().getChildren().add(loader.load());
+
+                // Re-configure the selection controller
+                PaymentProcessorSelectionController newSelectionController = loader.getController();
+                newSelectionController.setIndexController(indexController);
+                newSelectionController.setWizardController(
+                    selectionController.wizardController != null ? selectionController.wizardController : null
+                );
+                newSelectionController.setOrder(currentOrder, orderDetail);
+
+                Logger.info("Returned to payment selection view");
+
+            } catch (Exception e) {
+                Logger.error("Error loading payment selection view: " + e.getMessage());
+                returnToDashboard();
+            }
+        } else {
+            returnToDashboard();
+        }
+    }
+
+    /**
+     * Returns to the user dashboard.
+     */
+    private void returnToDashboard() {
+        if (indexController != null) {
+            try {
+                indexController.loadView("UserDashboard.fxml");
+                Logger.info("Returned to dashboard");
+            } catch (Exception e) {
+                Logger.error("Error loading dashboard: " + e.getMessage());
+            }
+        }
     }
 }

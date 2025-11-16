@@ -2,13 +2,17 @@ package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Shipment;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.User;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.AvailabilityStatus;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.CoverageArea;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.OrderStatus;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.OrderRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.ShipmentRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.UserRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.OrderService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ReportService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.TabStateManager;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
@@ -25,6 +29,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -81,7 +86,9 @@ public class AdminOrderManagementController implements Initializable {
     private final OrderRepository orderRepository = OrderRepository.getInstance();
     private final UserRepository userRepository = UserRepository.getInstance();
     private final DeliveryPersonRepository deliveryPersonRepository = DeliveryPersonRepository.getInstance();
+    private final ShipmentRepository shipmentRepository = ShipmentRepository.getInstance();
     private final OrderService orderService = new OrderService();
+    private final ReportService reportService = ReportService.getInstance();
 
     // Data
     private ObservableList<Order> ordersData;
@@ -182,6 +189,14 @@ public class AdminOrderManagementController implements Initializable {
 
             MenuItem approveOrder = new MenuItem("Aprobar y Crear Envío");
             approveOrder.setOnAction(e -> approveOrderAndCreateShipment(row.getItem()));
+
+            // Only show approve button if order status is PENDING_APPROVAL
+            approveOrder.visibleProperty().bind(
+                javafx.beans.binding.Bindings.createBooleanBinding(() -> {
+                    Order order = row.getItem();
+                    return order != null && order.getStatus() == OrderStatus.PENDING_APPROVAL;
+                }, row.itemProperty())
+            );
 
             MenuItem rejectOrder = new MenuItem("Rechazar Orden");
             rejectOrder.setOnAction(e -> rejectOrder(row.getItem()));
@@ -284,13 +299,34 @@ public class AdminOrderManagementController implements Initializable {
                     .collect(Collectors.toList());
         }
 
-        // Filter by search text
+        // Filter by search text (searches by order ID, user email, and shipment ID)
         if (searchField != null && searchField.getText() != null && !searchField.getText().isEmpty()) {
             String searchText = searchField.getText().toLowerCase();
             allOrders = allOrders.stream()
-                    .filter(order ->
-                        order.getId().toLowerCase().contains(searchText) ||
-                        (order.getUserId() != null && order.getUserId().toLowerCase().contains(searchText)))
+                    .filter(order -> {
+                        // Search by order ID
+                        if (order.getId().toLowerCase().contains(searchText)) {
+                            return true;
+                        }
+
+                        // Search by user email
+                        if (order.getUserId() != null) {
+                            User user = userRepository.findById(order.getUserId()).orElse(null);
+                            if (user != null && user.getEmail().toLowerCase().contains(searchText)) {
+                                return true;
+                            }
+                        }
+
+                        // Search by shipment ID associated with this order
+                        Optional<Shipment> shipmentOpt = shipmentRepository.findAll().stream()
+                                .filter(s -> order.getId().equals(s.getOrderId()))
+                                .findFirst();
+                        if (shipmentOpt.isPresent() && shipmentOpt.get().getId().toLowerCase().contains(searchText)) {
+                            return true;
+                        }
+
+                        return false;
+                    })
                     .collect(Collectors.toList());
         }
 
@@ -353,9 +389,18 @@ public class AdminOrderManagementController implements Initializable {
             controller.loadOrderDetails(order.getId());
 
             Stage stage = new Stage();
-            stage.setTitle("Detalles de la Orden");
+            stage.setTitle("Detalles de la Orden - " + order.getId());
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setScene(new Scene(root));
+            stage.setResizable(true);
+            stage.setMinWidth(600);
+            stage.setMinHeight(700);
+
+            // Create scene and apply stylesheet (more vertical layout)
+            Scene scene = new Scene(root, 650, 800);
+            String stylesheet = getClass().getResource("/co/edu/uniquindio/poo/proyectofinal2025_2/Style.css").toExternalForm();
+            scene.getStylesheets().add(stylesheet);
+
+            stage.setScene(scene);
             stage.showAndWait();
 
         } catch (Exception e) {
@@ -560,17 +605,10 @@ public class AdminOrderManagementController implements Initializable {
 
     /**
      * Show the complete history of an order (unified Order + Shipment timeline).
+     * Shows order events always, and includes shipment events if available.
      */
     private void showOrderHistory(Order order) {
         if (order == null) return;
-
-        // Check if order has associated shipment
-        if (order.getShipmentId() == null || order.getShipmentId().isEmpty()) {
-            DialogUtil.showInfo("Historial No Disponible",
-                "Esta orden aún no tiene un envío asociado.\n\n" +
-                "El historial completo estará disponible después de aprobar la orden y crear el envío.");
-            return;
-        }
 
         try {
             // Load the ShipmentHistoryDialog
@@ -578,16 +616,25 @@ public class AdminOrderManagementController implements Initializable {
                 "/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/ShipmentHistoryDialog.fxml"));
             Parent root = loader.load();
 
-            // Get controller and load history
+            // Get controller and load history from order
             ShipmentHistoryDialogController controller = loader.getController();
-            controller.loadHistory(order.getShipmentId());
+            controller.loadHistoryFromOrder(order.getId());
 
             // Create and show modal dialog
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Historial Completo - Orden " + order.getId());
             dialogStage.initModality(Modality.APPLICATION_MODAL);
             dialogStage.initOwner(ordersTable.getScene().getWindow());
-            dialogStage.setScene(new Scene(root));
+            dialogStage.setResizable(true);
+            dialogStage.setMinWidth(600);
+            dialogStage.setMinHeight(500);
+
+            // Create scene and apply stylesheet
+            Scene scene = new Scene(root, 650, 550);
+            String stylesheet = getClass().getResource("/co/edu/uniquindio/poo/proyectofinal2025_2/Style.css").toExternalForm();
+            scene.getStylesheets().add(stylesheet);
+
+            dialogStage.setScene(scene);
             dialogStage.showAndWait();
 
         } catch (Exception e) {
@@ -826,13 +873,98 @@ public class AdminOrderManagementController implements Initializable {
     }
 
     /**
+     * Handles export button click - shows format selection dialog and exports orders.
+     */
+    @FXML
+    private void handleExport() {
+        if (ordersData == null || ordersData.isEmpty()) {
+            DialogUtil.showWarning("Sin Datos", "No hay órdenes para exportar.");
+            return;
+        }
+
+        // Show dialog to choose export format
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Exportar Órdenes");
+        alert.setHeaderText("Seleccione el formato de exportación");
+        alert.setContentText(String.format("Se exportarán %d órdenes (filtradas).", ordersData.size()));
+
+        ButtonType btnCSV = new ButtonType("CSV");
+        ButtonType btnPDF = new ButtonType("PDF");
+        ButtonType btnCancel = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(btnCSV, btnPDF, btnCancel);
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == btnCSV) {
+                exportToCSV();
+            } else if (response == btnPDF) {
+                exportToPDF();
+            }
+        });
+    }
+
+    /**
+     * Exports orders to CSV format.
+     */
+    private void exportToCSV() {
+        try {
+            List<Order> orders = ordersData.stream().collect(Collectors.toList());
+
+            File file = reportService.exportOrdersToCSV(orders);
+
+            if (file != null && file.exists()) {
+                DialogUtil.showSuccess("Exportación Exitosa",
+                        "Archivo exportado a: " + file.getAbsolutePath());
+                Logger.info("Orders exported to CSV: " + file.getAbsolutePath());
+            } else {
+                DialogUtil.showError("Error", "No se pudo crear el archivo de exportación.");
+            }
+        } catch (Exception e) {
+            Logger.error("Error exporting orders to CSV: " + e.getMessage());
+            DialogUtil.showError("Error", "Error al exportar: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Exports orders to PDF format.
+     */
+    private void exportToPDF() {
+        try {
+            List<Order> orders = ordersData.stream().collect(Collectors.toList());
+
+            File file = reportService.exportOrdersToPDF(orders);
+
+            if (file != null && file.exists()) {
+                DialogUtil.showSuccess("Exportación Exitosa",
+                        "Archivo exportado a: " + file.getAbsolutePath());
+                Logger.info("Orders exported to PDF: " + file.getAbsolutePath());
+            } else {
+                DialogUtil.showError("Error", "No se pudo crear el archivo de exportación.");
+            }
+        } catch (Exception e) {
+            Logger.error("Error exporting orders to PDF: " + e.getMessage());
+            DialogUtil.showError("Error", "Error al exportar: " + e.getMessage());
+        }
+    }
+
+    /**
      * Handles the back button click - returns to the source view.
      */
     @FXML
     private void handleBack() {
-        if (sourceView != null && indexController != null) {
-            Logger.info("Navigating back to: " + sourceView);
-            indexController.loadView(sourceView);
+        Logger.info("handleBack called - sourceView: " + sourceView + ", indexController: " + (indexController != null ? "set" : "null"));
+
+        if (sourceView == null) {
+            Logger.warning("sourceView is null, cannot navigate back");
+            return;
         }
+
+        if (indexController == null) {
+            Logger.error("indexController is null, cannot navigate back");
+            return;
+        }
+
+        Logger.info("Navigating back to: " + sourceView);
+        indexController.loadView(sourceView);
     }
 }

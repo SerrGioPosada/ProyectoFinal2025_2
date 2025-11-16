@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.DeliveryRouteMapController"
+            styleClass="scroll-base"
+            fitToWidth="true">
+
+    <VBox spacing="20" styleClass="content-area">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header Section -->
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-section">
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label text="Hoja de Ruta" styleClass="page-title"/>
+                <Label text="Visualiza tus puntos de recolección y entrega" styleClass="info-label"/>
+            </VBox>
+            <Button text="Actualizar Ruta" onAction="#handleRefreshRoute" styleClass="btn-primary"/>
+            <Button text="Optimizar Ruta" onAction="#handleOptimizeRoute" styleClass="btn-secondary"/>
+        </HBox>
+
+        <!-- Route Statistics Section -->
+        <GridPane hgap="10" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+            </columnConstraints>
+
+            <VBox styleClass="stat-card-compact" spacing="5" GridPane.columnIndex="0">
+                <Label text="Puntos Totales" styleClass="stat-label-compact"/>
+                <Label fx:id="lblTotalPoints" text="0" styleClass="stat-value-compact"/>
+            </VBox>
+
+            <VBox styleClass="stat-card-compact-warning" spacing="5" GridPane.columnIndex="1">
+                <Label text="Recolecciones" styleClass="stat-label-compact"/>
+                <Label fx:id="lblPickups" text="0" styleClass="stat-value-compact"/>
+            </VBox>
+
+            <VBox styleClass="stat-card-compact-info" spacing="5" GridPane.columnIndex="2">
+                <Label text="Entregas" styleClass="stat-label-compact"/>
+                <Label fx:id="lblDeliveries" text="0" styleClass="stat-value-compact"/>
+            </VBox>
+
+            <VBox styleClass="stat-card-compact-success" spacing="5" GridPane.columnIndex="3">
+                <Label text="Distancia Total" styleClass="stat-label-compact"/>
+                <Label fx:id="lblTotalDistance" text="0 km" styleClass="stat-value-compact"/>
+            </VBox>
+        </GridPane>
+
+        <!-- Map Container (Simulated) -->
+        <VBox styleClass="section-container" spacing="15" VBox.vgrow="ALWAYS" prefHeight="500">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Mapa de Ruta" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                <ComboBox fx:id="cmbMapView" prefWidth="150" styleClass="combo-box"/>
+            </HBox>
+
+            <!-- Simulated Map Canvas -->
+            <StackPane fx:id="mapContainer" styleClass="map-canvas" VBox.vgrow="ALWAYS" prefHeight="450">
+                <VBox alignment="CENTER" spacing="20">
+                    <Label text="🗺️" style="-fx-font-size: 72px;"/>
+                    <VBox alignment="CENTER" spacing="5">
+                        <Label text="Vista del Mapa" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+                        <Label fx:id="lblMapStatus" text="Cargando ruta..." style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
+                    </VBox>
+                </VBox>
+            </StackPane>
+        </VBox>
+
+        <!-- Route Points List Section -->
+        <HBox spacing="15" VBox.vgrow="ALWAYS">
+            <!-- Pickup Points -->
+            <VBox spacing="10" styleClass="section-container" HBox.hgrow="ALWAYS">
+                <Label text="📦 Puntos de Recolección" styleClass="section-title"/>
+                <ListView fx:id="listPickupPoints" VBox.vgrow="ALWAYS" prefHeight="300" styleClass="route-list"/>
+            </VBox>
+
+            <!-- Delivery Points -->
+            <VBox spacing="10" styleClass="section-container" HBox.hgrow="ALWAYS">
+                <Label text="📍 Puntos de Entrega" styleClass="section-title"/>
+                <ListView fx:id="listDeliveryPoints" VBox.vgrow="ALWAYS" prefHeight="300" styleClass="route-list"/>
+            </VBox>
+        </HBox>
+
+        <!-- Legend and Instructions -->
+        <VBox styleClass="info-card" spacing="10">
+            <Label text="Cómo leer el Mapa" styleClass="label-bold"/>
+            <GridPane hgap="30" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="33"/>
+                    <ColumnConstraints percentWidth="33"/>
+                    <ColumnConstraints percentWidth="34"/>
+                </columnConstraints>
+
+                <HBox spacing="8" alignment="CENTER_LEFT" GridPane.columnIndex="0">
+                    <Label text="🔴" style="-fx-font-size: 16px;"/>
+                    <Label text="Punto de Recolección Pendiente" styleClass="info-label"/>
+                </HBox>
+
+                <HBox spacing="8" alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                    <Label text="🔵" style="-fx-font-size: 16px;"/>
+                    <Label text="Punto de Entrega Pendiente" styleClass="info-label"/>
+                </HBox>
+
+                <HBox spacing="8" alignment="CENTER_LEFT" GridPane.columnIndex="2">
+                    <Label text="✅" style="-fx-font-size: 16px;"/>
+                    <Label text="Punto Completado" styleClass="info-label"/>
+                </HBox>
+            </GridPane>
+
+            <Separator/>
+
+            <Label text="• Haz clic en un punto para ver detalles del envío" styleClass="info-label" wrapText="true"/>
+            <Label text="• Usa 'Optimizar Ruta' para calcular la ruta más eficiente" styleClass="info-label" wrapText="true"/>
+            <Label text="• El mapa se actualiza automáticamente con tus envíos asignados" styleClass="info-label" wrapText="true"/>
+        </VBox>
+
+    </VBox>
+</ScrollPane>

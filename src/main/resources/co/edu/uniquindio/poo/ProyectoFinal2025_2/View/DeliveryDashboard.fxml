@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.DeliveryDashboardController"
+            styleClass="scroll-base"
+            fitToWidth="true">
+
+    <VBox spacing="20" styleClass="content-area">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header Section -->
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-section">
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label fx:id="lblWelcome" text="Bienvenido, Repartidor" styleClass="page-title"/>
+                <Label fx:id="lblLastUpdated" text="Última actualización: --" styleClass="info-label"/>
+            </VBox>
+            <Button text="Actualizar" onAction="#handleRefresh" styleClass="btn-primary"/>
+        </HBox>
+
+        <!-- Estado de Disponibilidad y Vehículo Asignado - Lado a Lado -->
+        <HBox spacing="15">
+            <!-- Estado de Disponibilidad (50%) -->
+            <VBox styleClass="dashboard-stat-card" spacing="15" HBox.hgrow="ALWAYS" prefWidth="50" alignment="TOP_CENTER">
+                <Label text="Estado de Disponibilidad" styleClass="section-title" style="-fx-alignment: center;"/>
+
+                <VBox spacing="8" alignment="CENTER" VBox.vgrow="ALWAYS">
+                    <Label text="Estado:" styleClass="label-bold"/>
+                    <Label fx:id="lblAvailabilityStatus" text="DISPONIBLE" styleClass="status-badge-available"/>
+                </VBox>
+
+                <HBox alignment="CENTER">
+                    <Button fx:id="btnChangeStatus" text="Cambiar Estado" onAction="#handleChangeStatus"
+                            styleClass="btn-update" prefWidth="160" prefHeight="36"/>
+                </HBox>
+            </VBox>
+
+            <!-- Vehículo Asignado (50%) -->
+            <VBox styleClass="dashboard-stat-card" spacing="15" HBox.hgrow="ALWAYS" prefWidth="50" alignment="TOP_CENTER">
+                <Label text="Vehículo Asignado" styleClass="section-title" style="-fx-alignment: center;"/>
+
+                <VBox spacing="8" alignment="CENTER" VBox.vgrow="ALWAYS">
+                    <HBox spacing="5" alignment="CENTER">
+                        <Label text="Placa:" styleClass="label-bold"/>
+                        <Label fx:id="lblVehiclePlate" text="--" styleClass="info-label"/>
+                    </HBox>
+                    <HBox spacing="5" alignment="CENTER">
+                        <Label text="Tipo:" styleClass="label-bold"/>
+                        <Label fx:id="lblVehicleType" text="--" styleClass="info-label"/>
+                    </HBox>
+                    <HBox spacing="5" alignment="CENTER">
+                        <Label text="Capacidad:" styleClass="label-bold"/>
+                        <Label fx:id="lblVehicleCapacity" text="--" styleClass="info-label"/>
+                    </HBox>
+                </VBox>
+
+                <HBox alignment="CENTER">
+                    <Button fx:id="btnChangeVehicle" text="Cambiar Vehículo" onAction="#handleChangeVehicle"
+                            styleClass="btn-update" prefWidth="160" prefHeight="36"/>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- Estadísticas de Envíos -->
+        <VBox styleClass="section-container" spacing="15">
+            <Label text="Estadísticas de Envíos" styleClass="section-title"/>
+            <GridPane hgap="15" vgap="15">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                </columnConstraints>
+
+                <!-- Total Asignados -->
+                <VBox styleClass="dashboard-stat-card" spacing="10" alignment="CENTER" GridPane.columnIndex="0"
+                      style="-fx-padding: 20;">
+                    <Label text="Total Asignados" styleClass="stat-card-label"
+                           style="-fx-font-size: 13px; -fx-text-fill: #6c757d;"/>
+                    <Label fx:id="lblTotalAssigned" text="0" styleClass="stat-card-value"
+                           style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+                </VBox>
+
+                <!-- Pendientes -->
+                <VBox styleClass="dashboard-stat-card" spacing="10" alignment="CENTER" GridPane.columnIndex="1"
+                      style="-fx-padding: 20;">
+                    <Label text="Pendientes" styleClass="stat-card-label"
+                           style="-fx-font-size: 13px; -fx-text-fill: #6c757d;"/>
+                    <Label fx:id="lblPending" text="0" styleClass="stat-card-value-pending"
+                           style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #ffc107;"/>
+                </VBox>
+
+                <!-- En Tránsito -->
+                <VBox styleClass="dashboard-stat-card" spacing="10" alignment="CENTER" GridPane.columnIndex="2"
+                      style="-fx-padding: 20;">
+                    <Label text="En Tránsito" styleClass="stat-card-label"
+                           style="-fx-font-size: 13px; -fx-text-fill: #6c757d;"/>
+                    <Label fx:id="lblInTransit" text="0" styleClass="stat-card-value-processing"
+                           style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
+                </VBox>
+
+                <!-- Entregados Hoy -->
+                <VBox styleClass="dashboard-stat-card" spacing="10" alignment="CENTER" GridPane.columnIndex="3"
+                      style="-fx-padding: 20;">
+                    <Label text="Entregados Hoy" styleClass="stat-card-label"
+                           style="-fx-font-size: 13px; -fx-text-fill: #6c757d;"/>
+                    <Label fx:id="lblDeliveredToday" text="0" styleClass="stat-card-value-completed"
+                           style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
+                </VBox>
+            </GridPane>
+        </VBox>
+
+        <!-- Acciones Rápidas -->
+        <VBox styleClass="section-container" spacing="15">
+            <Label text="Acciones Rápidas" styleClass="section-title"/>
+            <GridPane hgap="15" vgap="15">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                </columnConstraints>
+
+                <!-- Ver Mis Envíos -->
+                <VBox styleClass="quick-action-card" alignment="CENTER" spacing="10" GridPane.columnIndex="0"
+                      onMouseClicked="#handleGoToShipments">
+                    <Label text="📦" styleClass="action-card-icon"/>
+                    <Label text="Mis Envíos" styleClass="action-card-text"/>
+                </VBox>
+
+                <!-- Ver Historial -->
+                <VBox styleClass="quick-action-card" alignment="CENTER" spacing="10" GridPane.columnIndex="1"
+                      onMouseClicked="#handleGoToHistory">
+                    <Label text="📊" styleClass="action-card-icon"/>
+                    <Label text="Historial" styleClass="action-card-text"/>
+                </VBox>
+
+                <!-- Mis Vehículos -->
+                <VBox styleClass="quick-action-card" alignment="CENTER" spacing="10" GridPane.columnIndex="2"
+                      onMouseClicked="#handleGoToVehicles">
+                    <Label text="🚚" styleClass="action-card-icon"/>
+                    <Label text="Mis Vehículos" styleClass="action-card-text"/>
+                </VBox>
+
+                <!-- Mi Perfil -->
+                <VBox styleClass="quick-action-card" alignment="CENTER" spacing="10" GridPane.columnIndex="3"
+                      onMouseClicked="#handleGoToProfile">
+                    <Label text="👤" styleClass="action-card-icon"/>
+                    <Label text="Mi Perfil" styleClass="action-card-text"/>
+                </VBox>
+            </GridPane>
+        </VBox>
+
+    </VBox>
+</ScrollPane>

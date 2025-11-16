@@ -45,7 +45,7 @@ public abstract class BaseSidebarController implements Initializable {
     // Constants
     // =================================================================================================================
 
-    private static final double PROFILE_CLIP_RADIUS = 50;
+    private static final double PROFILE_CLIP_RADIUS = 45;
     private static final double PROFILE_DIALOG_IMAGE_WIDTH = 80;
     private static final double PROFILE_DIALOG_IMAGE_HEIGHT = 80;
 
@@ -60,7 +60,12 @@ public abstract class BaseSidebarController implements Initializable {
     protected ImageView imgUserImage;
 
     @FXML
-    protected Button btnToggleTheme;
+    protected javafx.scene.layout.StackPane profileImageContainer;
+
+    @FXML
+    protected javafx.scene.layout.HBox themeToggleContainer;
+
+    protected co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeToggleSwitch themeToggle;
 
     // Notification badge (created programmatically)
     protected Label notificationBadge;
@@ -98,40 +103,30 @@ public abstract class BaseSidebarController implements Initializable {
     }
 
     /**
-     * Sets up the theme toggle button with the current theme icon.
+     * Sets up the theme toggle switch with the current theme state.
      */
     private void setupThemeButton() {
-        if (btnToggleTheme != null) {
-            updateThemeButtonIcon();
-        }
-    }
+        if (themeToggleContainer != null) {
+            // Create the theme toggle switch programmatically
+            themeToggle = new co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeToggleSwitch();
 
-    /**
-     * Updates the theme button icon based on current theme.
-     */
-    private void updateThemeButtonIcon() {
-        if (btnToggleTheme == null) return;
+            // Add it to the container
+            themeToggleContainer.getChildren().add(themeToggle);
 
-        if (themeManager.isDarkTheme()) {
-            btnToggleTheme.setText("☀");  // Sun for light mode
-        } else {
-            btnToggleTheme.setText("🌙");  // Moon for dark mode
-        }
-    }
+            // Set initial state based on current theme
+            themeToggle.setState(themeManager.isDarkTheme());
 
-    /**
-     * Handles theme toggle button click.
-     */
-    @FXML
-    protected void handleToggleTheme() {
-        log("Theme toggle button clicked");
-        themeManager.toggleTheme();
-        updateThemeButtonIcon();
-        log("Theme toggled to: " + themeManager.getCurrentTheme());
+            // Set callback to handle theme changes
+            themeToggle.setOnToggle(() -> {
+                log("Theme toggle switch activated");
+                themeManager.toggleTheme();
+                log("Theme toggled to: " + themeManager.getCurrentTheme());
 
-        // Ensure the scene reference is still valid
-        if (btnToggleTheme != null && btnToggleTheme.getScene() != null) {
-            themeManager.setScene(btnToggleTheme.getScene());
+                // Ensure the scene reference is still valid
+                if (themeToggle.getScene() != null) {
+                    themeManager.setScene(themeToggle.getScene());
+                }
+            });
         }
     }
 
@@ -196,6 +191,17 @@ public abstract class BaseSidebarController implements Initializable {
     }
 
     /**
+     * Clears the active state from all sidebar buttons.
+     * Called when loading views from header navigation to avoid having both header and sidebar buttons active.
+     */
+    public void clearActiveButton() {
+        if (currentActiveButton != null) {
+            currentActiveButton.getStyleClass().remove("sidebar-button-active");
+            currentActiveButton = null;
+        }
+    }
+
+    /**
      * Gets the currently active button.
      *
      * @return The currently active button, or null if none is active
@@ -232,18 +238,50 @@ public abstract class BaseSidebarController implements Initializable {
      * </ul>
      */
     private void setupProfileImage() {
-        if (imgUserImage == null) {
-            logError("ImageView 'imgUserImage' is null. Cannot set up profile image.");
+        if (imgUserImage == null || profileImageContainer == null) {
+            logError("ImageView or Container is null. Cannot set up profile image.");
             return;
         }
 
         log("Setting up profile image view...");
-        imgUserImage.setImage(getPersonImage(authService.getCurrentPerson()));
-        ImageUtil.applyCircularClip(imgUserImage, PROFILE_CLIP_RADIUS);
-        AnimationUtil.addHoverScale(imgUserImage, 1.1, 200);
+        javafx.scene.image.Image image = getPersonImage(authService.getCurrentPerson());
+        imgUserImage.setImage(image);
 
-        // Show profile info when clicked, delegated to DialogUtil
-        imgUserImage.setOnMouseClicked(event -> {
+        // Center the image using viewport for perfect circular crop
+        if (image != null) {
+            double imageWidth = image.getWidth();
+            double imageHeight = image.getHeight();
+
+            // Calculate the square crop area (centered)
+            double size = Math.min(imageWidth, imageHeight);
+            double offsetX = (imageWidth - size) / 2;
+            double offsetY = (imageHeight - size) / 2;
+
+            imgUserImage.setViewport(new javafx.geometry.Rectangle2D(offsetX, offsetY, size, size));
+        }
+
+        // Apply circular clip to the CONTAINER
+        javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(45, 45, 45);
+        profileImageContainer.setClip(clip);
+
+        // Apply smooth scaling to the CONTAINER (not the ImageView)
+        javafx.animation.ScaleTransition scaleUp = new javafx.animation.ScaleTransition(
+            javafx.util.Duration.millis(200), profileImageContainer
+        );
+        scaleUp.setToX(1.08);
+        scaleUp.setToY(1.08);
+
+        javafx.animation.ScaleTransition scaleDown = new javafx.animation.ScaleTransition(
+            javafx.util.Duration.millis(200), profileImageContainer
+        );
+        scaleDown.setToX(1.0);
+        scaleDown.setToY(1.0);
+
+        profileImageContainer.setOnMouseEntered(event -> scaleUp.playFromStart());
+        profileImageContainer.setOnMouseExited(event -> scaleDown.playFromStart());
+
+        // Show profile info when clicked
+        profileImageContainer.setOnMouseClicked(event -> {
             Person person = authService.getCurrentPerson();
             DialogUtil.showProfileDialog(person, defaultProfileImage,
                     PROFILE_DIALOG_IMAGE_WIDTH, PROFILE_DIALOG_IMAGE_HEIGHT);

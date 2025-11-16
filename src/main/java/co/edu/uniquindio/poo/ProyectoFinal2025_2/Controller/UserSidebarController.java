@@ -1,5 +1,6 @@
 package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.NavigationUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -101,7 +102,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void handleDashboard() {
         Logger.info("Dashboard button clicked.");
-        indexController.loadView("UserDashboard.fxml");
+        NavigationUtil.navigate(indexController, "UserDashboard.fxml", UserDashboardController.class);
     }
 
     /**
@@ -109,7 +110,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void handleProfile() {
         Logger.info("Profile button clicked.");
-        indexController.loadView("UserProfile.fxml");
+        NavigationUtil.navigate(indexController, "UserProfile.fxml", UserProfileController.class);
     }
 
     /**
@@ -117,7 +118,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void handleNewShipment() {
         Logger.info("New Shipment button clicked.");
-        indexController.loadView("CreateShipmentWizard.fxml");
+        NavigationUtil.navigate(indexController, "CreateShipmentWizard.fxml", CreateShipmentWizardController.class);
     }
 
     /**
@@ -125,7 +126,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void handleOrders() {
         Logger.info("Orders button clicked.");
-        indexController.loadView("MyShipments.fxml");
+        NavigationUtil.navigate(indexController, "MyShipments.fxml", MyShipmentsController.class);
     }
 
     /**
@@ -133,7 +134,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void handleTrackShipment() {
         Logger.info("Track Shipment button clicked.");
-        indexController.loadView("TrackShipment.fxml");
+        NavigationUtil.navigate(indexController, "TrackShipment.fxml", TrackShipmentController.class);
     }
 
     /**
@@ -141,7 +142,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void handlePaymentReceipts() {
         Logger.info("Payment Receipts button clicked.");
-        indexController.loadView("UserPaymentReceipts.fxml");
+        NavigationUtil.navigate(indexController, "UserPaymentReceipts.fxml", UserPaymentReceiptsController.class);
     }
 
     /**
@@ -149,7 +150,7 @@ public class UserSidebarController extends BaseSidebarController {
      */
     private void handleNotifications() {
         Logger.info("Notifications button clicked.");
-        indexController.loadView("NotificationsCenter.fxml");
+        NavigationUtil.navigate(indexController, "NotificationsCenter.fxml", NotificationsCenterController.class);
     }
 
     /**

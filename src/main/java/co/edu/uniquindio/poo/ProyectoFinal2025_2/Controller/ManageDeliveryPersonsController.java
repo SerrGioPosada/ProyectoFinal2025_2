@@ -21,7 +21,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -185,6 +184,14 @@ public class ManageDeliveryPersonsController {
                 }
             });
 
+            MenuItem viewVehiclesItem = new MenuItem("Ver Vehículos");
+            viewVehiclesItem.setOnAction(event -> {
+                DeliveryPerson selected = row.getItem();
+                if (selected != null) {
+                    handleViewVehiclesForDeliveryPerson(selected);
+                }
+            });
+
             MenuItem deleteItem = new MenuItem("Eliminar Repartidor");
             deleteItem.setOnAction(event -> {
                 DeliveryPerson selected = row.getItem();
@@ -198,6 +205,7 @@ public class ManageDeliveryPersonsController {
                     assignVehicleMenu,
                     removeVehicleItem,
                     new SeparatorMenuItem(),
+                    viewVehiclesItem,
                     deleteItem
             );
 
@@ -543,18 +551,49 @@ public class ManageDeliveryPersonsController {
             return;
         }
 
-        ChoiceDialog<Vehicle> dialog = new ChoiceDialog<>(availableVehicles.get(0), availableVehicles);
-        dialog.setTitle("Asignar Vehículo");
-        dialog.setHeaderText("Asignar vehículo a " + person.getName() + " " + person.getLastName());
-        dialog.setContentText("Selecciona un vehículo:");
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/AssignVehicleDialog.fxml")
+            );
+            javafx.scene.Parent root = loader.load();
 
-        Optional<Vehicle> result = dialog.showAndWait();
-        result.ifPresent(vehicle -> {
-            person.setAssignedVehicle(vehicle);
-            deliveryPersonRepository.updateDeliveryPerson(person); // Persist the changes
-            tableDeliveryPersons.refresh();
-            DialogUtil.showSuccess("Vehículo asignado correctamente.");
-        });
+            AssignVehicleDialogController dialogController = loader.getController();
+            dialogController.setData(person, availableVehicles);
+
+            javafx.stage.Stage dialogStage = new javafx.stage.Stage();
+            dialogStage.setTitle("Asignar Vehículo");
+            dialogStage.initModality(javafx.stage.Modality.WINDOW_MODAL);
+            dialogStage.initOwner(tableDeliveryPersons.getScene().getWindow());
+
+            javafx.scene.Scene dialogScene = new javafx.scene.Scene(root);
+
+            // Load stylesheets
+            String currentTheme = co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeManager.getInstance().getCurrentTheme();
+            String mainStylesheet = getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm();
+            dialogScene.getStylesheets().add(mainStylesheet);
+
+            if ("dark".equals(currentTheme)) {
+                String darkStylesheet = getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/DarkTheme.css").toExternalForm();
+                dialogScene.getStylesheets().add(darkStylesheet);
+            }
+
+            dialogStage.setScene(dialogScene);
+            dialogStage.setResizable(false);
+            dialogStage.showAndWait();
+
+            // Check if user confirmed
+            if (dialogController.isConfirmed()) {
+                Vehicle selectedVehicle = dialogController.getSelectedVehicle();
+                person.setAssignedVehicle(selectedVehicle);
+                deliveryPersonRepository.updateDeliveryPerson(person); // Persist the changes
+                tableDeliveryPersons.refresh();
+                DialogUtil.showSuccess("Vehículo asignado correctamente.");
+            }
+
+        } catch (Exception e) {
+            Logger.error("Failed to open Assign Vehicle dialog: " + e.getMessage());
+            DialogUtil.showError("Error", "No se pudo abrir el diálogo.");
+        }
     }
 
     /**
@@ -572,6 +611,21 @@ public class ManageDeliveryPersonsController {
         deliveryPersonRepository.updateDeliveryPerson(person); // Persist the changes
         tableDeliveryPersons.refresh();
         DialogUtil.showSuccess("Vehículo desasignado correctamente.");
+    }
+
+    /**
+     * Handles viewing vehicles for a specific delivery person.
+     * Opens ManageVehicles view with the delivery person's email filter applied.
+     */
+    private void handleViewVehiclesForDeliveryPerson(DeliveryPerson person) {
+        Logger.info("View Vehicles clicked for delivery person: " + person.getName() + " " + person.getLastName());
+        if (indexController != null) {
+            Logger.info("Navigating to ManageVehicles with filter: " + person.getEmail());
+            indexController.loadViewWithDeliveryPersonFilter("ManageVehicles.fxml", person.getEmail(), "ManageDeliveryPersons.fxml");
+        } else {
+            Logger.error("IndexController is null - cannot navigate to ManageVehicles");
+            DialogUtil.showError("Error", "No se puede navegar a la vista de vehículos.");
+        }
     }
 
     /**

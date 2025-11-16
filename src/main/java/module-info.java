@@ -33,13 +33,7 @@ module co.edu.uniquindio.poo.ProyectoFinal2025_2 {
     requires sdk.java;
 
     // Exports y Opens
-    opens co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller to
-
-
-
-
-
-            javafx.fxml;
+    opens co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller to javafx.fxml;
     exports co.edu.uniquindio.poo.ProyectoFinal2025_2;
 
     // --- Permisos para Gson ---

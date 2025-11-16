@@ -225,6 +225,11 @@ public class PdfUtility {
         String fullPath = "reportes/" + fileName + ".pdf";
         File file = new File(fullPath);
 
+        // Debug logging
+        Logger.info("Generating PDF report: " + fullPath);
+        Logger.info("Headers count: " + (headers != null ? headers.size() : 0));
+        Logger.info("Rows count: " + (rows != null ? rows.size() : 0));
+
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
             document.addPage(page);
@@ -409,8 +414,6 @@ public class PdfUtility {
     private static float drawTableRow(PDPageContentStream contentStream, List<String> row,
                                        float[] columnWidths, float yPosition, float xStart,
                                        boolean alternateColor) throws IOException {
-        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), FONT_SIZE_NORMAL);
-
         // Draw row background (alternate colors)
         if (alternateColor) {
             float tableWidth = 0;
@@ -420,8 +423,11 @@ public class PdfUtility {
             contentStream.setNonStrokingColor(0.97f, 0.97f, 0.97f);
             contentStream.addRect(xStart, yPosition - LEADING, tableWidth, LEADING);
             contentStream.fill();
-            contentStream.setNonStrokingColor(0f, 0f, 0f);
         }
+
+        // Set text properties and color
+        contentStream.setNonStrokingColor(0f, 0f, 0f); // Black text
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), FONT_SIZE_NORMAL);
 
         // Draw row text
         float xPosition = xStart + 5;
@@ -430,7 +436,9 @@ public class PdfUtility {
 
         for (int i = 0; i < row.size() && i < columnWidths.length; i++) {
             String cell = truncateText(row.get(i), columnWidths[i] - 10, FONT_SIZE_NORMAL);
-            contentStream.showText(cell);
+            if (cell != null && !cell.isEmpty()) {
+                contentStream.showText(cell);
+            }
             if (i < row.size() - 1) {
                 contentStream.newLineAtOffset(columnWidths[i], 0);
             }

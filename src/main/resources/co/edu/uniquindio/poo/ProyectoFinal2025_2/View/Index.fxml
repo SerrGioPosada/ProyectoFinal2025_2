@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.fxml.FXMLLoader?>
+
+<AnchorPane minHeight="400.0" minWidth="700.0" prefHeight="400.0" prefWidth="700.0" styleClass="root-pane" stylesheets="@../Style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.IndexController">
+
+   <children>
+      <BorderPane fx:id="rootPane" prefHeight="400.0" prefWidth="700.0" styleClass="main-pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+         <!-- TOP HEADER -->
+         <top>
+            <AnchorPane prefHeight="65.0" styleClass="header-pane" BorderPane.alignment="CENTER">
+               <children>
+
+                  <!-- Blue bar at the very top -->
+                  <AnchorPane prefHeight="25.0" styleClass="top-bar" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <!-- Exit button (close app) -->
+                        <ImageView fx:id="exit" fitHeight="16.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true" styleClass="exit-button" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+                           <image>
+                              <Image url="@../Images/boton-exit.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
+
+                  <!-- Navigation buttons bar (responsive) -->
+                  <HBox spacing="0" styleClass="nav-bar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="175.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="28.0">
+
+                     <children>
+                        <!-- Primer separator montado sobre el sidebar -->
+                        <Separator orientation="VERTICAL" styleClass="nav-separator">
+                           <HBox.margin>
+                              <Insets left="-6.0" />
+                           </HBox.margin>
+                        </Separator>
+
+                        <Button fx:id="btnInicio" styleClass="nav-button" text="Inicio" HBox.hgrow="ALWAYS" />
+                        <Separator orientation="VERTICAL" styleClass="nav-separator" />
+
+                        <Button fx:id="btnQuienesSomos" styleClass="nav-button" text="Quiénes Somos" HBox.hgrow="ALWAYS" />
+                        <Separator orientation="VERTICAL" styleClass="nav-separator" />
+
+                        <Button fx:id="btnSoporte" styleClass="nav-button" text="Soporte" HBox.hgrow="ALWAYS" />
+                        <Separator orientation="VERTICAL" styleClass="nav-separator" />
+                     </children>
+                  </HBox>
+
+                  <!-- Menu toggle buttons (hamburger menu) -->
+                  <Label fx:id="lblMenuBack" layoutX="13.0" layoutY="36.0" styleClass="menu-label" text="MENÚ" textFill="#b2b2b2" AnchorPane.leftAnchor="13.0" AnchorPane.topAnchor="36.0">
+                     <font><Font name="System Bold" size="14.0" /></font>
+                     <graphic>
+                        <ImageView fitHeight="16.0" fitWidth="20.0">
+                           <image><Image url="@../Images/Menu2.png" /></image>
+                        </ImageView>
+                     </graphic>
+                  </Label>
+
+                  <Label fx:id="lblMenu" layoutX="13.0" layoutY="36.0" styleClass="menu-label" text="MENÚ" textFill="#b2b2b2" AnchorPane.leftAnchor="13.0" AnchorPane.topAnchor="36.0">
+                     <font><Font name="System Bold" size="14.0" /></font>
+                     <graphic>
+                        <ImageView fitHeight="16.0" fitWidth="20.0">
+                           <image><Image url="@../Images/Menu2.png" /></image>
+                        </ImageView>
+                     </graphic>
+                  </Label>
+
+                  <!-- Notification Bell (next to menu button, before first separator) -->
+                  <StackPane fx:id="notificationBellContainer" visible="false" managed="false" AnchorPane.leftAnchor="145.0" AnchorPane.topAnchor="34.0">
+                     <children>
+                        <HBox alignment="CENTER" spacing="3">
+                           <!-- Notification Count Label (Badge) -->
+                           <Label fx:id="lblNotificationCount" text="0" visible="false" managed="false"
+                                  style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 9px; -fx-font-weight: bold; -fx-padding: 2 5 2 5; -fx-background-radius: 10; -fx-min-width: 16px; -fx-alignment: center;"/>
+
+                           <!-- Bell Icon Button -->
+                           <Button fx:id="btnNotificationBell" styleClass="icon-button"
+                                   style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 0; -fx-font-size: 16px; -fx-text-fill: #032d4d;"
+                                   text="🔔"/>
+                        </HBox>
+                     </children>
+                  </StackPane>
+
+               </children>
+            </AnchorPane>
+         </top>
+
+         <!-- LEFT SIDEBAR (will be loaded programmatically) -->
+         <left>
+         </left>
+
+         <!-- CENTER PANE: Changed to StackPane to center content automatically -->
+         <center>
+            <StackPane fx:id="paneIndex" BorderPane.alignment="CENTER" />
+         </center>
+
+      </BorderPane>
+   </children>
+</AnchorPane>

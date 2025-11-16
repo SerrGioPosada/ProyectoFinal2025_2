@@ -14,6 +14,7 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.DeliveryPersonRepo
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.OrderRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.ShipmentRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilService.IdGenerationUtil;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -327,6 +328,64 @@ public class OrderService {
                 .count();
     }
 
+    // ===========================
+    // Order Cancellation
+    // ===========================
+
+    /**
+     * Cancels an order if it's in a cancellable state.
+     * Only orders with status AWAITING_PAYMENT, PAID, or PENDING_APPROVAL can be cancelled.
+     *
+     * @param orderId The ID of the order to cancel.
+     * @throws IllegalArgumentException if the order is not found.
+     * @throws IllegalStateException if the order cannot be cancelled in its current state.
+     */
+    public void cancelOrder(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with ID: " + orderId));
+
+        // Verify order can be cancelled
+        if (order.getStatus() != OrderStatus.AWAITING_PAYMENT &&
+            order.getStatus() != OrderStatus.PAID &&
+            order.getStatus() != OrderStatus.PENDING_APPROVAL) {
+            throw new IllegalStateException(
+                    "Cannot cancel order in status: " + order.getStatus().getDisplayName() +
+                    ". Only orders in AWAITING_PAYMENT, PAID, or PENDING_APPROVAL can be cancelled."
+            );
+        }
+
+        // Update order status to CANCELLED
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.update(order);
+
+        Logger.info("Order " + orderId + " has been cancelled");
+    }
+
+    /**
+     * Checks if an order can be cancelled based on its current status.
+     *
+     * @param orderId The ID of the order to check.
+     * @return true if the order can be cancelled, false otherwise.
+     */
+    public boolean canCancelOrder(String orderId) {
+        Optional<Order> orderOpt = orderRepository.findById(orderId);
+        if (!orderOpt.isPresent()) {
+            Logger.warning("canCancelOrder: Order not found with ID: " + orderId);
+            return false;
+        }
+
+        Order order = orderOpt.get();
+        OrderStatus status = order.getStatus();
+        boolean canCancel = status == OrderStatus.AWAITING_PAYMENT ||
+                           status == OrderStatus.PAID ||
+                           status == OrderStatus.PENDING_APPROVAL;
+
+        Logger.info("canCancelOrder: Order " + orderId + " has status " + status +
+                   " (displayName: " + status.getDisplayName() + "), canCancel=" + canCancel);
+
+        return canCancel;
+    }
+
     /**
      * Checks if a delivery person has a valid active vehicle.
      * A valid active vehicle must exist, be available, and be owned by the delivery person.
@@ -355,5 +414,39 @@ public class OrderService {
 
         // Check if vehicle belongs to this delivery person
         return deliveryPerson.getId().equals(vehicle.getDeliveryPersonId());
+    }
+
+    /**
+     * Deletes an order permanently from the repository.
+     * Only cancelled orders can be deleted.
+     *
+     * @param orderId The ID of the order to delete.
+     * @return true if deletion was successful, false otherwise.
+     */
+    public boolean deleteOrder(String orderId) {
+        Optional<Order> orderOpt = orderRepository.findById(orderId);
+        if (!orderOpt.isPresent()) {
+            Logger.warning("deleteOrder: Order not found with ID: " + orderId);
+            return false;
+        }
+
+        Order order = orderOpt.get();
+
+        // Only allow deletion of cancelled orders
+        if (order.getStatus() != OrderStatus.CANCELLED) {
+            Logger.warning("deleteOrder: Cannot delete order that is not cancelled. Current status: " + order.getStatus());
+            return false;
+        }
+
+        // Delete the order from repository
+        boolean deleted = orderRepository.deleteOrder(orderId);
+
+        if (deleted) {
+            Logger.info("Order " + orderId + " has been permanently deleted");
+        } else {
+            Logger.error("Failed to delete order " + orderId);
+        }
+
+        return deleted;
     }
 }

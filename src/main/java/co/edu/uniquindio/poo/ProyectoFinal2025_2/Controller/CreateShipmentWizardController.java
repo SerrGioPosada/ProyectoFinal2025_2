@@ -8,7 +8,9 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.User;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.OrderDetailDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.QuoteDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.QuoteResultDTO;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.OrderService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ShipmentService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.DistanceCalculator;
@@ -68,6 +70,7 @@ public class CreateShipmentWizardController implements Initializable {
     @FXML private Button btnPrevious;
     @FXML private Button btnNext;
     @FXML private Button btnConfirm;
+    @FXML private Button btnCancel;
 
     // =================================================================================================================
     // Step 1: Package Details
@@ -178,9 +181,11 @@ public class CreateShipmentWizardController implements Initializable {
     // =================================================================================================================
     private final ShipmentService shipmentService = new ShipmentService();
     private final AuthenticationService authService = AuthenticationService.getInstance();
+    private final OrderService orderService = new OrderService();
     private int currentStep = 1;
     private QuoteResultDTO currentQuote;
     private IndexController indexController;
+    private boolean comesFromMyShipments = false;
 
     // =================================================================================================================
     // Initialization
@@ -743,6 +748,17 @@ public class CreateShipmentWizardController implements Initializable {
         this.indexController = indexController;
     }
 
+    /**
+     * Enables the cancel button (called when coming from MyShipments view).
+     */
+    public void enableCancelButton() {
+        this.comesFromMyShipments = true;
+        if (btnCancel != null) {
+            btnCancel.setVisible(true);
+            btnCancel.setManaged(true);
+        }
+    }
+
     // =================================================================================================================
     // Navigation
     // =================================================================================================================
@@ -793,8 +809,27 @@ public class CreateShipmentWizardController implements Initializable {
             openCheckoutWindow();
         } catch (Exception e) {
             Logger.error("Error opening checkout: " + e.getMessage());
-            DialogUtil.showError("Error", "Error al proceder al checkout");
+            e.printStackTrace();
+            DialogUtil.showError("Error", "Error al proceder al checkout: " + e.getMessage());
         }
+    }
+
+    /**
+     * Handles the Cancel button click - resets wizard to step 1 and clears all data.
+     */
+    @FXML
+    private void handleCancelWizard() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Cancelar Creación de Envío");
+        confirm.setHeaderText("¿Desea cancelar la creación del envío?");
+        confirm.setContentText("Se perderán todos los datos ingresados y regresará al paso 1.");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                resetWizard();
+                Logger.info("Wizard cancelled and reset to step 1");
+            }
+        });
     }
 
     /**
@@ -806,8 +841,15 @@ public class CreateShipmentWizardController implements Initializable {
         try {
             Logger.info("Cancel button clicked in CreateShipmentWizard");
 
-            // Check if we have IndexController reference (embedded mode)
-            if (indexController != null) {
+            // Check if comes from MyShipments
+            if (comesFromMyShipments && indexController != null) {
+                Logger.info("Navigating back to MyShipments");
+                co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.NavigationUtil.navigate(
+                    indexController,
+                    "MyShipments.fxml",
+                    MyShipmentsController.class
+                );
+            } else if (indexController != null) {
                 // We're embedded in dashboard - navigate back
                 var currentPerson = authService.getCurrentPerson();
                 if (currentPerson instanceof User) {
@@ -1200,29 +1242,147 @@ public class CreateShipmentWizardController implements Initializable {
             // Distance
             orderDetail.setDistanceKm(DistanceCalculator.calculateDistance(origin, destination));
 
-            // Open checkout window
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                "/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/Checkout.fxml"));
-            Scene scene = new Scene(loader.load());
+            // Create the order directly (skip Checkout popup as per user request)
+            Order createdOrder = orderService.initiateOrderCreation(
+                orderDetail.getUserId(),
+                orderDetail.getOrigin(),
+                orderDetail.getDestination()
+            );
 
-            CheckoutController checkoutController = loader.getController();
-            checkoutController.setOrderDetail(orderDetail);
+            Logger.info("Order created with ID: " + createdOrder.getId());
 
-            Stage checkoutStage = new Stage();
-            checkoutStage.setTitle("Resumen de Orden");
-            checkoutStage.setScene(scene);
-            checkoutStage.initModality(Modality.APPLICATION_MODAL);
-            checkoutStage.setResizable(false);
-
-            checkoutStage.showAndWait();
-
-            // Close wizard after checkout
-            handleCancel();
+            // Open payment window directly
+            // The wizard will close after payment is completed or cancelled
+            openPaymentWindow(createdOrder, orderDetail);
 
         } catch (Exception e) {
             Logger.error("Error opening checkout window: " + e.getMessage());
-            DialogUtil.showError("Error", "Error al abrir ventana de checkout");
+            e.printStackTrace();
+            DialogUtil.showError("Error", "Error al abrir ventana de checkout: " + e.getMessage());
         }
+    }
+
+    /**
+     * Opens the payment processor selection view in the Index (not as a popup).
+     * User can choose between:
+     * - Mercado Pago (real payment processing with WebView)
+     * - App Payment (simulated payment)
+     */
+    private void openPaymentWindow(Order createdOrder, OrderDetailDTO orderDetail) {
+        try {
+            if (indexController == null) {
+                Logger.error("IndexController not set, cannot open payment selection");
+                DialogUtil.showError("Error", "No se puede proceder al pago en este momento");
+                return;
+            }
+
+            // Load payment processor selection view in the Index
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                "/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/PaymentProcessorSelection.fxml"));
+
+            // Load the view
+            indexController.getContentArea().getChildren().clear();
+            indexController.getContentArea().getChildren().add(loader.load());
+
+            // Get controller and pass necessary data
+            PaymentProcessorSelectionController selectionController = loader.getController();
+            selectionController.setIndexController(indexController);
+            selectionController.setWizardController(this);
+            selectionController.setOrder(createdOrder, orderDetail);
+
+            Logger.info("Payment processor selection view loaded in Index");
+
+        } catch (Exception e) {
+            Logger.error("Error opening payment selection view: " + e.getMessage());
+            e.printStackTrace();
+            DialogUtil.showError("Error", "Error al abrir selección de pago: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Returns to the last step of the wizard (step 5 - review).
+     */
+    public void returnToLastStep() {
+        currentStep = 5;
+        updateStepDisplay();
+        updateStepIndicators();
+        updateNavigationButtons();
+        Logger.info("Returned to wizard last step (review)");
+    }
+
+    /**
+     * Resets the wizard to step 1 and clears all form data.
+     */
+    public void resetWizard() {
+        // Reset to step 1
+        currentStep = 1;
+        updateStepDisplay();
+        updateStepIndicators();
+        updateNavigationButtons();
+
+        // Clear all form fields
+        clearAllFormFields();
+
+        // Reset quote
+        currentQuote = null;
+
+        Logger.info("Wizard reset to step 1, all data cleared");
+    }
+
+    /**
+     * Clears all form fields in the wizard.
+     */
+    private void clearAllFormFields() {
+        // Step 1: Package details
+        txtWeight.clear();
+        txtHeight.clear();
+        txtWidth.clear();
+        txtLength.clear();
+        lblVolumeCalculated.setText("0.00 m³");
+
+        // Step 2: Origin address
+        txtOriginAlias.clear();
+        txtOriginStreet.clear();
+        txtOriginCity.clear();
+        txtOriginState.clear();
+        txtOriginCountry.setText("Colombia");
+        txtOriginZipCode.clear();
+        txtOriginLatitude.clear();
+        txtOriginLongitude.clear();
+        if (cmbOriginSavedAddresses != null) {
+            cmbOriginSavedAddresses.getSelectionModel().clearSelection();
+        }
+
+        // Step 3: Destination address
+        txtDestinationAlias.clear();
+        txtDestinationStreet.clear();
+        txtDestinationCity.clear();
+        txtDestinationState.clear();
+        txtDestinationCountry.setText("Colombia");
+        txtDestinationZipCode.clear();
+        txtDestinationLatitude.clear();
+        txtDestinationLongitude.clear();
+        if (cmbDestinationSavedAddresses != null) {
+            cmbDestinationSavedAddresses.getSelectionModel().clearSelection();
+        }
+
+        // Step 4: Pickup & Additional Services
+        if (datePickup != null) {
+            datePickup.setValue(LocalDate.now().plusDays(1));
+        }
+        if (spinnerHour != null) {
+            spinnerHour.getValueFactory().setValue(12);
+        }
+        if (spinnerMinute != null) {
+            spinnerMinute.getValueFactory().setValue(0);
+        }
+        if (chkFragile != null) chkFragile.setSelected(false);
+        if (chkInsurance != null) chkInsurance.setSelected(false);
+        if (chkSignature != null) chkSignature.setSelected(false);
+        if (chkPriority != null) chkPriority.setSelected(false);
+
+        // Clear errors
+        clearErrors();
     }
 
     // =================================================================================================================

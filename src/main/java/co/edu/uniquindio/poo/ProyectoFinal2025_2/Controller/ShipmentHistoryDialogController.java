@@ -59,14 +59,45 @@ public class ShipmentHistoryDialogController implements Initializable {
         lblCurrentStatus.setText(shipment.getStatusDisplayName());
         lblCurrentStatus.setStyle("-fx-text-fill: " + shipment.getStatusColor() + "; -fx-font-weight: bold;");
 
-        // Load timeline
-        loadTimeline();
+        // Load timeline from shipment
+        loadTimelineFromShipment();
     }
 
     /**
-     * Loads the unified timeline.
+     * Loads and displays the history from an order ID.
+     * Shows order events and shipment events if the order has an associated shipment.
+     * @param orderId The order ID
      */
-    private void loadTimeline() {
+    public void loadHistoryFromOrder(String orderId) {
+        Logger.info("Loading history from order: " + orderId);
+
+        // Display order ID in the label
+        lblShipmentId.setText("Orden: " + orderId);
+
+        // Load and display current status from timeline
+        List<TrackingEventDTO> events = TrackingTimelineUtil.generateTimelineFromOrder(orderId);
+        if (!events.isEmpty()) {
+            // Get the most recent completed event
+            TrackingEventDTO currentEvent = events.stream()
+                    .filter(TrackingEventDTO::isCompleted)
+                    .reduce((first, second) -> second) // Get last
+                    .orElse(events.get(0));
+
+            lblCurrentStatus.setText(currentEvent.getDisplayName());
+            lblCurrentStatus.setStyle("-fx-text-fill: " + currentEvent.getColor() + "; -fx-font-weight: bold;");
+        } else {
+            lblCurrentStatus.setText("Sin información");
+            lblCurrentStatus.setStyle("-fx-text-fill: #999999;");
+        }
+
+        // Load timeline from order
+        loadTimelineFromOrder(orderId);
+    }
+
+    /**
+     * Loads the unified timeline from a shipment ID.
+     */
+    private void loadTimelineFromShipment() {
         if (timelineContainer == null) return;
 
         timelineContainer.getChildren().clear();
@@ -74,6 +105,27 @@ public class ShipmentHistoryDialogController implements Initializable {
         // Get unified timeline events
         List<TrackingEventDTO> events = TrackingTimelineUtil.generateUnifiedTimeline(shipmentId);
 
+        buildTimelineUI(events);
+    }
+
+    /**
+     * Loads the unified timeline from an order ID.
+     */
+    private void loadTimelineFromOrder(String orderId) {
+        if (timelineContainer == null) return;
+
+        timelineContainer.getChildren().clear();
+
+        // Get unified timeline events from order
+        List<TrackingEventDTO> events = TrackingTimelineUtil.generateTimelineFromOrder(orderId);
+
+        buildTimelineUI(events);
+    }
+
+    /**
+     * Builds the timeline UI from a list of events.
+     */
+    private void buildTimelineUI(List<TrackingEventDTO> events) {
         if (events.isEmpty()) {
             Label noEvents = new Label("No hay información de seguimiento disponible");
             noEvents.setStyle("-fx-text-fill: #999; -fx-font-style: italic; -fx-padding: 20;");

@@ -68,7 +68,7 @@ public class ReportsController implements Initializable {
     // Services
     // =================================================================================================================
 
-    private final ReportService reportService = new ReportService();
+    private final ReportService reportService = ReportService.getInstance();
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     // =================================================================================================================
@@ -261,8 +261,32 @@ public class ReportsController implements Initializable {
 
     @FXML
     private void handleCustomReport() {
-        DialogUtil.showInfo("Función en Desarrollo",
-            "La funcionalidad de reportes personalizados estará disponible próximamente.");
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/CustomReportDialog.fxml")
+            );
+            javafx.scene.Parent dialogRoot = loader.load();
+
+            // Create dialog stage
+            javafx.stage.Stage dialogStage = new javafx.stage.Stage();
+            dialogStage.setTitle("Reporte Personalizado");
+            dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialogStage.setResizable(true);
+            dialogStage.setMinWidth(550);
+            dialogStage.setMinHeight(650);
+
+            // Create scene and apply stylesheet
+            javafx.scene.Scene scene = new javafx.scene.Scene(dialogRoot, 550, 680);
+            String stylesheet = getClass().getResource("/co/edu/uniquindio/poo/proyectofinal2025_2/Style.css").toExternalForm();
+            scene.getStylesheets().add(stylesheet);
+
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+
+        } catch (IOException e) {
+            DialogUtil.showError("Error", "No se pudo abrir el diálogo de reportes personalizados.");
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -375,9 +399,28 @@ public class ReportsController implements Initializable {
 
             Map<String, Long> byStatus = reportService.getShipmentsByStatus(from, to);
 
-            byStatus.forEach((status, count) ->
-                chartShipmentsByStatus.getData().add(new PieChart.Data(status, count))
-            );
+            // Define colors for each status
+            Map<String, String> statusColors = new java.util.HashMap<>();
+            statusColors.put("Pendiente de Asignación", "#FF9800"); // Orange
+            statusColors.put("Listo para Recoger", "#FFA726"); // Light Orange
+            statusColors.put("En Tránsito", "#42A5F5"); // Blue
+            statusColors.put("En Reparto", "#66BB6A"); // Green
+            statusColors.put("Entregado", "#4CAF50"); // Dark Green
+            statusColors.put("Devuelto", "#FF7043"); // Red-Orange
+            statusColors.put("Cancelado", "#EF5350"); // Red
+
+            byStatus.forEach((status, count) -> {
+                PieChart.Data data = new PieChart.Data(status, count);
+                chartShipmentsByStatus.getData().add(data);
+            });
+
+            // Apply colors after the chart is rendered
+            chartShipmentsByStatus.setAnimated(false);
+            for (PieChart.Data data : chartShipmentsByStatus.getData()) {
+                String color = statusColors.getOrDefault(data.getName(), "#6c757d");
+                data.getNode().setStyle("-fx-pie-color: " + color + ";");
+            }
+            chartShipmentsByStatus.setAnimated(true);
 
         } catch (Exception e) {
             Logger.error("Error loading shipments by status chart: " + e.getMessage());

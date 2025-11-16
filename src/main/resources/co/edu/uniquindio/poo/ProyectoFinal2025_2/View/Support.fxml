@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<ScrollPane fitToWidth="true" styleClass="support-scroll" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.SupportController">
+    <content>
+        <VBox alignment="TOP_CENTER" spacing="40" styleClass="support-container">
+            <padding>
+                <Insets top="60" right="80" bottom="60" left="80"/>
+            </padding>
+
+            <!-- Header -->
+            <VBox alignment="CENTER" spacing="15" styleClass="support-header">
+                <Label text="💬 Centro de Soporte" styleClass="support-title"/>
+                <Label text="¿Necesitas ayuda? Estamos aquí para ti" styleClass="support-subtitle"/>
+            </VBox>
+
+            <!-- Contact Form -->
+            <VBox alignment="TOP_CENTER" spacing="25" styleClass="support-form-container" maxWidth="700">
+                <padding>
+                    <Insets top="40" right="50" bottom="40" left="50"/>
+                </padding>
+
+                <Label text="Envíanos tu consulta" styleClass="form-title"/>
+
+                <!-- Name Field -->
+                <VBox spacing="8" styleClass="form-field">
+                    <Label text="Nombre completo *" styleClass="field-label"/>
+                    <TextField fx:id="txtName" promptText="Ingresa tu nombre" styleClass="support-input"/>
+                </VBox>
+
+                <!-- Email Field -->
+                <VBox spacing="8" styleClass="form-field">
+                    <Label text="Correo electrónico *" styleClass="field-label"/>
+                    <TextField fx:id="txtEmail" promptText="correo@ejemplo.com" styleClass="support-input"/>
+                </VBox>
+
+                <!-- Subject Field -->
+                <VBox spacing="8" styleClass="form-field">
+                    <Label text="Asunto *" styleClass="field-label"/>
+                    <TextField fx:id="txtSubject" promptText="Breve descripción del tema" styleClass="support-input"/>
+                </VBox>
+
+                <!-- Category ComboBox -->
+                <VBox spacing="8" styleClass="form-field">
+                    <Label text="Categoría *" styleClass="field-label"/>
+                    <ComboBox fx:id="cmbCategory" promptText="Selecciona una categoría" styleClass="support-combo" maxWidth="Infinity"/>
+                </VBox>
+
+                <!-- Message TextArea -->
+                <VBox spacing="8" styleClass="form-field">
+                    <Label text="Mensaje *" styleClass="field-label"/>
+                    <TextArea fx:id="txtMessage" promptText="Describe tu consulta o problema con detalle..."
+                              styleClass="support-textarea" prefRowCount="6" wrapText="true"/>
+                </VBox>
+
+                <!-- Submit Button -->
+                <Button fx:id="btnSubmit" text="Enviar Solicitud" styleClass="submit-button" onAction="#handleSubmit" maxWidth="300">
+                    <VBox.margin>
+                        <Insets top="10"/>
+                    </VBox.margin>
+                </Button>
+
+                <!-- Success/Error Message -->
+                <Label fx:id="lblMessage" styleClass="form-message" visible="false" managed="false" wrapText="true"/>
+
+            </VBox>
+
+            <!-- Contact Info -->
+            <HBox alignment="CENTER" spacing="60" styleClass="contact-info">
+                <VBox alignment="CENTER" spacing="10">
+                    <Label text="📧" styleClass="contact-icon"/>
+                    <Label text="Email" styleClass="contact-label"/>
+                    <Label text="soporte@sameday.com" styleClass="contact-value"/>
+                </VBox>
+
+                <VBox alignment="CENTER" spacing="10">
+                    <Label text="📞" styleClass="contact-icon"/>
+                    <Label text="Teléfono" styleClass="contact-label"/>
+                    <Label text="+57 300 123 4567" styleClass="contact-value"/>
+                </VBox>
+
+                <VBox alignment="CENTER" spacing="10">
+                    <Label text="🕐" styleClass="contact-icon"/>
+                    <Label text="Horario" styleClass="contact-label"/>
+                    <Label text="Lun - Vie: 8am - 6pm" styleClass="contact-value"/>
+                </VBox>
+            </HBox>
+
+            <!-- FAQ Section -->
+            <VBox alignment="TOP_CENTER" spacing="20" styleClass="faq-section" maxWidth="800">
+                <Label text="❓ Preguntas Frecuentes" styleClass="faq-title"/>
+
+                <VBox spacing="15">
+                    <!-- FAQ 1 -->
+                    <VBox spacing="8" styleClass="faq-item">
+                        <Label text="¿Cómo puedo rastrear mi envío?" styleClass="faq-question"/>
+                        <Label text="Puedes rastrear tu envío ingresando el número de seguimiento en la sección 'Rastrear Envío' de tu dashboard."
+                               styleClass="faq-answer" wrapText="true"/>
+                    </VBox>
+
+                    <!-- FAQ 2 -->
+                    <VBox spacing="8" styleClass="faq-item">
+                        <Label text="¿Cuáles son los métodos de pago aceptados?" styleClass="faq-question"/>
+                        <Label text="Aceptamos tarjetas de crédito/débito, MercadoPago, y transferencias bancarias."
+                               styleClass="faq-answer" wrapText="true"/>
+                    </VBox>
+
+                    <!-- FAQ 3 -->
+                    <VBox spacing="8" styleClass="faq-item">
+                        <Label text="¿Cuánto tiempo tarda la respuesta a mi solicitud?" styleClass="faq-question"/>
+                        <Label text="Nuestro equipo responde en un plazo máximo de 24 horas hábiles."
+                               styleClass="faq-answer" wrapText="true"/>
+                    </VBox>
+                </VBox>
+            </VBox>
+
+        </VBox>
+    </content>
+</ScrollPane>

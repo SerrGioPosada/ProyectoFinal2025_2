@@ -3,23 +3,18 @@ package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Vehicle;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
-import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.PasswordResetService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.DeliveryPersonRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
-import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.NavigationUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
-import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.PasswordUtility;
-import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.PasswordValidator;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -48,17 +43,12 @@ public class DeliveryProfileController implements Initializable {
     @FXML private Label lblVehicleCapacity;
     @FXML private Label lblTotalShipments;
 
-    // Password change fields
-    @FXML private PasswordField txtCurrentPassword;
-    @FXML private PasswordField txtNewPassword;
-    @FXML private PasswordField txtConfirmPassword;
-
     // =================================================================================================================
     // Services and State
     // =================================================================================================================
 
     private final AuthenticationService authService = AuthenticationService.getInstance();
-    private final PasswordResetService passwordResetService = new PasswordResetService();
+    private final DeliveryPersonRepository deliveryPersonRepository = DeliveryPersonRepository.getInstance();
     private DeliveryPerson currentDeliveryPerson;
     private IndexController indexController;
 
@@ -108,8 +98,9 @@ public class DeliveryProfileController implements Initializable {
         lblPhone.setText(currentDeliveryPerson.getPhone() != null ? currentDeliveryPerson.getPhone() : "--");
         lblDocumentId.setText(currentDeliveryPerson.getDocumentId() != null ? currentDeliveryPerson.getDocumentId() : "--");
 
-        // Availability status
+        // Availability status with colored styling
         lblAvailability.setText(getAvailabilityLabel(currentDeliveryPerson.getAvailability()));
+        applyAvailabilityStyle(currentDeliveryPerson.getAvailability());
 
         // Coverage area
         lblCoverageArea.setText(currentDeliveryPerson.getCoverageArea() != null
@@ -191,7 +182,14 @@ public class DeliveryProfileController implements Initializable {
 
         if (selectedFile != null) {
             try {
+                // Update delivery person profile image path
                 currentDeliveryPerson.setProfileImagePath(selectedFile.getAbsolutePath());
+
+                // Save to repository to persist changes
+                deliveryPersonRepository.updateDeliveryPerson(currentDeliveryPerson);
+                Logger.info("Delivery person profile image saved to repository");
+
+                // Reload the image in the view
                 loadProfileImage();
 
                 // Refresh sidebar profile image
@@ -219,92 +217,67 @@ public class DeliveryProfileController implements Initializable {
         if (indexController != null) {
             indexController.loadView("EditUserData.fxml");
         } else {
-            NavigationUtil.navigate(indexController, "EditUserData.fxml", getClass());
+            Logger.error("IndexController not set - cannot navigate to EditUserData");
+            DialogUtil.showError("Error", "No se pudo navegar a la vista de edición de datos");
         }
     }
 
     /**
-     * Handles the update password button action.
-     * Validates and updates the delivery person's password.
+     * Handles the change password button action.
+     * Navigates to the change password view.
      */
     @FXML
-    private void handleUpdatePassword() {
-        String currentPassword = txtCurrentPassword.getText();
-        String newPassword = txtNewPassword.getText();
-        String confirmPassword = txtConfirmPassword.getText();
-
-        // Validate inputs
-        if (currentPassword == null || currentPassword.trim().isEmpty()) {
-            DialogUtil.showWarning("Advertencia", "Por favor ingresa tu contraseña actual.");
-            return;
+    private void handleChangePassword() {
+        Logger.info("Navigating to Change Password view");
+        if (indexController != null) {
+            indexController.loadView("ChangePassword.fxml");
+        } else {
+            Logger.error("IndexController not set - cannot navigate to ChangePassword");
+            DialogUtil.showError("Error", "No se pudo navegar a la vista de cambio de contraseña");
         }
-
-        if (newPassword == null || newPassword.trim().isEmpty()) {
-            DialogUtil.showWarning("Advertencia", "Por favor ingresa tu nueva contraseña.");
-            return;
-        }
-
-        if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            DialogUtil.showWarning("Advertencia", "Por favor confirma tu nueva contraseña.");
-            return;
-        }
-
-        // Check if new passwords match
-        if (!newPassword.equals(confirmPassword)) {
-            DialogUtil.showError("Error", "Las contraseñas no coinciden.");
-            return;
-        }
-
-        // Validate new password strength
-        List<String> passwordErrors = PasswordValidator.validatePassword(newPassword);
-        if (!passwordErrors.isEmpty()) {
-            DialogUtil.showError("Error",
-                "La nueva contraseña no cumple con los requisitos:\n" +
-                String.join("\n", passwordErrors));
-            return;
-        }
-
-        // Verify current password
-        if (!PasswordUtility.checkPassword(currentPassword, currentDeliveryPerson.getPassword())) {
-            DialogUtil.showError("Error", "La contraseña actual es incorrecta.");
-            return;
-        }
-
-        // Check if new password is different from current
-        if (PasswordUtility.checkPassword(newPassword, currentDeliveryPerson.getPassword())) {
-            DialogUtil.showWarning("Advertencia", "La nueva contraseña debe ser diferente a la actual.");
-            return;
-        }
-
-        // Update password using PasswordUtility directly
-        String hashedPassword = PasswordUtility.hashPassword(newPassword);
-        currentDeliveryPerson.setPassword(hashedPassword);
-
-        // Save the updated person - note: in a real system, this would persist to repository
-        DialogUtil.showSuccess("Éxito", "Contraseña actualizada correctamente.");
-        Logger.info("Password updated for delivery person: " + currentDeliveryPerson.getId());
-
-        // Clear fields
-        clearPasswordFields();
     }
 
     /**
-     * Handles the cancel password change button action.
-     * Clears all password fields.
+     * Handles the delete account button action.
+     * Shows a confirmation dialog and deletes the account if confirmed.
      */
     @FXML
-    private void handleCancelPasswordChange() {
-        clearPasswordFields();
-        DialogUtil.showInfo("Cancelado", "Cambio de contraseña cancelado.");
-    }
+    private void handleDeleteAccount() {
+        Logger.info("Delete account requested for delivery person: " + currentDeliveryPerson.getId());
 
-    /**
-     * Clears all password input fields.
-     */
-    private void clearPasswordFields() {
-        if (txtCurrentPassword != null) txtCurrentPassword.clear();
-        if (txtNewPassword != null) txtNewPassword.clear();
-        if (txtConfirmPassword != null) txtConfirmPassword.clear();
+        boolean confirmed = DialogUtil.showConfirmation(
+            "Eliminar Cuenta",
+            "¿Estás seguro de que deseas eliminar tu cuenta?",
+            "Esta acción es irreversible y se perderán todos tus datos permanentemente."
+        );
+
+        if (confirmed) {
+            try {
+                // Delete the delivery person from repository
+                deliveryPersonRepository.removeDeliveryPerson(currentDeliveryPerson.getId());
+                Logger.info("Delivery person account deleted successfully: " + currentDeliveryPerson.getId());
+
+                // Logout the user
+                authService.logout();
+                Logger.info("User logged out after account deletion");
+
+                // Show success message
+                DialogUtil.showSuccess("Cuenta Eliminada", "Tu cuenta ha sido eliminada exitosamente.");
+
+                // Navigate to index/login
+                if (indexController != null) {
+                    indexController.loadView("Login.fxml");
+                } else {
+                    Logger.error("IndexController not set - cannot navigate to Login");
+                }
+
+            } catch (Exception e) {
+                Logger.error("Failed to delete delivery person account: " + e.getMessage());
+                DialogUtil.showError("Error", "No se pudo eliminar la cuenta. Por favor, intenta de nuevo.");
+            }
+        } else {
+            Logger.info("Account deletion cancelled by user");
+        }
     }
 
     // =================================================================================================================
@@ -325,5 +298,26 @@ public class DeliveryProfileController implements Initializable {
             case INACTIVE -> "Inactivo";
             default -> "Desconocido";
         };
+    }
+
+    /**
+     * Applies color styling to the availability status label based on the status.
+     *
+     * @param status The availability status.
+     */
+    private void applyAvailabilityStyle(co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.AvailabilityStatus status) {
+        if (status == null) {
+            lblAvailability.setStyle("-fx-text-fill: #6c757d; -fx-font-weight: bold;");
+            return;
+        }
+
+        String color = switch (status) {
+            case AVAILABLE -> "#28a745"; // Green for available
+            case IN_TRANSIT -> "#ffc107"; // Yellow/Orange for in transit
+            case INACTIVE -> "#dc3545"; // Red for inactive
+            default -> "#6c757d"; // Gray for unknown
+        };
+
+        lblAvailability.setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
     }
 }

@@ -63,6 +63,42 @@ public class TrackingTimelineUtil {
     }
 
     /**
+     * Generates a complete tracking timeline from an order ID.
+     * If the order has an associated shipment, includes both order and shipment events.
+     * If not, shows only order events.
+     *
+     * @param orderId The order ID to track
+     * @return List of tracking events in chronological order, or empty list if order not found
+     */
+    public static List<TrackingEventDTO> generateTimelineFromOrder(String orderId) {
+        List<TrackingEventDTO> events = new ArrayList<>();
+
+        // Get order
+        Optional<Order> orderOpt = orderRepository.findById(orderId);
+        if (!orderOpt.isPresent()) {
+            return events; // Return empty list if order not found
+        }
+
+        Order order = orderOpt.get();
+
+        // Add Order events
+        events.addAll(extractOrderEvents(order));
+
+        // Add Shipment events if order has associated shipment
+        if (order.getShipmentId() != null && !order.getShipmentId().isEmpty()) {
+            Optional<Shipment> shipmentOpt = shipmentRepository.findById(order.getShipmentId());
+            if (shipmentOpt.isPresent()) {
+                events.addAll(extractShipmentEvents(shipmentOpt.get()));
+            }
+        }
+
+        // Sort events chronologically
+        Collections.sort(events);
+
+        return events;
+    }
+
+    /**
      * Extracts tracking events from an Order.
      */
     private static List<TrackingEventDTO> extractOrderEvents(Order order) {

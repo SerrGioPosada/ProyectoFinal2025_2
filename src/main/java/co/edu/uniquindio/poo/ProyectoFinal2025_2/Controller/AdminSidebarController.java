@@ -172,6 +172,11 @@ public class AdminSidebarController extends BaseSidebarController {
                             shipmentController.clearContextualFilter();
                         }
                         break;
+                    case "ManageVehicles.fxml":
+                        if (controller instanceof ManageVehiclesController vehiclesController) {
+                            vehiclesController.clearContextualFilter();
+                        }
+                        break;
                     // Add more cases here for other views that support contextual filtering
                 }
             } catch (Exception e) {

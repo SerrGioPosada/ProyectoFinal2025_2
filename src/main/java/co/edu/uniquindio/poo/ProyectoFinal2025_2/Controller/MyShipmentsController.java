@@ -12,6 +12,7 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.OrderService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ShipmentService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.Adapter.OrderShipmentConverterUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.TabStateManager;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -23,6 +24,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -39,6 +42,8 @@ import java.util.stream.Collectors;
  */
 public class MyShipmentsController implements Initializable {
 
+    private static final String VIEW_NAME = "MyShipments";
+
     // Table and Columns
     @FXML private TableView<OrderShipmentViewDTO> shipmentsTable;
     @FXML private TableColumn<OrderShipmentViewDTO, String> colType;
@@ -51,6 +56,14 @@ public class MyShipmentsController implements Initializable {
     // Filters
     @FXML private ComboBox<OrderShipmentViewDTO.ItemType> filterType;
     @FXML private TextField searchField;
+
+    // Tab System
+    @FXML private VBox collapsibleTabSection;
+    @FXML private Button btnCollapseToggle;
+    @FXML private Button btnTabStats;
+    @FXML private Button btnTabFilters;
+    @FXML private HBox statsTabContent;
+    @FXML private VBox filtersTabContent;
 
     // Counter Labels
     @FXML private Label lblTotal;
@@ -83,6 +96,7 @@ public class MyShipmentsController implements Initializable {
         setupFilters();
         loadAllData();
         updateCounters();
+        restoreViewState();
 
         Logger.info("MyShipmentsController initialized for user: " + currentUserId);
     }
@@ -210,12 +224,34 @@ public class MyShipmentsController implements Initializable {
             });
             cancelItem.setStyle("-fx-text-fill: #dc3545;");
 
+            // Eliminar (solo para cancelados)
+            MenuItem deleteItem = new MenuItem("Eliminar");
+            deleteItem.setOnAction(event -> {
+                OrderShipmentViewDTO selected = row.getItem();
+                if (selected != null) {
+                    handleDeleteForItem(selected);
+                }
+            });
+            deleteItem.setStyle("-fx-text-fill: #dc3545; -fx-font-weight: bold;");
+
             // Bind menu visibility
             row.itemProperty().addListener((obs, oldItem, newItem) -> {
-                if (newItem != null && newItem.getItemType() == OrderShipmentViewDTO.ItemType.ORDER) {
-                    contextMenu.getItems().setAll(viewDetailsItem, cancelItem);
-                } else if (newItem != null) {
-                    contextMenu.getItems().setAll(viewDetailsItem, trackItem, viewOrderItem, new SeparatorMenuItem(), cancelItem);
+                if (newItem != null) {
+                    boolean isCancelled = newItem.getStatusDisplay().toLowerCase().contains("cancelad");
+
+                    if (newItem.getItemType() == OrderShipmentViewDTO.ItemType.ORDER) {
+                        if (isCancelled) {
+                            contextMenu.getItems().setAll(viewDetailsItem, new SeparatorMenuItem(), deleteItem);
+                        } else {
+                            contextMenu.getItems().setAll(viewDetailsItem, cancelItem);
+                        }
+                    } else {
+                        if (isCancelled) {
+                            contextMenu.getItems().setAll(viewDetailsItem, trackItem, viewOrderItem, new SeparatorMenuItem(), deleteItem);
+                        } else {
+                            contextMenu.getItems().setAll(viewDetailsItem, trackItem, viewOrderItem, new SeparatorMenuItem(), cancelItem);
+                        }
+                    }
                 }
             });
 
@@ -637,8 +673,17 @@ public class MyShipmentsController implements Initializable {
             boolean success = false;
             if (item.getItemType() == OrderShipmentViewDTO.ItemType.SHIPMENT) {
                 success = shipmentService.cancelShipment(item.getId());
+            } else if (item.getItemType() == OrderShipmentViewDTO.ItemType.ORDER) {
+                // Cancel the order
+                try {
+                    orderService.cancelOrder(item.getId());
+                    success = true;
+                } catch (IllegalStateException | IllegalArgumentException e) {
+                    Logger.error("Cannot cancel order: " + e.getMessage());
+                    DialogUtil.showError("No se puede cancelar", e.getMessage());
+                    return;
+                }
             }
-            // TODO: Add order cancellation logic when implemented
 
             if (success) {
                 DialogUtil.showSuccess("El elemento ha sido cancelado correctamente");
@@ -650,6 +695,46 @@ public class MyShipmentsController implements Initializable {
         } catch (Exception e) {
             Logger.error("Failed to cancel: " + e.getMessage());
             DialogUtil.showError("Error", "No se pudo cancelar: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles deletion of cancelled items (orders or shipments).
+     * Only cancelled items can be deleted.
+     */
+    private void handleDeleteForItem(OrderShipmentViewDTO item) {
+        // Verify item is cancelled
+        if (!item.getStatusDisplay().toLowerCase().contains("cancelad")) {
+            DialogUtil.showError("No se puede eliminar", "Solo se pueden eliminar elementos cancelados");
+            return;
+        }
+
+        boolean confirmed = DialogUtil.showWarningConfirmation(
+            "Eliminar " + item.getTypeDisplay(),
+            "¿Está seguro de que desea eliminar " + item.getTypeDisplay() + " " + item.getId() + "?",
+            "Esta acción eliminará permanentemente el registro. NO se puede deshacer."
+        );
+
+        if (!confirmed) return;
+
+        try {
+            boolean success = false;
+            if (item.getItemType() == OrderShipmentViewDTO.ItemType.SHIPMENT) {
+                success = shipmentService.deleteShipment(item.getId());
+            } else if (item.getItemType() == OrderShipmentViewDTO.ItemType.ORDER) {
+                success = orderService.deleteOrder(item.getId());
+            }
+
+            if (success) {
+                DialogUtil.showSuccess("El elemento ha sido eliminado correctamente");
+                loadAllData();
+                updateCounters();
+            } else {
+                DialogUtil.showError("Error", "No se pudo eliminar el elemento");
+            }
+        } catch (Exception e) {
+            Logger.error("Failed to delete: " + e.getMessage());
+            DialogUtil.showError("Error", "No se pudo eliminar: " + e.getMessage());
         }
     }
 
@@ -687,7 +772,7 @@ public class MyShipmentsController implements Initializable {
 
             Stage stage = new Stage();
             stage.setTitle("Detalles del Envío - " + shipmentId);
-            Scene scene = new Scene(root, 900, 700);
+            Scene scene = new Scene(root, 650, 800);
             co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeManager.getInstance().applyThemeToScene(scene);
             stage.setScene(scene);
             stage.setResizable(true);
@@ -698,5 +783,151 @@ public class MyShipmentsController implements Initializable {
             Logger.error("Failed to load ShipmentDetail view: " + e.getMessage());
             DialogUtil.showError("Error", "No se pudo abrir los detalles del envío");
         }
+    }
+
+    // ===========================
+    // Tab System Methods
+    // ===========================
+
+    /**
+     * Switches to the Stats tab.
+     * Expands the section if collapsed (user interaction).
+     */
+    @FXML
+    private void switchToStatsTab() {
+        setActiveTab(btnTabStats);
+        showTabContent(statsTabContent, "stats", true);
+    }
+
+    /**
+     * Switches to the Filters tab.
+     * Expands the section if collapsed (user interaction).
+     */
+    @FXML
+    private void switchToFiltersTab() {
+        setActiveTab(btnTabFilters);
+        showTabContent(filtersTabContent, "filters", true);
+    }
+
+    /**
+     * Sets the active tab button and removes active class from others.
+     */
+    private void setActiveTab(Button activeButton) {
+        // Remove active class from all tab buttons
+        btnTabStats.getStyleClass().remove("tab-button-active");
+        btnTabFilters.getStyleClass().remove("tab-button-active");
+
+        // Add active class to the selected tab
+        activeButton.getStyleClass().add("tab-button-active");
+    }
+
+    /**
+     * Shows the specified tab content and hides all others.
+     *
+     * @param contentToShow The tab content pane to display
+     * @param tabId The ID of the tab for state persistence
+     * @param expandIfCollapsed If true, expands the section if it's currently collapsed (for user clicks).
+     *                          If false, respects the current collapsed state (for restoring view state).
+     */
+    private void showTabContent(javafx.scene.layout.Pane contentToShow, String tabId, boolean expandIfCollapsed) {
+        // If user clicked a tab and section is collapsed, expand it
+        if (expandIfCollapsed) {
+            boolean isExpanded = TabStateManager.isExpanded(VIEW_NAME);
+            if (!isExpanded) {
+                TabStateManager.setExpanded(VIEW_NAME, true);
+                applyCollapseState(true);
+            }
+        }
+
+        // Hide all tab contents
+        statsTabContent.setVisible(false);
+        statsTabContent.setManaged(false);
+        filtersTabContent.setVisible(false);
+        filtersTabContent.setManaged(false);
+
+        // Show the selected content
+        contentToShow.setVisible(true);
+        contentToShow.setManaged(true);
+
+        // Save state
+        TabStateManager.setActiveTab(VIEW_NAME, tabId);
+    }
+
+    // =================================================================================================================
+    // Collapse/Expand Methods
+    // =================================================================================================================
+
+    /**
+     * Toggles the collapse/expand state of the tab section.
+     */
+    @FXML
+    private void toggleCollapse() {
+        boolean currentlyExpanded = TabStateManager.isExpanded(VIEW_NAME);
+        boolean newExpanded = !currentlyExpanded;
+        TabStateManager.setExpanded(VIEW_NAME, newExpanded);
+        applyCollapseState(newExpanded);
+    }
+
+    /**
+     * Applies the collapse/expand visual state.
+     */
+    private void applyCollapseState(boolean expanded) {
+        if (expanded) {
+            // Remove collapsed class and add expanded class
+            collapsibleTabSection.getStyleClass().removeAll("tab-section-collapsed");
+            if (!collapsibleTabSection.getStyleClass().contains("tab-section-expanded")) {
+                collapsibleTabSection.getStyleClass().add("tab-section-expanded");
+            }
+
+            // Make ONLY content container visible (tabs always visible)
+            javafx.scene.Node contentContainer = collapsibleTabSection.lookup(".tab-content-container");
+            if (contentContainer != null) {
+                contentContainer.setVisible(true);
+                contentContainer.setManaged(true);
+            }
+
+            btnCollapseToggle.setText("▲");
+        } else {
+            // Remove expanded class and add collapsed class
+            collapsibleTabSection.getStyleClass().removeAll("tab-section-expanded");
+            if (!collapsibleTabSection.getStyleClass().contains("tab-section-collapsed")) {
+                collapsibleTabSection.getStyleClass().add("tab-section-collapsed");
+            }
+
+            // Hide ONLY content container (tabs remain visible)
+            javafx.scene.Node contentContainer = collapsibleTabSection.lookup(".tab-content-container");
+            if (contentContainer != null) {
+                contentContainer.setVisible(false);
+                contentContainer.setManaged(false);
+            }
+
+            btnCollapseToggle.setText("▼");
+        }
+    }
+
+    /**
+     * Restores the saved collapse/expand state and active tab from previous session.
+     */
+    private void restoreViewState() {
+        // Restore collapse/expand state
+        boolean expanded = TabStateManager.isExpanded(VIEW_NAME);
+        applyCollapseState(expanded);
+
+        // Restore active tab (without auto-expanding)
+        String activeTab = TabStateManager.getActiveTab(VIEW_NAME);
+        javafx.scene.layout.Pane contentToRestore;
+        String tabIdToRestore;
+
+        if ("filters".equals(activeTab)) {
+            contentToRestore = filtersTabContent;
+            tabIdToRestore = "filters";
+            setActiveTab(btnTabFilters);
+        } else {
+            contentToRestore = statsTabContent;
+            tabIdToRestore = "stats";
+            setActiveTab(btnTabStats);
+        }
+
+        showTabContent(contentToRestore, tabIdToRestore, false); // false = don't auto-expand
     }
 }

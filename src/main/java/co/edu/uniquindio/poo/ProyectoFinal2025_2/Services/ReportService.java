@@ -18,8 +18,12 @@ import java.util.stream.Collectors;
 
 /**
  * Service dedicated to generating different types of reports and statistics.
+ * Singleton pattern.
  */
 public class ReportService {
+
+    // Singleton instance
+    private static ReportService instance;
 
     // Repositories
     private final OrderRepository orderRepository = OrderRepository.getInstance();
@@ -32,6 +36,22 @@ public class ReportService {
     // Formatters
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private ReportService() {
+    }
+
+    /**
+     * Returns the singleton instance of ReportService.
+     */
+    public static synchronized ReportService getInstance() {
+        if (instance == null) {
+            instance = new ReportService();
+        }
+        return instance;
+    }
 
     // ==================================================================================
     // GENERAL STATISTICS
@@ -509,6 +529,159 @@ public class ReportService {
             return CsvUtility.writeCSV(fileName, headers, rows);
         } catch (Exception e) {
             Logger.error("Error generating delivery personnel CSV report: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Generates orders export in CSV format.
+     */
+    public File exportOrdersToCSV(List<Order> orders) {
+        try {
+            String fileName = "reportes/orders_export_" + System.currentTimeMillis() + ".csv";
+
+            List<String> headers = Arrays.asList(
+                "ID Orden", "Estado", "Usuario ID", "Fecha Creación", "ID Envío", "ID Pago"
+            );
+
+            List<List<String>> rows = new ArrayList<>();
+            orders.forEach(order -> {
+                rows.add(Arrays.asList(
+                        order.getId(),
+                        order.getStatus().getDisplayName(),
+                        order.getUserId() != null ? order.getUserId() : "N/A",
+                        order.getCreatedAt() != null ? order.getCreatedAt().format(DATETIME_FORMATTER) : "N/A",
+                        order.getShipmentId() != null ? order.getShipmentId() : "N/A",
+                        order.getPaymentId() != null ? order.getPaymentId() : "N/A"
+                ));
+            });
+
+            return CsvUtility.writeCSV(fileName, headers, rows);
+        } catch (Exception e) {
+            Logger.error("Error exporting orders to CSV: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Generates orders export in PDF format.
+     */
+    public File exportOrdersToPDF(List<Order> orders) {
+        try {
+            String fileName = "orders_export_" + System.currentTimeMillis();
+            String subtitle = String.format("Total de Órdenes: %d | Generado: %s",
+                orders.size(), LocalDateTime.now().format(DATETIME_FORMATTER));
+
+            List<String> headers = Arrays.asList("ID Orden", "Estado", "Usuario", "Fecha Creación");
+            List<List<String>> rows = new ArrayList<>();
+
+            orders.forEach(order -> {
+                String userName = "N/A";
+                if (order.getUserId() != null) {
+                    User user = userRepository.findById(order.getUserId()).orElse(null);
+                    if (user != null) {
+                        userName = user.getName() + " " + user.getLastName();
+                    }
+                }
+
+                rows.add(Arrays.asList(
+                        order.getId(),
+                        order.getStatus().getDisplayName(),
+                        userName,
+                        order.getCreatedAt() != null ? order.getCreatedAt().format(DATETIME_FORMATTER) : "N/A"
+                ));
+            });
+
+            return PdfUtility.generatePdfReport(fileName, "Reporte de Órdenes", subtitle, headers, rows);
+        } catch (Exception e) {
+            Logger.error("Error exporting orders to PDF: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Generates shipments export in CSV format.
+     */
+    public File exportShipmentsToCSV(List<Shipment> shipments) {
+        try {
+            String fileName = "reportes/shipments_export_" + System.currentTimeMillis() + ".csv";
+
+            List<String> headers = Arrays.asList(
+                "ID Envío", "ID Orden", "Estado", "Peso (kg)", "Usuario", "Repartidor", "Fecha Creación", "Fecha Entrega"
+            );
+
+            List<List<String>> rows = new ArrayList<>();
+            shipments.forEach(shipment -> {
+                String userName = "N/A";
+                if (shipment.getUserId() != null) {
+                    User user = userRepository.findById(shipment.getUserId()).orElse(null);
+                    if (user != null) {
+                        userName = user.getEmail();
+                    }
+                }
+
+                String deliveryPersonName = "N/A";
+                if (shipment.getDeliveryPersonId() != null) {
+                    DeliveryPerson dp = deliveryPersonRepository.findDeliveryPersonById(shipment.getDeliveryPersonId()).orElse(null);
+                    if (dp != null) {
+                        deliveryPersonName = dp.getEmail();
+                    }
+                }
+
+                rows.add(Arrays.asList(
+                        shipment.getId(),
+                        shipment.getOrderId() != null ? shipment.getOrderId() : "N/A",
+                        shipment.getStatus().getDisplayName(),
+                        String.format("%.2f", shipment.getWeightKg()),
+                        userName,
+                        deliveryPersonName,
+                        shipment.getCreatedAt() != null ? shipment.getCreatedAt().format(DATETIME_FORMATTER) : "N/A",
+                        shipment.getDeliveredDate() != null ? shipment.getDeliveredDate().format(DATETIME_FORMATTER) : "N/A"
+                ));
+            });
+
+            return CsvUtility.writeCSV(fileName, headers, rows);
+        } catch (Exception e) {
+            Logger.error("Error exporting shipments to CSV: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Generates shipments export in PDF format.
+     */
+    public File exportShipmentsToPDF(List<Shipment> shipments) {
+        try {
+            String fileName = "shipments_export_" + System.currentTimeMillis();
+
+            long delivered = shipments.stream().filter(s -> s.getStatus() == ShipmentStatus.DELIVERED).count();
+            String subtitle = String.format("Total de Envíos: %d | Entregados: %d | Generado: %s",
+                shipments.size(), delivered, LocalDateTime.now().format(DATETIME_FORMATTER));
+
+            List<String> headers = Arrays.asList("ID Envío", "Estado", "Peso (kg)", "Usuario", "Fecha Creación");
+            List<List<String>> rows = new ArrayList<>();
+
+            shipments.forEach(shipment -> {
+                String userName = "N/A";
+                if (shipment.getUserId() != null) {
+                    User user = userRepository.findById(shipment.getUserId()).orElse(null);
+                    if (user != null) {
+                        userName = user.getEmail();
+                    }
+                }
+
+                rows.add(Arrays.asList(
+                        shipment.getId(),
+                        shipment.getStatus().getDisplayName(),
+                        String.format("%.2f kg", shipment.getWeightKg()),
+                        userName,
+                        shipment.getCreatedAt() != null ? shipment.getCreatedAt().format(DATETIME_FORMATTER) : "N/A"
+                ));
+            });
+
+            return PdfUtility.generatePdfReport(fileName, "Reporte de Envíos", subtitle, headers, rows);
+        } catch (Exception e) {
+            Logger.error("Error exporting shipments to PDF: " + e.getMessage());
             return null;
         }
     }

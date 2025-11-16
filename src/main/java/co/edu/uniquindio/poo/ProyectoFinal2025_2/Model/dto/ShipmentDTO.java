@@ -58,6 +58,7 @@ public class ShipmentDTO {
     private String userPhone;
     private String userEmail;
     private String deliveryPersonName;
+    private String deliveryPersonEmail;
     private String deliveryPersonPhone;
     private String originAddressComplete;
     private String destinationAddressComplete;

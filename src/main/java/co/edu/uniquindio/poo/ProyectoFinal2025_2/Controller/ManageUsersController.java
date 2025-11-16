@@ -3,18 +3,27 @@ package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.UserSummaryDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.UserService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeManager;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.StringUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * Controller for the user management view (ManageUsers.fxml), accessible by administrators.
@@ -127,15 +136,42 @@ public class ManageUsersController {
     // =================================================================================================================
 
     /**
-     * Handles the "Add User" button click, opening the signup view.
+     * Handles the "Add User" button click, opening the signup modal in admin context.
      */
     @FXML
     private void handleAddUser() {
-        if (indexController == null) {
-            Logger.error("Cannot load signup view: IndexController is null.");
-            return;
+        try {
+            URL fxmlUrl = getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/Signup.fxml");
+            if (fxmlUrl == null) {
+                Logger.error("Cannot find FXML file: Signup.fxml");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            SignupController signupController = loader.getController();
+            signupController.setIndexController(indexController);
+
+            // Configure for admin context with callback to refresh table
+            signupController.setAdminContext(this::loadUsers);
+
+            Stage stage = new Stage();
+            stage.setTitle("Add New User");
+            Scene scene = new Scene(root);
+
+            // Apply current theme to modal window
+            ThemeManager.getInstance().applyThemeToScene(scene);
+
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            Logger.error("Failed to load Signup window.", e);
         }
-        indexController.loadView("Signup.fxml");
     }
 
     /**

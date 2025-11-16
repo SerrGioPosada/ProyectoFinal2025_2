@@ -140,7 +140,22 @@ public class UserPaymentReceiptsController implements Initializable {
         cmbStatusFilter.getItems().add("Aprobados");
         cmbStatusFilter.getItems().add("Pendientes");
         cmbStatusFilter.getItems().add("Fallidos");
+        cmbStatusFilter.setPromptText("Filtrar por estado");
         cmbStatusFilter.setValue("Todos");
+
+        // Configure button cell to show selected value or prompt text
+        cmbStatusFilter.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                // Show prompt text only when there's no value selected
+                if (cmbStatusFilter.getValue() == null) {
+                    setText(cmbStatusFilter.getPromptText());
+                } else {
+                    setText(cmbStatusFilter.getValue());
+                }
+            }
+        });
 
         cmbStatusFilter.setOnAction(e -> applyFilter());
     }

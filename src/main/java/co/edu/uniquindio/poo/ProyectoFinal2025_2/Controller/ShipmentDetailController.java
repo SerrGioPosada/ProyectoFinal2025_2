@@ -19,11 +19,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -383,8 +382,60 @@ public class ShipmentDetailController implements Initializable {
 
     @FXML
     private void handlePrint() {
-        DialogUtil.showInfo("Print", "Print functionality will be implemented soon");
-        // TODO: Implement print/PDF generation
+        if (currentShipment == null) {
+            DialogUtil.showWarning("Sin Datos", "No hay envío cargado para imprimir");
+            return;
+        }
+
+        try {
+            // Generate PDF with shipment details
+            String fileName = "shipment_detail_" + currentShipment.getId() + "_" + System.currentTimeMillis();
+            String title = "Detalles del Envío";
+            String subtitle = "ID: " + currentShipment.getId() + " | Estado: " + currentShipment.getStatusDisplayName();
+
+            // Prepare headers and data
+            List<String> headers = Arrays.asList("Campo", "Valor");
+            List<List<String>> rows = new ArrayList<>();
+
+            // General Information
+            rows.add(Arrays.asList("ID Envío", currentShipment.getId()));
+            rows.add(Arrays.asList("Estado", currentShipment.getStatusDisplayName()));
+            rows.add(Arrays.asList("Prioridad", String.valueOf(currentShipment.getPriority())));
+            rows.add(Arrays.asList("Fecha Creación", currentShipment.getCreationDate() != null ?
+                currentShipment.getCreationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "N/A"));
+
+            // User Information
+            rows.add(Arrays.asList("Usuario", currentShipment.getUserEmail() != null ? currentShipment.getUserEmail() : "N/A"));
+
+            // Addresses
+            rows.add(Arrays.asList("Origen", currentShipment.getOriginAddressComplete() != null ? currentShipment.getOriginAddressComplete() : "N/A"));
+            rows.add(Arrays.asList("Destino", currentShipment.getDestinationAddressComplete() != null ? currentShipment.getDestinationAddressComplete() : "N/A"));
+
+            // Package Details
+            rows.add(Arrays.asList("Peso", String.format("%.2f kg", currentShipment.getWeightKg())));
+            rows.add(Arrays.asList("Distancia", String.format("%.2f km", currentShipment.getDistanceKm())));
+
+            // Delivery Person
+            rows.add(Arrays.asList("Repartidor", currentShipment.getDeliveryPersonName() != null ? currentShipment.getDeliveryPersonName() : "Sin asignar"));
+
+            // Cost
+            rows.add(Arrays.asList("Costo Total", String.format("$%.2f", currentShipment.getTotalCost())));
+
+            // Generate PDF
+            File pdfFile = co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.PdfUtility.generatePdfReport(
+                fileName, title, subtitle, headers, rows);
+
+            if (pdfFile != null && pdfFile.exists()) {
+                DialogUtil.showSuccess("PDF Generado",
+                    "El PDF se generó exitosamente:\n" + pdfFile.getAbsolutePath());
+                Logger.info("Shipment detail PDF generated: " + pdfFile.getAbsolutePath());
+            } else {
+                DialogUtil.showError("Error", "No se pudo generar el PDF");
+            }
+        } catch (Exception e) {
+            Logger.error("Error generating shipment detail PDF: " + e.getMessage());
+            DialogUtil.showError("Error", "Error al generar PDF: " + e.getMessage());
+        }
     }
 
     /**

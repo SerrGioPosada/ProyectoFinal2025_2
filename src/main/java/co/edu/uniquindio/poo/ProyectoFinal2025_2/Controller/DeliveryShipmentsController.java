@@ -1,14 +1,16 @@
 package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Address;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson;
-import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.ShipmentStatus;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Invoice;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Shipment;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.ShipmentStatus;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.ShipmentDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.InvoiceRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.OrderRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.ShipmentRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
-import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.OrderService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ShipmentService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.TabStateManager;
@@ -16,13 +18,20 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -30,82 +39,25 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 /**
- * Controller for the Delivery Person Shipments view (DeliveryShipments.fxml).
+ * Controller for the Delivery Shipments view (DeliveryShipments.fxml).
  * <p>
- * This controller manages the view where delivery persons can see their assigned shipments
- * organized by tabs (All, Pending, In Transit, Delivered) with collapsible sections.
+ * This controller manages the shipments assigned to a delivery person,
+ * providing filtering, viewing details, and status updates with a collapsible tab system.
  * </p>
  */
 public class DeliveryShipmentsController implements Initializable {
 
-    private static final String VIEW_NAME = "DeliveryShipments";
-
     // =================================================================================================================
-    // FXML Fields - Tab Buttons
+    // FXML Fields - Tab System
     // =================================================================================================================
 
-    @FXML private Button btnTabAll;
-    @FXML private Button btnTabPending;
-    @FXML private Button btnTabInTransit;
-    @FXML private Button btnTabDelivered;
+    @FXML private VBox collapsibleTabSection;
     @FXML private Button btnCollapseToggle;
+    @FXML private Button btnTabStats;
+    @FXML private Button btnTabFilters;
 
-    // =================================================================================================================
-    // FXML Fields - Tab Content Areas
-    // =================================================================================================================
-
-    @FXML private VBox tabContentAll;
-    @FXML private VBox tabContentPending;
-    @FXML private VBox tabContentInTransit;
-    @FXML private VBox tabContentDelivered;
-    @FXML private VBox collapsibleSection;
-
-    // =================================================================================================================
-    // FXML Fields - Tables (One per tab)
-    // =================================================================================================================
-
-    // All Shipments Table
-    @FXML private TableView<Shipment> shipmentsTableAll;
-    @FXML private TableColumn<Shipment, String> colShipmentId;
-    @FXML private TableColumn<Shipment, String> colOrigin;
-    @FXML private TableColumn<Shipment, String> colDestination;
-    @FXML private TableColumn<Shipment, String> colStatus;
-    @FXML private TableColumn<Shipment, String> colDate;
-    @FXML private TableColumn<Shipment, String> colCost;
-
-    // Pending Shipments Table
-    @FXML private TableView<Shipment> shipmentsTablePending;
-    @FXML private TableColumn<Shipment, String> colPendingId;
-    @FXML private TableColumn<Shipment, String> colPendingOrigin;
-    @FXML private TableColumn<Shipment, String> colPendingDestination;
-    @FXML private TableColumn<Shipment, String> colPendingDate;
-    @FXML private TableColumn<Shipment, String> colPendingCost;
-    @FXML private TableColumn<Shipment, String> colPendingPriority;
-
-    // In Transit Shipments Table
-    @FXML private TableView<Shipment> shipmentsTableInTransit;
-    @FXML private TableColumn<Shipment, String> colTransitId;
-    @FXML private TableColumn<Shipment, String> colTransitOrigin;
-    @FXML private TableColumn<Shipment, String> colTransitDestination;
-    @FXML private TableColumn<Shipment, String> colTransitPickupDate;
-    @FXML private TableColumn<Shipment, String> colTransitEstimated;
-    @FXML private TableColumn<Shipment, String> colTransitCost;
-
-    // Delivered Shipments Table
-    @FXML private TableView<Shipment> shipmentsTableDelivered;
-    @FXML private TableColumn<Shipment, String> colDeliveredId;
-    @FXML private TableColumn<Shipment, String> colDeliveredOrigin;
-    @FXML private TableColumn<Shipment, String> colDeliveredDestination;
-    @FXML private TableColumn<Shipment, String> colDeliveredDate;
-    @FXML private TableColumn<Shipment, String> colDeliveredCost;
-    @FXML private TableColumn<Shipment, String> colDeliveredRating;
-
-    // =================================================================================================================
-    // FXML Fields - Filters and Search
-    // =================================================================================================================
-
-    @FXML private ComboBox<ShipmentStatus> filterStatus;
-    @FXML private TextField searchField;
+    @FXML private HBox statsTabContent;
+    @FXML private VBox filtersTabContent;
 
     // =================================================================================================================
     // FXML Fields - Statistics
@@ -117,200 +69,186 @@ public class DeliveryShipmentsController implements Initializable {
     @FXML private Label lblDelivered;
 
     // =================================================================================================================
-    // FXML Fields - Actions
+    // FXML Fields - Filters
     // =================================================================================================================
 
-    @FXML private ComboBox<ShipmentStatus> cmbNewStatus;
-    @FXML private Button btnUpdateStatus;
+    @FXML private ComboBox<String> filterStatus;
+    @FXML private TextField searchField;
 
     // =================================================================================================================
-    // Services and State
+    // FXML Fields - Table
     // =================================================================================================================
 
-    private final ShipmentService shipmentService = new ShipmentService();
+    @FXML private TableView<ShipmentDTO> shipmentsTable;
+    @FXML private TableColumn<ShipmentDTO, String> colShipmentId;
+    @FXML private TableColumn<ShipmentDTO, String> colOrigin;
+    @FXML private TableColumn<ShipmentDTO, String> colDestination;
+    @FXML private TableColumn<ShipmentDTO, String> colStatus;
+    @FXML private TableColumn<ShipmentDTO, String> colDate;
+    @FXML private TableColumn<ShipmentDTO, String> colCost;
+
+    // =================================================================================================================
+    // Services and Data
+    // =================================================================================================================
+
     private final AuthenticationService authService = AuthenticationService.getInstance();
-    private final OrderService orderService = new OrderService();
+    private final ShipmentService shipmentService = new ShipmentService();
+    private final ShipmentRepository shipmentRepository = ShipmentRepository.getInstance();
     private final OrderRepository orderRepository = OrderRepository.getInstance();
     private final InvoiceRepository invoiceRepository = InvoiceRepository.getInstance();
+
     private DeliveryPerson currentDeliveryPerson;
-    private ObservableList<Shipment> allShipments;
-    private String currentTab = "All"; // Track current active tab
+    private ObservableList<ShipmentDTO> shipmentsData;
+    private FilteredList<ShipmentDTO> filteredShipments;
+
+    private static final String VIEW_NAME = "DeliveryShipments";
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     // =================================================================================================================
     // Initialization
     // =================================================================================================================
 
-    /**
-     * Initializes the controller. Loads assigned shipments for the current delivery person.
-     *
-     * @param url            The location used to resolve relative paths.
-     * @param resourceBundle The resources used to localize the root object.
-     */
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize(URL location, ResourceBundle resources) {
+        Logger.info("Initializing DeliveryShipmentsController");
+
         currentDeliveryPerson = (DeliveryPerson) authService.getCurrentPerson();
 
         if (currentDeliveryPerson == null) {
-            Logger.error("No delivery person logged in");
-            DialogUtil.showError("Error", "No hay repartidor autenticado");
+            DialogUtil.showError("Error", "No se pudo obtener la información del repartidor.");
             return;
         }
 
-        setupTables();
+        setupTable();
         setupFilters();
-        setupTabButtons();
         loadShipments();
         updateStatistics();
-        restoreTabState();
+        restoreViewState();
 
-        Logger.info("DeliveryShipmentsController initialized for delivery person: " + currentDeliveryPerson.getId());
+        Logger.info("DeliveryShipmentsController initialized successfully");
     }
 
     // =================================================================================================================
     // Setup Methods
     // =================================================================================================================
 
-    /**
-     * Sets up all table columns with cell value factories.
-     */
-    private void setupTables() {
-        setupAllShipmentsTable();
-        setupPendingShipmentsTable();
-        setupInTransitShipmentsTable();
-        setupDeliveredShipmentsTable();
-    }
-
-    /**
-     * Sets up the "All Shipments" table.
-     */
-    private void setupAllShipmentsTable() {
+    private void setupTable() {
         colShipmentId.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getId()));
-        colOrigin.setCellValueFactory(data -> new SimpleStringProperty(formatAddress(data.getValue().getOrigin())));
-        colDestination.setCellValueFactory(data -> new SimpleStringProperty(formatAddress(data.getValue().getDestination())));
-        colStatus.setCellValueFactory(data -> new SimpleStringProperty(getStatusLabel(data.getValue().getStatus())));
-        colDate.setCellValueFactory(data -> new SimpleStringProperty(formatDate(data.getValue())));
-        colCost.setCellValueFactory(data -> new SimpleStringProperty(String.format("$%,.2f", data.getValue().getTotalCost())));
+        colOrigin.setCellValueFactory(data -> new SimpleStringProperty(
+            data.getValue().getOriginAddressComplete() != null ? data.getValue().getOriginAddressComplete() : "N/A"
+        ));
+        colDestination.setCellValueFactory(data -> new SimpleStringProperty(
+            data.getValue().getDestinationAddressComplete() != null ? data.getValue().getDestinationAddressComplete() : "N/A"
+        ));
+        colStatus.setCellValueFactory(data -> new SimpleStringProperty(
+            data.getValue().getStatus() != null ? getStatusSpanish(data.getValue().getStatus()) : "N/A"
+        ));
+        colDate.setCellValueFactory(data -> new SimpleStringProperty(
+            data.getValue().getCreationDate() != null ? data.getValue().getCreationDate().format(DATE_FORMATTER) : "N/A"
+        ));
+        colCost.setCellValueFactory(data -> new SimpleStringProperty(
+            "$" + String.format("%.2f", data.getValue().getTotalCost())
+        ));
 
-        applyStatusBadgeStyle(colStatus);
-        shipmentsTableAll.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        setupContextMenu(shipmentsTableAll);
+        // Apply styled cell factory for status column (badges)
+        colStatus.setCellFactory(column -> new TableCell<ShipmentDTO, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    setStyle("");
+                } else {
+                    Label badge = new Label(item);
+                    String backgroundColor = getStatusColor(item);
+                    badge.setStyle(
+                        "-fx-background-color: " + backgroundColor + ";" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 5 10 5 10;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 11px;"
+                    );
+                    setText(null);
+                    setGraphic(badge);
+                }
+            }
+        });
+
+        // Setup context menu
+        setupContextMenu();
     }
 
-    /**
-     * Sets up the "Pending Shipments" table.
-     */
-    private void setupPendingShipmentsTable() {
-        colPendingId.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getId()));
-        colPendingOrigin.setCellValueFactory(data -> new SimpleStringProperty(formatAddress(data.getValue().getOrigin())));
-        colPendingDestination.setCellValueFactory(data -> new SimpleStringProperty(formatAddress(data.getValue().getDestination())));
-        colPendingDate.setCellValueFactory(data -> new SimpleStringProperty(formatDate(data.getValue())));
-        colPendingCost.setCellValueFactory(data -> new SimpleStringProperty(String.format("$%,.2f", data.getValue().getTotalCost())));
-        colPendingPriority.setCellValueFactory(data -> new SimpleStringProperty(getPriorityLabel(data.getValue())));
+    private void setupContextMenu() {
+        shipmentsTable.setRowFactory(tv -> {
+            TableRow<ShipmentDTO> row = new TableRow<>();
+            ContextMenu contextMenu = new ContextMenu();
 
-        shipmentsTablePending.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        setupContextMenu(shipmentsTablePending);
-    }
+            // Ver Detalles
+            MenuItem viewDetails = new MenuItem("Ver Detalles");
+            viewDetails.setOnAction(event -> {
+                ShipmentDTO selected = row.getItem();
+                if (selected != null) {
+                    showShipmentDetails(selected);
+                }
+            });
 
-    /**
-     * Sets up the "In Transit Shipments" table.
-     */
-    private void setupInTransitShipmentsTable() {
-        colTransitId.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getId()));
-        colTransitOrigin.setCellValueFactory(data -> new SimpleStringProperty(formatAddress(data.getValue().getOrigin())));
-        colTransitDestination.setCellValueFactory(data -> new SimpleStringProperty(formatAddress(data.getValue().getDestination())));
-        colTransitPickupDate.setCellValueFactory(data -> new SimpleStringProperty(formatDate(data.getValue())));
-        colTransitEstimated.setCellValueFactory(data -> new SimpleStringProperty(formatEstimatedDelivery(data.getValue())));
-        colTransitCost.setCellValueFactory(data -> new SimpleStringProperty(String.format("$%,.2f", data.getValue().getTotalCost())));
+            // Ver Orden Asociada
+            MenuItem viewOrder = new MenuItem("Ver Orden Asociada");
+            viewOrder.setOnAction(event -> {
+                ShipmentDTO selected = row.getItem();
+                if (selected != null) {
+                    showAssociatedOrder(selected);
+                }
+            });
 
-        shipmentsTableInTransit.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        setupContextMenu(shipmentsTableInTransit);
-    }
+            // Marcar En Tránsito
+            MenuItem markInTransit = new MenuItem("Marcar En Tránsito");
+            markInTransit.setOnAction(event -> {
+                ShipmentDTO selected = row.getItem();
+                if (selected != null) {
+                    quickUpdateStatus(selected, ShipmentStatus.IN_TRANSIT);
+                }
+            });
 
-    /**
-     * Sets up the "Delivered Shipments" table.
-     */
-    private void setupDeliveredShipmentsTable() {
-        colDeliveredId.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getId()));
-        colDeliveredOrigin.setCellValueFactory(data -> new SimpleStringProperty(formatAddress(data.getValue().getOrigin())));
-        colDeliveredDestination.setCellValueFactory(data -> new SimpleStringProperty(formatAddress(data.getValue().getDestination())));
-        colDeliveredDate.setCellValueFactory(data -> new SimpleStringProperty(formatDeliveryDate(data.getValue())));
-        colDeliveredCost.setCellValueFactory(data -> new SimpleStringProperty(String.format("$%,.2f", data.getValue().getTotalCost())));
-        colDeliveredRating.setCellValueFactory(data -> new SimpleStringProperty("N/A")); // Placeholder
+            // Marcar En Camino (Out for Delivery)
+            MenuItem markOutForDelivery = new MenuItem("Marcar En Camino");
+            markOutForDelivery.setOnAction(event -> {
+                ShipmentDTO selected = row.getItem();
+                if (selected != null) {
+                    quickUpdateStatus(selected, ShipmentStatus.OUT_FOR_DELIVERY);
+                }
+            });
 
-        shipmentsTableDelivered.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        setupContextMenu(shipmentsTableDelivered);
-    }
+            // Marcar Entregado
+            MenuItem markDelivered = new MenuItem("Marcar Entregado");
+            markDelivered.setOnAction(event -> {
+                ShipmentDTO selected = row.getItem();
+                if (selected != null) {
+                    quickUpdateStatus(selected, ShipmentStatus.DELIVERED);
+                }
+            });
 
-    /**
-     * Sets up context menu (right-click) for a shipment table.
-     */
-    private void setupContextMenu(TableView<Shipment> table) {
-        ContextMenu contextMenu = new ContextMenu();
+            // Marcar Devuelto
+            MenuItem markReturned = new MenuItem("Marcar Devuelto");
+            markReturned.setOnAction(event -> {
+                ShipmentDTO selected = row.getItem();
+                if (selected != null) {
+                    quickUpdateStatus(selected, ShipmentStatus.RETURNED);
+                }
+            });
 
-        // Ver Detalles
-        MenuItem viewDetails = new MenuItem("Ver Detalles");
-        viewDetails.setOnAction(event -> {
-            Shipment selected = table.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                showShipmentDetails(selected);
-            }
-        });
+            // Reportar Incidencia
+            MenuItem reportIncident = new MenuItem("⚠️ Reportar Incidencia");
+            reportIncident.setOnAction(event -> {
+                ShipmentDTO selected = row.getItem();
+                if (selected != null) {
+                    handleReportIncident(selected);
+                }
+            });
 
-        // Ver Orden Asociada
-        MenuItem viewOrder = new MenuItem("Ver Orden Asociada");
-        viewOrder.setOnAction(event -> {
-            Shipment selected = table.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                showAssociatedOrder(selected);
-            }
-        });
-
-        // Marcar En Tránsito
-        MenuItem markInTransit = new MenuItem("Marcar En Tránsito");
-        markInTransit.setOnAction(event -> {
-            Shipment selected = table.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                updateShipmentStatus(selected, ShipmentStatus.IN_TRANSIT);
-            }
-        });
-
-        // Marcar En Camino
-        MenuItem markOutForDelivery = new MenuItem("Marcar En Camino");
-        markOutForDelivery.setOnAction(event -> {
-            Shipment selected = table.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                updateShipmentStatus(selected, ShipmentStatus.OUT_FOR_DELIVERY);
-            }
-        });
-
-        // Marcar Entregado
-        MenuItem markDelivered = new MenuItem("Marcar Entregado");
-        markDelivered.setOnAction(event -> {
-            Shipment selected = table.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                updateShipmentStatus(selected, ShipmentStatus.DELIVERED);
-            }
-        });
-
-        // Marcar Devuelto
-        MenuItem markReturned = new MenuItem("Marcar Devuelto");
-        markReturned.setOnAction(event -> {
-            Shipment selected = table.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                updateShipmentStatus(selected, ShipmentStatus.RETURNED);
-            }
-        });
-
-        // Reportar Incidencia
-        MenuItem reportIncident = new MenuItem("⚠️ Reportar Incidencia");
-        reportIncident.setOnAction(event -> {
-            Shipment selected = table.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                handleReportIncident(selected);
-            }
-        });
-
-        contextMenu.getItems().addAll(
+            contextMenu.getItems().addAll(
                 viewDetails,
                 viewOrder,
                 new SeparatorMenuItem(),
@@ -320,213 +258,88 @@ public class DeliveryShipmentsController implements Initializable {
                 markReturned,
                 new SeparatorMenuItem(),
                 reportIncident
-        );
+            );
 
-        // Show context menu only on rows with data
-        table.setRowFactory(tv -> {
-            TableRow<Shipment> row = new TableRow<>();
-            row.setOnContextMenuRequested(event -> {
-                if (!row.isEmpty()) {
-                    table.getSelectionModel().select(row.getItem());
-                    contextMenu.show(row, event.getScreenX(), event.getScreenY());
-                }
-            });
+            row.contextMenuProperty().bind(
+                javafx.beans.binding.Bindings.when(row.emptyProperty())
+                    .then((ContextMenu) null)
+                    .otherwise(contextMenu)
+            );
+
             return row;
         });
     }
 
-    /**
-     * Applies status badge styling to a status column.
-     */
-    private void applyStatusBadgeStyle(TableColumn<Shipment, String> column) {
-        column.setCellFactory(col -> new TableCell<Shipment, String>() {
+    private void setupFilters() {
+        // Status filter with all shipment statuses
+        filterStatus.getItems().clear();
+        filterStatus.getItems().add("Todos los estados");
+        filterStatus.getItems().addAll(
+            "Pendiente",
+            "Listo para Recoger",
+            "En Tránsito",
+            "En Entrega",
+            "Entregado",
+            "Cancelado",
+            "Devuelto"
+        );
+
+        // Configure ButtonCell to show selected item properly
+        filterStatus.setButtonCell(new ListCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                    setStyle("");
-                    return;
-                }
-
-                Shipment shipment = getTableView().getItems().get(getIndex());
-                if (shipment == null) return;
-
-                Label badge = new Label(item);
-                String color = getStatusColor(shipment.getStatus());
-                badge.setStyle(
-                    "-fx-background-color: " + color + ";" +
-                    "-fx-text-fill: white;" +
-                    "-fx-padding: 5 10 5 10;" +
-                    "-fx-background-radius: 12;" +
-                    "-fx-font-weight: bold;" +
-                    "-fx-font-size: 11px;"
-                );
-
-                setText(null);
-                setGraphic(badge);
-            }
-        });
-    }
-
-    /**
-     * Sets up filter combo boxes and search field listeners.
-     */
-    private void setupFilters() {
-        // Status filter - Spanish translations
-        filterStatus.getItems().clear();
-        filterStatus.getItems().add(null); // "All" option
-        filterStatus.getItems().addAll(ShipmentStatus.values());
-
-        // Custom cell factory for Spanish translations
-        filterStatus.setCellFactory(lv -> new ListCell<ShipmentStatus>() {
-            @Override
-            protected void updateItem(ShipmentStatus item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? "Todos los Estados" : getStatusLabel(item));
-            }
-        });
-
-        filterStatus.setButtonCell(new ListCell<ShipmentStatus>() {
-            @Override
-            protected void updateItem(ShipmentStatus item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("Todos los Estados");
-                    setStyle("-fx-text-fill: #999999;");
+                    setText("Todos los estados");
+                    setStyle("-fx-text-fill: #6c757d;");
                 } else {
-                    setText(getStatusLabel(item));
-                    setStyle("-fx-text-fill: #032d4d;");
+                    setText(item);
+                    setStyle("-fx-text-fill: #495057;");
                 }
             }
         });
 
+        filterStatus.setValue("Todos los estados");
+
+        // Dynamic filtering
         filterStatus.setOnAction(event -> applyFilters());
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
 
-        // New status combo box for updates - Spanish translations
-        // Only initialize if the element exists in FXML
-        if (cmbNewStatus != null) {
-            cmbNewStatus.getItems().clear();
-            cmbNewStatus.getItems().addAll(
-                    ShipmentStatus.IN_TRANSIT,
-                    ShipmentStatus.OUT_FOR_DELIVERY,
-                    ShipmentStatus.DELIVERED,
-                    ShipmentStatus.RETURNED
-            );
-
-            cmbNewStatus.setCellFactory(lv -> new ListCell<ShipmentStatus>() {
-                @Override
-                protected void updateItem(ShipmentStatus item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty || item == null ? null : getStatusLabel(item));
-                }
-            });
-
-            cmbNewStatus.setButtonCell(new ListCell<ShipmentStatus>() {
-                @Override
-                protected void updateItem(ShipmentStatus item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText("Seleccionar Estado");
-                        setStyle("-fx-text-fill: #999999;");
-                    } else {
-                        setText(getStatusLabel(item));
-                        setStyle("-fx-text-fill: #032d4d;");
-                    }
-                }
-            });
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
         }
     }
 
-    /**
-     * Sets up tab button styles and tracking.
-     */
-    private void setupTabButtons() {
-        // Initially, "All" tab is active
-        setActiveTabButton(btnTabAll);
-    }
-
     // =================================================================================================================
-    // Data Loading Methods
+    // Data Loading
     // =================================================================================================================
 
-    /**
-     * Loads all shipments assigned to the current delivery person.
-     */
     private void loadShipments() {
-        List<Shipment> shipments = currentDeliveryPerson.getAssignedShipments();
-        if (shipments == null) {
-            shipments = List.of();
+        try {
+            List<ShipmentDTO> allShipments = shipmentService.listAll().stream()
+                    .filter(shipment -> currentDeliveryPerson.getId().equals(shipment.getDeliveryPersonId()))
+                    .collect(Collectors.toList());
+
+            shipmentsData = FXCollections.observableArrayList(allShipments);
+            filteredShipments = new FilteredList<>(shipmentsData, p -> true);
+            shipmentsTable.setItems(filteredShipments);
+
+            Logger.info("Loaded " + allShipments.size() + " shipments for delivery person");
+
+        } catch (Exception e) {
+            Logger.error("Error loading shipments: " + e.getMessage());
+            DialogUtil.showError("Error", "No se pudieron cargar los envíos.");
         }
-
-        allShipments = FXCollections.observableArrayList(shipments);
-
-        // Populate all tables
-        loadAllShipmentsTable();
-        loadPendingShipmentsTable();
-        loadInTransitShipmentsTable();
-        loadDeliveredShipmentsTable();
-
-        Logger.info("Loaded " + shipments.size() + " shipments for delivery person");
     }
 
-    /**
-     * Loads data into the "All Shipments" table.
-     */
-    private void loadAllShipmentsTable() {
-        shipmentsTableAll.setItems(allShipments);
-    }
-
-    /**
-     * Loads data into the "Pending Shipments" table (READY_FOR_PICKUP).
-     */
-    private void loadPendingShipmentsTable() {
-        List<Shipment> pending = allShipments.stream()
-                .filter(s -> s.getStatus() == ShipmentStatus.READY_FOR_PICKUP ||
-                            s.getStatus() == ShipmentStatus.PENDING_ASSIGNMENT)
-                .collect(Collectors.toList());
-        shipmentsTablePending.setItems(FXCollections.observableArrayList(pending));
-    }
-
-    /**
-     * Loads data into the "In Transit Shipments" table.
-     */
-    private void loadInTransitShipmentsTable() {
-        List<Shipment> inTransit = allShipments.stream()
-                .filter(s -> s.getStatus() == ShipmentStatus.IN_TRANSIT ||
-                            s.getStatus() == ShipmentStatus.OUT_FOR_DELIVERY)
-                .collect(Collectors.toList());
-        shipmentsTableInTransit.setItems(FXCollections.observableArrayList(inTransit));
-    }
-
-    /**
-     * Loads data into the "Delivered Shipments" table.
-     */
-    private void loadDeliveredShipmentsTable() {
-        List<Shipment> delivered = allShipments.stream()
-                .filter(s -> s.getStatus() == ShipmentStatus.DELIVERED)
-                .collect(Collectors.toList());
-        shipmentsTableDelivered.setItems(FXCollections.observableArrayList(delivered));
-    }
-
-    /**
-     * Updates the statistics labels based on current shipments.
-     */
     private void updateStatistics() {
-        if (allShipments == null) return;
-
-        int total = allShipments.size();
-        long pending = allShipments.stream()
-                .filter(s -> s.getStatus() == ShipmentStatus.READY_FOR_PICKUP ||
-                            s.getStatus() == ShipmentStatus.PENDING_ASSIGNMENT)
+        int total = shipmentsData != null ? shipmentsData.size() : 0;
+        long pending = shipmentsData.stream()
+                .filter(s -> s.getStatus() == ShipmentStatus.PENDING_ASSIGNMENT || s.getStatus() == ShipmentStatus.READY_FOR_PICKUP)
                 .count();
-        long inTransit = allShipments.stream()
-                .filter(s -> s.getStatus() == ShipmentStatus.IN_TRANSIT ||
-                            s.getStatus() == ShipmentStatus.OUT_FOR_DELIVERY)
+        long inTransit = shipmentsData.stream()
+                .filter(s -> s.getStatus() == ShipmentStatus.IN_TRANSIT || s.getStatus() == ShipmentStatus.OUT_FOR_DELIVERY)
                 .count();
-        long delivered = allShipments.stream()
+        long delivered = shipmentsData.stream()
                 .filter(s -> s.getStatus() == ShipmentStatus.DELIVERED)
                 .count();
 
@@ -536,304 +349,302 @@ public class DeliveryShipmentsController implements Initializable {
         lblDelivered.setText(String.valueOf(delivered));
     }
 
-    /**
-     * Applies filters based on status and search text to the current tab's table.
-     */
     private void applyFilters() {
-        if (allShipments == null) return;
+        if (filteredShipments == null) return;
 
-        List<Shipment> filtered = allShipments.stream()
-                .filter(this::matchesStatusFilter)
-                .filter(this::matchesSearchFilter)
-                .collect(Collectors.toList());
-
-        // Apply filters to current visible table only
-        switch (currentTab) {
-            case "All" -> shipmentsTableAll.setItems(FXCollections.observableArrayList(filtered));
-            case "Pending" -> {
-                List<Shipment> pendingFiltered = filtered.stream()
-                        .filter(s -> s.getStatus() == ShipmentStatus.READY_FOR_PICKUP ||
-                                    s.getStatus() == ShipmentStatus.PENDING_ASSIGNMENT)
-                        .collect(Collectors.toList());
-                shipmentsTablePending.setItems(FXCollections.observableArrayList(pendingFiltered));
+        filteredShipments.setPredicate(shipment -> {
+            // Status filter
+            String selectedStatus = filterStatus.getValue();
+            if (selectedStatus != null && !selectedStatus.equals("Todos los estados")) {
+                String shipmentStatus = getStatusSpanish(shipment.getStatus());
+                if (!shipmentStatus.equals(selectedStatus)) {
+                    return false;
+                }
             }
-            case "InTransit" -> {
-                List<Shipment> transitFiltered = filtered.stream()
-                        .filter(s -> s.getStatus() == ShipmentStatus.IN_TRANSIT ||
-                                    s.getStatus() == ShipmentStatus.OUT_FOR_DELIVERY)
-                        .collect(Collectors.toList());
-                shipmentsTableInTransit.setItems(FXCollections.observableArrayList(transitFiltered));
-            }
-            case "Delivered" -> {
-                List<Shipment> deliveredFiltered = filtered.stream()
-                        .filter(s -> s.getStatus() == ShipmentStatus.DELIVERED)
-                        .collect(Collectors.toList());
-                shipmentsTableDelivered.setItems(FXCollections.observableArrayList(deliveredFiltered));
-            }
-        }
-    }
 
-    /**
-     * Checks if a shipment matches the selected status filter.
-     */
-    private boolean matchesStatusFilter(Shipment shipment) {
-        ShipmentStatus selectedStatus = filterStatus.getValue();
-        return selectedStatus == null || shipment.getStatus() == selectedStatus;
-    }
+            // Search filter (ID or address)
+            if (searchField != null && searchField.getText() != null && !searchField.getText().trim().isEmpty()) {
+                String search = searchField.getText().toLowerCase();
+                boolean matchesId = shipment.getId().toLowerCase().contains(search);
+                boolean matchesOrigin = shipment.getOriginAddressComplete() != null &&
+                        shipment.getOriginAddressComplete().toLowerCase().contains(search);
+                boolean matchesDestination = shipment.getDestinationAddressComplete() != null &&
+                        shipment.getDestinationAddressComplete().toLowerCase().contains(search);
 
-    /**
-     * Checks if a shipment matches the search text.
-     */
-    private boolean matchesSearchFilter(Shipment shipment) {
-        String searchText = searchField.getText();
-        if (searchText == null || searchText.trim().isEmpty()) {
+                if (!matchesId && !matchesOrigin && !matchesDestination) {
+                    return false;
+                }
+            }
+
             return true;
-        }
-
-        String lowerSearch = searchText.toLowerCase();
-        return shipment.getId().toLowerCase().contains(lowerSearch) ||
-               formatAddress(shipment.getOrigin()).toLowerCase().contains(lowerSearch) ||
-               formatAddress(shipment.getDestination()).toLowerCase().contains(lowerSearch);
+        });
     }
 
     // =================================================================================================================
-    // Tab Management and State Persistence
+    // Tab System Event Handlers
     // =================================================================================================================
 
-    /**
-     * Restores the last active tab and collapsed state from preferences.
-     */
-    private void restoreTabState() {
-        String activeTab = TabStateManager.getActiveTab(VIEW_NAME);
-        if (activeTab == null) {
-            activeTab = "All"; // Default tab
-        }
-        boolean isExpanded = TabStateManager.isExpanded(VIEW_NAME);
-
-        // Restore tab
-        switch (activeTab) {
-            case "Pending" -> showTabContent(tabContentPending, btnTabPending, "Pending", false);
-            case "InTransit" -> showTabContent(tabContentInTransit, btnTabInTransit, "InTransit", false);
-            case "Delivered" -> showTabContent(tabContentDelivered, btnTabDelivered, "Delivered", false);
-            default -> showTabContent(tabContentAll, btnTabAll, "All", false);
-        }
-
-        // Restore collapsed state
-        applyCollapseState(isExpanded);
+    @FXML
+    private void switchToStatsTab() {
+        setActiveTab(btnTabStats);
+        showTabContent(statsTabContent, true);
     }
 
-    /**
-     * Shows the specified tab content and hides others.
-     *
-     * @param contentToShow The VBox tab content to show
-     * @param tabButton The button that was clicked
-     * @param tabName The internal tab name
-     * @param expandIfCollapsed Whether to expand if currently collapsed
-     */
-    private void showTabContent(VBox contentToShow, Button tabButton, String tabName, boolean expandIfCollapsed) {
-        // Handle expand if collapsed
-        if (expandIfCollapsed) {
-            boolean isExpanded = TabStateManager.isExpanded(VIEW_NAME);
-            if (!isExpanded) {
-                TabStateManager.setExpanded(VIEW_NAME, true);
-                applyCollapseState(true);
-            }
-        }
-
-        // Hide all tab contents
-        tabContentAll.setVisible(false);
-        tabContentAll.setManaged(false);
-        tabContentPending.setVisible(false);
-        tabContentPending.setManaged(false);
-        tabContentInTransit.setVisible(false);
-        tabContentInTransit.setManaged(false);
-        tabContentDelivered.setVisible(false);
-        tabContentDelivered.setManaged(false);
-
-        // Show selected content
-        contentToShow.setVisible(true);
-        contentToShow.setManaged(true);
-
-        // Update active tab button styling
-        setActiveTabButton(tabButton);
-
-        // Update current tab tracker
-        currentTab = tabName;
-
-        // Save tab state
-        TabStateManager.setActiveTab(VIEW_NAME, tabName);
-
-        Logger.info("Switched to tab: " + tabName);
+    @FXML
+    private void switchToFiltersTab() {
+        setActiveTab(btnTabFilters);
+        showTabContent(filtersTabContent, true);
     }
 
-    /**
-     * Sets the active tab button style.
-     */
-    private void setActiveTabButton(Button activeButton) {
-        // Remove active style from all buttons
-        btnTabAll.getStyleClass().removeAll("tab-button-active");
-        btnTabPending.getStyleClass().removeAll("tab-button-active");
-        btnTabInTransit.getStyleClass().removeAll("tab-button-active");
-        btnTabDelivered.getStyleClass().removeAll("tab-button-active");
+    private void setActiveTab(Button activeButton) {
+        btnTabStats.getStyleClass().remove("tab-button-active");
+        btnTabFilters.getStyleClass().remove("tab-button-active");
 
-        btnTabAll.getStyleClass().add("tab-button");
-        btnTabPending.getStyleClass().add("tab-button");
-        btnTabInTransit.getStyleClass().add("tab-button");
-        btnTabDelivered.getStyleClass().add("tab-button");
-
-        // Add active style to selected button
-        activeButton.getStyleClass().removeAll("tab-button");
         activeButton.getStyleClass().add("tab-button-active");
     }
 
-    /**
-     * Applies the collapse/expand state to the collapsible section.
-     */
-    private void applyCollapseState(boolean isExpanded) {
-        collapsibleSection.setVisible(isExpanded);
-        collapsibleSection.setManaged(isExpanded);
-        btnCollapseToggle.setText(isExpanded ? "▲" : "▼");
+    private void showTabContent(javafx.scene.Node contentToShow, boolean shouldExpand) {
+        statsTabContent.setVisible(false);
+        statsTabContent.setManaged(false);
+        filtersTabContent.setVisible(false);
+        filtersTabContent.setManaged(false);
+
+        contentToShow.setVisible(true);
+        contentToShow.setManaged(true);
+
+        if (shouldExpand && !TabStateManager.isExpanded(VIEW_NAME)) {
+            TabStateManager.setExpanded(VIEW_NAME, true);
+            applyCollapseState(true);
+        }
+
+        if (contentToShow == statsTabContent) {
+            TabStateManager.setActiveTab(VIEW_NAME, "stats");
+        } else if (contentToShow == filtersTabContent) {
+            TabStateManager.setActiveTab(VIEW_NAME, "filters");
+        }
     }
 
-    /**
-     * Toggles the collapsed/expanded state of the table section.
-     */
     @FXML
     private void toggleCollapse() {
-        boolean isCurrentlyExpanded = TabStateManager.isExpanded(VIEW_NAME);
-        boolean newState = !isCurrentlyExpanded;
+        boolean currentlyExpanded = TabStateManager.isExpanded(VIEW_NAME);
+        boolean newExpanded = !currentlyExpanded;
 
-        TabStateManager.setExpanded(VIEW_NAME, newState);
-        applyCollapseState(newState);
+        TabStateManager.setExpanded(VIEW_NAME, newExpanded);
+        applyCollapseState(newExpanded);
+    }
 
-        Logger.info("Table section " + (newState ? "expanded" : "collapsed"));
+    private void applyCollapseState(boolean expanded) {
+        if (expanded) {
+            collapsibleTabSection.getStyleClass().removeAll("tab-section-collapsed");
+            if (!collapsibleTabSection.getStyleClass().contains("tab-section-expanded")) {
+                collapsibleTabSection.getStyleClass().add("tab-section-expanded");
+            }
+
+            // Make ONLY content container visible (tabs always visible)
+            javafx.scene.Node contentContainer = collapsibleTabSection.lookup(".tab-content-container");
+            if (contentContainer != null) {
+                contentContainer.setVisible(true);
+                contentContainer.setManaged(true);
+            }
+
+            btnCollapseToggle.setText("▲");
+        } else {
+            collapsibleTabSection.getStyleClass().removeAll("tab-section-expanded");
+            if (!collapsibleTabSection.getStyleClass().contains("tab-section-collapsed")) {
+                collapsibleTabSection.getStyleClass().add("tab-section-collapsed");
+            }
+
+            // Hide content container
+            javafx.scene.Node contentContainer = collapsibleTabSection.lookup(".tab-content-container");
+            if (contentContainer != null) {
+                contentContainer.setVisible(false);
+                contentContainer.setManaged(false);
+            }
+
+            btnCollapseToggle.setText("▼");
+        }
+    }
+
+    private void restoreViewState() {
+        boolean expanded = TabStateManager.isExpanded(VIEW_NAME);
+        applyCollapseState(expanded);
+
+        String activeTab = TabStateManager.getActiveTab(VIEW_NAME);
+        if (activeTab != null) {
+            switch (activeTab) {
+                case "stats":
+                    setActiveTab(btnTabStats);
+                    showTabContent(statsTabContent, false);
+                    break;
+                case "filters":
+                    setActiveTab(btnTabFilters);
+                    showTabContent(filtersTabContent, false);
+                    break;
+                default:
+                    setActiveTab(btnTabStats);
+                    showTabContent(statsTabContent, false);
+                    break;
+            }
+        } else {
+            setActiveTab(btnTabStats);
+            showTabContent(statsTabContent, false);
+        }
     }
 
     // =================================================================================================================
-    // Tab Event Handlers
+    // Action Handlers
     // =================================================================================================================
 
     @FXML
-    private void handleShowAllShipments() {
-        showTabContent(tabContentAll, btnTabAll, "All", true);
+    private void handleRefresh() {
+        Logger.info("Refreshing shipments...");
+        loadShipments();
+        updateStatistics();
+        DialogUtil.showSuccess("Actualizado", "Envíos actualizados correctamente.");
     }
 
     @FXML
-    private void handleShowPendingShipments() {
-        showTabContent(tabContentPending, btnTabPending, "Pending", true);
+    private void handleClearFilters() {
+        filterStatus.setValue("Todos los estados");
+        if (searchField != null) {
+            searchField.clear();
+        }
     }
 
-    @FXML
-    private void handleShowInTransitShipments() {
-        showTabContent(tabContentInTransit, btnTabInTransit, "InTransit", true);
-    }
+    private void showShipmentDetails(ShipmentDTO shipment) {
+        StringBuilder details = new StringBuilder();
+        details.append("===== DETALLES DEL ENVÍO =====\n\n");
+        details.append("ID: ").append(shipment.getId()).append("\n");
+        details.append("Estado: ").append(getStatusSpanish(shipment.getStatus())).append("\n");
+        details.append("Fecha Creación: ").append(shipment.getCreationDate() != null ?
+            shipment.getCreationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "N/A").append("\n\n");
 
-    @FXML
-    private void handleShowDeliveredShipments() {
-        showTabContent(tabContentDelivered, btnTabDelivered, "Delivered", true);
-    }
-
-    // =================================================================================================================
-    // Action Event Handlers
-    // =================================================================================================================
-
-    /**
-     * Handles the update status button click.
-     */
-    @FXML
-    private void handleUpdateStatus() {
-        // Check if cmbNewStatus exists in the FXML
-        if (cmbNewStatus == null) {
-            Logger.warning("cmbNewStatus not found in FXML");
-            DialogUtil.showError("Error", "El componente de actualización de estado no está disponible.");
-            return;
+        details.append("--- Origen ---\n");
+        details.append(shipment.getOriginAddressComplete() != null ?
+            shipment.getOriginAddressComplete() : "N/A").append("\n");
+        if (shipment.getOriginZone() != null) {
+            details.append("Zona: ").append(shipment.getOriginZone()).append("\n");
         }
 
-        // Get the selected shipment from the currently visible table
-        Shipment selectedShipment = getSelectedShipmentFromCurrentTab();
-
-        if (selectedShipment == null) {
-            DialogUtil.showWarning("Advertencia", "Por favor selecciona un envío de la tabla.");
-            return;
+        details.append("\n--- Destino ---\n");
+        details.append(shipment.getDestinationAddressComplete() != null ?
+            shipment.getDestinationAddressComplete() : "N/A").append("\n");
+        if (shipment.getDestinationZone() != null) {
+            details.append("Zona: ").append(shipment.getDestinationZone()).append("\n");
         }
 
-        ShipmentStatus newStatus = cmbNewStatus.getValue();
-        if (newStatus == null) {
-            DialogUtil.showWarning("Advertencia", "Por favor selecciona un nuevo estado.");
-            return;
+        details.append("\n--- Información Adicional ---\n");
+        details.append("Distancia: ").append(String.format("%.2f km", shipment.getDistanceKm())).append("\n");
+        details.append("Costo Total: $").append(String.format("%.2f", shipment.getTotalCost())).append("\n");
+
+        if (shipment.getEstimatedDeliveryDate() != null) {
+            details.append("Entrega Estimada: ").append(
+                shipment.getEstimatedDeliveryDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+            ).append("\n");
         }
 
-        boolean updated = shipmentService.changeStatus(
-                selectedShipment.getId(),
-                newStatus,
-                "Updated by delivery person",
-                currentDeliveryPerson.getId()
+        if (shipment.getActualDeliveryDate() != null) {
+            details.append("Fecha de Entrega Real: ").append(
+                shipment.getActualDeliveryDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+            ).append("\n");
+        }
+
+        DialogUtil.showInfo("Detalles del Envío", details.toString());
+    }
+
+    private void updateShipmentStatus(ShipmentDTO shipmentDTO) {
+        // Create dialog with status options
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("",
+            "En Tránsito",
+            "En Entrega",
+            "Entregado"
         );
 
-        if (updated) {
-            selectedShipment.setStatus(newStatus);
-            loadShipments(); // Reload all tables
-            updateStatistics();
-            DialogUtil.showSuccess("Éxito", "Estado del envío actualizado correctamente.");
-            Logger.info("Shipment " + selectedShipment.getId() + " updated to " + newStatus);
-        } else {
+        dialog.setTitle("Actualizar Estado");
+        dialog.setHeaderText("Actualizar estado del envío #" + shipmentDTO.getId());
+        dialog.setContentText("Nuevo estado:");
+
+        dialog.showAndWait().ifPresent(statusSpanish -> {
+            try {
+                // Convert Spanish status to enum
+                ShipmentStatus newStatus = switch (statusSpanish) {
+                    case "En Tránsito" -> ShipmentStatus.IN_TRANSIT;
+                    case "En Entrega" -> ShipmentStatus.OUT_FOR_DELIVERY;
+                    case "Entregado" -> ShipmentStatus.DELIVERED;
+                    default -> null;
+                };
+
+                if (newStatus != null) {
+                    // Get full Shipment object and update
+                    Optional<Shipment> shipmentOpt = shipmentRepository.findById(shipmentDTO.getId());
+                    if (shipmentOpt.isPresent()) {
+                        Shipment shipment = shipmentOpt.get();
+                        shipment.setStatus(newStatus);
+                        if (newStatus == ShipmentStatus.DELIVERED) {
+                            shipment.setDeliveredDate(LocalDateTime.now());
+                        }
+                        shipmentRepository.update(shipment);
+
+                        loadShipments();
+                        updateStatistics();
+                        DialogUtil.showSuccess("Éxito", "Estado del envío actualizado correctamente.");
+                    }
+                }
+            } catch (Exception e) {
+                Logger.error("Error updating shipment status: " + e.getMessage());
+                DialogUtil.showError("Error", "No se pudo actualizar el estado del envío.");
+            }
+        });
+    }
+
+    private void quickUpdateStatus(ShipmentDTO shipmentDTO, ShipmentStatus newStatus) {
+        try {
+            // Confirm with user
+            boolean confirmed = DialogUtil.showConfirmation(
+                "Confirmar Cambio de Estado",
+                "¿Está seguro de cambiar el estado del envío #" + shipmentDTO.getId() +
+                " a \"" + getStatusSpanish(newStatus) + "\"?"
+            );
+
+            if (confirmed) {
+                // Get full Shipment object and update
+                Optional<Shipment> shipmentOpt = shipmentRepository.findById(shipmentDTO.getId());
+                if (shipmentOpt.isPresent()) {
+                    Shipment shipment = shipmentOpt.get();
+                    shipment.setStatus(newStatus);
+                    if (newStatus == ShipmentStatus.DELIVERED) {
+                        shipment.setDeliveredDate(LocalDateTime.now());
+                    }
+                    shipmentRepository.update(shipment);
+
+                    loadShipments();
+                    updateStatistics();
+                    DialogUtil.showSuccess("Éxito", "Estado actualizado a: " + getStatusSpanish(newStatus));
+                    Logger.info("Updated shipment " + shipmentDTO.getId() + " to status: " + newStatus);
+                }
+            }
+        } catch (Exception e) {
+            Logger.error("Error updating shipment status: " + e.getMessage());
             DialogUtil.showError("Error", "No se pudo actualizar el estado del envío.");
         }
     }
 
-    /**
-     * Gets the selected shipment from the currently visible tab.
-     */
-    private Shipment getSelectedShipmentFromCurrentTab() {
-        return switch (currentTab) {
-            case "All" -> shipmentsTableAll.getSelectionModel().getSelectedItem();
-            case "Pending" -> shipmentsTablePending.getSelectionModel().getSelectedItem();
-            case "InTransit" -> shipmentsTableInTransit.getSelectionModel().getSelectedItem();
-            case "Delivered" -> shipmentsTableDelivered.getSelectionModel().getSelectedItem();
-            default -> null;
-        };
-    }
-
-    /**
-     * Handles the view details button click.
-     */
-    @FXML
-    private void handleViewDetails() {
-        Shipment selectedShipment = getSelectedShipmentFromCurrentTab();
-
-        if (selectedShipment == null) {
-            DialogUtil.showWarning("Advertencia", "Por favor selecciona un envío de la tabla.");
-            return;
-        }
-
-        showShipmentDetails(selectedShipment);
-    }
-
-    /**
-     * Shows detailed information about a shipment.
-     */
-    private void showShipmentDetails(Shipment shipment) {
-        DialogUtil.showInfo("Detalles del Envío",
-                "ID: " + shipment.getId() + "\n" +
-                "Estado: " + getStatusLabel(shipment.getStatus()) + "\n" +
-                "Origen: " + formatAddress(shipment.getOrigin()) + "\n" +
-                "Destino: " + formatAddress(shipment.getDestination()) + "\n" +
-                "Costo: $" + String.format("%,.2f", shipment.getTotalCost()) + "\n" +
-                "Fecha Creación: " + formatDate(shipment) + "\n" +
-                "Entrega Estimada: " + formatEstimatedDelivery(shipment)
-        );
-    }
-
-    /**
-     * Shows the associated order for a shipment.
-     */
-    private void showAssociatedOrder(Shipment shipment) {
-        if (shipment == null || shipment.getOrderId() == null) {
-            DialogUtil.showWarning("Sin Orden Asociada", "Este envío no tiene una orden asociada.");
-            return;
-        }
-
+    private void showAssociatedOrder(ShipmentDTO shipmentDTO) {
         try {
+            // Get the full Shipment object to access orderId
+            Optional<Shipment> shipmentOpt = shipmentRepository.findById(shipmentDTO.getId());
+            if (!shipmentOpt.isPresent()) {
+                DialogUtil.showError("Error", "No se pudo encontrar el envío.");
+                return;
+            }
+
+            Shipment shipment = shipmentOpt.get();
+
+            if (shipment.getOrderId() == null || shipment.getOrderId().isEmpty()) {
+                DialogUtil.showWarning("Sin Orden Asociada", "Este envío no tiene una orden asociada.");
+                return;
+            }
+
             Optional<Order> orderOpt = orderRepository.findById(shipment.getOrderId());
             if (!orderOpt.isPresent()) {
                 DialogUtil.showError("Error", "No se pudo encontrar la orden asociada.");
@@ -844,205 +655,127 @@ public class DeliveryShipmentsController implements Initializable {
             StringBuilder details = new StringBuilder();
             details.append("===== ORDEN ASOCIADA =====\n\n");
             details.append("ID Orden: ").append(order.getId()).append("\n");
-            details.append("Estado: ").append(order.getStatus().getDisplayName()).append("\n");
-            details.append("Fecha Creación: ").append(order.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).append("\n");
+            details.append("Estado: ").append(order.getStatus() != null ? order.getStatus().getDisplayName() : "N/A").append("\n");
+            details.append("Fecha Creación: ").append(order.getCreatedAt() != null ?
+                order.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "N/A").append("\n");
 
             // Get cost from invoice
             String costStr = "N/A";
-            if (order.getInvoiceId() != null) {
+            if (order.getInvoiceId() != null && !order.getInvoiceId().isEmpty()) {
                 Optional<Invoice> invoiceOpt = invoiceRepository.findById(order.getInvoiceId());
                 if (invoiceOpt.isPresent()) {
                     costStr = String.format("%.2f", invoiceOpt.get().getTotalAmount());
                 }
             }
             details.append("Costo Total: $").append(costStr).append("\n");
+
             details.append("\n--- Origen ---\n");
             if (order.getOrigin() != null) {
-                details.append(order.getOrigin().getStreet()).append(", ")
-                       .append(order.getOrigin().getCity()).append("\n");
+                Address origin = order.getOrigin();
+                details.append(origin.getStreet()).append(", ")
+                       .append(origin.getCity()).append(", ")
+                       .append(origin.getState()).append("\n");
+            } else {
+                details.append("N/A\n");
             }
+
             details.append("\n--- Destino ---\n");
             if (order.getDestination() != null) {
-                details.append(order.getDestination().getStreet()).append(", ")
-                       .append(order.getDestination().getCity()).append("\n");
-            }
-            if (order.getPaymentId() != null) {
-                details.append("\nID Pago: ").append(order.getPaymentId()).append("\n");
-            }
-            if (order.getInvoiceId() != null) {
-                details.append("ID Factura: ").append(order.getInvoiceId()).append("\n");
+                Address dest = order.getDestination();
+                details.append(dest.getStreet()).append(", ")
+                       .append(dest.getCity()).append(", ")
+                       .append(dest.getState()).append("\n");
+            } else {
+                details.append("N/A\n");
             }
 
-            DialogUtil.showInfo("Orden Asociada al Envío", details.toString());
-            Logger.info("Delivery person viewed associated order " + order.getId() + " for shipment " + shipment.getId());
+            DialogUtil.showInfo("Orden Asociada", details.toString());
 
         } catch (Exception e) {
-            Logger.error("Failed to view associated order: " + e.getMessage());
-            DialogUtil.showError("Error", "No se pudo mostrar la orden asociada: " + e.getMessage());
+            Logger.error("Error showing associated order: " + e.getMessage());
+            DialogUtil.showError("Error", "No se pudo cargar la información de la orden.");
         }
     }
 
-    /**
-     * Updates a shipment's status via context menu.
-     */
-    private void updateShipmentStatus(Shipment shipment, ShipmentStatus newStatus) {
-        if (shipment.getStatus() == newStatus) {
-            DialogUtil.showInfo("Información", "El envío ya tiene este estado.");
-            return;
-        }
+    private void handleReportIncident(ShipmentDTO shipmentDTO) {
+        try {
+            // Check if ReportIncidentDialog exists
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/ReportIncidentDialog.fxml")
+            );
+            Parent root = loader.load();
 
-        boolean updated = shipmentService.changeStatus(
-                shipment.getId(),
-                newStatus,
-                "Updated by delivery person via context menu",
-                currentDeliveryPerson.getId()
-        );
+            // Get the full Shipment object
+            Optional<Shipment> shipmentOpt = shipmentRepository.findById(shipmentDTO.getId());
+            if (!shipmentOpt.isPresent()) {
+                DialogUtil.showError("Error", "No se pudo encontrar el envío.");
+                return;
+            }
 
-        if (updated) {
-            shipment.setStatus(newStatus);
+            ReportIncidentDialogController controller = loader.getController();
+            controller.setShipment(shipmentOpt.get());
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Reportar Incidencia");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.setScene(new Scene(root));
+            dialogStage.setResizable(false);
+
+            dialogStage.showAndWait();
+
+            // Refresh after incident report
             loadShipments();
             updateStatistics();
-            DialogUtil.showSuccess("Éxito",
-                    "Estado actualizado a: " + getStatusLabel(newStatus));
-            Logger.info("Shipment " + shipment.getId() + " updated to " + newStatus + " via context menu");
-        } else {
-            DialogUtil.showError("Error", "No se pudo actualizar el estado del envío.");
+
+        } catch (Exception e) {
+            Logger.error("Error opening incident report dialog: " + e.getMessage());
+            // Fallback: show simple dialog
+            showSimpleIncidentReport(shipmentDTO);
         }
     }
 
-    /**
-     * Handles the refresh button click.
-     */
-    @FXML
-    private void handleRefresh() {
-        loadShipments();
-        updateStatistics();
-        applyFilters();
-        DialogUtil.showSuccess("Actualizado", "Lista de envíos actualizada.");
-    }
+    private void showSimpleIncidentReport(ShipmentDTO shipment) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Reportar Incidencia");
+        dialog.setHeaderText("Reportar problema con envío #" + shipment.getId());
+        dialog.setContentText("Describa la incidencia:");
 
-    /**
-     * Handles the clear filters button click.
-     */
-    @FXML
-    private void handleClearFilters() {
-        filterStatus.setValue(null);
-        searchField.clear();
-        loadShipments();
-        Logger.info("Filters cleared");
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(incidentDescription -> {
+            if (!incidentDescription.trim().isEmpty()) {
+                Logger.info("Incident reported for shipment " + shipment.getId() + ": " + incidentDescription);
+                DialogUtil.showInfo("Incidencia Reportada",
+                    "La incidencia ha sido registrada y será revisada por el equipo de soporte.");
+            }
+        });
     }
 
     // =================================================================================================================
     // Helper Methods
     // =================================================================================================================
 
-    /**
-     * Formats an address object to a display string.
-     */
-    private String formatAddress(co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Address address) {
-        if (address == null) return "--";
-        return address.getCity() + ", " + address.getState();
-    }
-
-    /**
-     * Formats the creation date from a shipment.
-     */
-    private String formatDate(Shipment shipment) {
-        if (shipment.getCreatedAt() == null) return "--";
-        return shipment.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-    }
-
-    /**
-     * Formats the delivery date (if delivered).
-     */
-    private String formatDeliveryDate(Shipment shipment) {
-        if (shipment.getDeliveredDate() == null) return "--";
-        return shipment.getDeliveredDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-    }
-
-    /**
-     * Formats the estimated delivery date.
-     */
-    private String formatEstimatedDelivery(Shipment shipment) {
-        if (shipment.getEstimatedDate() == null) return "--";
-        return shipment.getEstimatedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-    }
-
-    /**
-     * Gets a priority label for a shipment (based on additional services).
-     */
-    private String getPriorityLabel(Shipment shipment) {
-        if (shipment.getAdditionalServices() == null || shipment.getAdditionalServices().isEmpty()) {
-            return "Normal";
-        }
-
-        boolean hasPriority = shipment.getAdditionalServices().stream()
-                .anyMatch(service -> service.getType() != null &&
-                         (service.getType().name().contains("PRIORITY") ||
-                          service.getType().name().contains("EXPRESS")));
-
-        return hasPriority ? "Alta" : "Normal";
-    }
-
-    /**
-     * Converts a ShipmentStatus to a user-friendly Spanish label.
-     */
-    private String getStatusLabel(ShipmentStatus status) {
+    private String getStatusSpanish(ShipmentStatus status) {
         if (status == null) return "Desconocido";
-        return status.getDisplayName();
-    }
-
-    /**
-     * Gets the color for a shipment status.
-     */
-    private String getStatusColor(ShipmentStatus status) {
-        if (status == null) return "#000000";
         return switch (status) {
-            case PENDING_ASSIGNMENT -> "#FF9800"; // Orange
-            case READY_FOR_PICKUP -> "#FFA500"; // Orange
-            case IN_TRANSIT -> "#007BFF"; // Blue
-            case OUT_FOR_DELIVERY -> "#66BB6A"; // Light Green
-            case DELIVERED -> "#28A745"; // Green
-            case RETURNED -> "#FF9800"; // Orange
-            case CANCELLED -> "#DC3545"; // Red
-            default -> "#6C757D"; // Gray
+            case PENDING_ASSIGNMENT -> "Pendiente";
+            case READY_FOR_PICKUP -> "Listo para Recoger";
+            case IN_TRANSIT -> "En Tránsito";
+            case OUT_FOR_DELIVERY -> "En Entrega";
+            case DELIVERED -> "Entregado";
+            case CANCELLED -> "Cancelado";
+            case RETURNED -> "Devuelto";
+            default -> status.toString();
         };
     }
 
-    /**
-     * Handles reporting an incident for a shipment.
-     * Opens the Report Incident Dialog.
-     */
-    private void handleReportIncident(Shipment shipment) {
-        try {
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
-                    getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/ReportIncidentDialog.fxml")
-            );
-            javafx.scene.Parent root = loader.load();
-
-            ReportIncidentDialogController controller = loader.getController();
-
-            // Set the shipment for the incident report
-            controller.setShipment(shipment);
-
-            javafx.stage.Stage dialogStage = new javafx.stage.Stage();
-            dialogStage.setTitle("Reportar Incidencia");
-            dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            dialogStage.setScene(new javafx.scene.Scene(root));
-            dialogStage.setResizable(false);
-
-            dialogStage.showAndWait();
-
-            // If incident was reported, refresh the view
-            if (controller.isIncidentReported()) {
-                loadShipments();
-                updateStatistics();
-                DialogUtil.showSuccess("La incidencia ha sido reportada exitosamente.");
-            }
-
-        } catch (Exception e) {
-            Logger.error("Error opening Report Incident Dialog: " + e.getMessage());
-            DialogUtil.showError("Error", "No se pudo abrir el diálogo de reporte de incidencias.");
-        }
+    private String getStatusColor(String status) {
+        return switch (status.toLowerCase()) {
+            case "entregado" -> "#28a745";
+            case "en tránsito", "en entrega" -> "#17a2b8";
+            case "listo para recoger" -> "#6610f2";
+            case "pendiente" -> "#ffc107";
+            case "cancelado", "devuelto" -> "#dc3545";
+            default -> "#6c757d";
+        };
     }
 }

@@ -41,7 +41,7 @@ public class MainApp extends Application {
         // ===========================================
 
         FXMLLoader fxmlLoader = new FXMLLoader(
-                MainApp.class.getResource("View/Index.fxml")
+                MainApp.class.getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/Index.fxml")
         );
         Scene scene = new Scene(fxmlLoader.load());
 

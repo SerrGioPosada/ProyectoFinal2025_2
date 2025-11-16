@@ -81,6 +81,18 @@ public class LoginController {
         setupEventHandlers();
         setupFloatingLabels();
         setupPasswordToggle();
+        initializeErrorLabel();
+    }
+
+    /**
+     * Initializes the error label to be hidden with opacity 0.
+     */
+    private void initializeErrorLabel() {
+        if (lblError != null) {
+            lblError.setOpacity(0.0);
+            lblError.setMaxHeight(0);
+            lblError.setManaged(false);
+        }
     }
 
     /**
@@ -397,21 +409,6 @@ public class LoginController {
         Logger.warn("UI_ERROR: " + message);
         if (lblError == null) return;
 
-        lblError.setText(message);
-        lblError.setVisible(true);
-        lblError.setManaged(true);
-
-        new Thread(() -> {
-            try {
-                Thread.sleep(5000);
-                Platform.runLater(() -> {
-                    lblError.setVisible(false);
-                    lblError.setManaged(false);
-                });
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                Logger.error("Error in showError thread", e);
-            }
-        }).start();
+        co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.MessageUtil.showError(lblError, message);
     }
 }

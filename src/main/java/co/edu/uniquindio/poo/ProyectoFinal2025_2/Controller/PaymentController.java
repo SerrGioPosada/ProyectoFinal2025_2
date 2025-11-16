@@ -7,7 +7,11 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.PaymentMethodType;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.PaymentProvider;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.PaymentStatus;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.OrderDetailDTO;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.User;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.PaymentService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.PaymentMethodService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.OrderService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilService.IdGenerationUtil;
 import javafx.fxml.FXML;
@@ -21,15 +25,14 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Controller for payment processing.
- * Prepared for Mercado Pago API integration but currently simulates payment.
+ * Controller for simulated in-app payment processing.
+ * This controller handles simulated payments for demonstration purposes.
+ * For real payment processing, use MercadoPagoPaymentController.
  *
- * TODO: Integrate Mercado Pago SDK
- * - Add Mercado Pago dependency to pom.xml
- * - Configure API credentials (public key, access token)
- * - Implement preference creation
- * - Handle payment callbacks
- * - Process webhooks for payment notifications
+ * Supported payment methods:
+ * - Credit Card (simulated)
+ * - Debit Card (simulated)
+ * - Cash on Delivery
  */
 public class PaymentController implements Initializable {
 
@@ -38,11 +41,10 @@ public class PaymentController implements Initializable {
     @FXML private Label lblInvoiceId;
     @FXML private Label lblTotalAmount;
 
-    // Payment Method Selection
+    // Payment Method Selection (Simulated)
     @FXML private RadioButton rbCreditCard;
     @FXML private RadioButton rbDebitCard;
     @FXML private RadioButton rbCash;
-    @FXML private RadioButton rbMercadoPago;
     @FXML private ToggleGroup paymentMethodGroup;
 
     // Credit/Debit Card Details (for traditional payment)
@@ -54,11 +56,6 @@ public class PaymentController implements Initializable {
     @FXML private TextField txtCVV;
     @FXML private ComboBox<PaymentProvider> cmbCardProvider;
 
-    // Mercado Pago Section (for MP integration)
-    @FXML private VBox vboxMercadoPago;
-    @FXML private Label lblMercadoPagoInstructions;
-    @FXML private Button btnOpenMercadoPago;
-
     // Cash Details
     @FXML private VBox vboxCashDetails;
     @FXML private Label lblCashInstructions;
@@ -68,18 +65,29 @@ public class PaymentController implements Initializable {
     @FXML private Label lblPaymentStatus;
 
     // Services
+    private final AuthenticationService authService = AuthenticationService.getInstance();
     private final PaymentService paymentService = new PaymentService();
+    private final PaymentMethodService paymentMethodService = new PaymentMethodService();
+    private final OrderService orderService = new OrderService();
 
     // Data
     private Order order;
     private OrderDetailDTO orderDetail;
+    private User currentUser;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Get current user
+        var currentPerson = authService.getCurrentPerson();
+        if (currentPerson instanceof User) {
+            currentUser = (User) currentPerson;
+        }
+
         setupPaymentMethodListeners();
         setupCardProviderComboBox();
         setupCardValidation();
         hideAllPaymentSections();
+        loadUserPreferredPaymentMethods();
 
         Logger.info("PaymentController initialized");
     }
@@ -115,7 +123,6 @@ public class PaymentController implements Initializable {
         rbCreditCard.setToggleGroup(paymentMethodGroup);
         rbDebitCard.setToggleGroup(paymentMethodGroup);
         rbCash.setToggleGroup(paymentMethodGroup);
-        rbMercadoPago.setToggleGroup(paymentMethodGroup);
 
         paymentMethodGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
@@ -182,6 +189,72 @@ public class PaymentController implements Initializable {
     }
 
     /**
+     * Loads user's preferred/saved payment methods.
+     * Pre-fills card information if user has saved payment methods.
+     */
+    private void loadUserPreferredPaymentMethods() {
+        if (currentUser == null) {
+            Logger.warning("No user logged in - cannot load preferred payment methods");
+            return;
+        }
+
+        try {
+            var savedMethods = paymentMethodService.getPaymentMethodsByUserId(currentUser.getId());
+
+            if (savedMethods != null && !savedMethods.isEmpty()) {
+                Logger.info("Found " + savedMethods.size() + " saved payment methods for user");
+
+                // Get the first saved method (you could add logic to get the default/preferred one)
+                PaymentMethod preferredMethod = savedMethods.get(0);
+
+                // Pre-select the appropriate radio button based on type
+                switch (preferredMethod.getType()) {
+                    case CREDIT_CARD:
+                        rbCreditCard.setSelected(true);
+                        break;
+                    case DEBIT_CARD:
+                        rbDebitCard.setSelected(true);
+                        break;
+                    case CASH:
+                        rbCash.setSelected(true);
+                        break;
+                    case DIGITAL_WALLET:
+                    case PAYPAL:
+                        // Digital wallets not supported in simulated payment
+                        Logger.warning("Digital wallet payment method not supported in simulated mode");
+                        break;
+                    default:
+                        Logger.warning("Unsupported payment method type: " + preferredMethod.getType());
+                        break;
+                }
+
+                // Pre-fill card information if it's a card method
+                if (preferredMethod.getType() == PaymentMethodType.CREDIT_CARD ||
+                    preferredMethod.getType() == PaymentMethodType.DEBIT_CARD) {
+
+                    if (preferredMethod.getProvider() != null) {
+                        cmbCardProvider.setValue(preferredMethod.getProvider());
+                    }
+
+                    // Show masked account number
+                    if (preferredMethod.getAccountNumber() != null) {
+                        txtCardNumber.setText(preferredMethod.getAccountNumber());
+                        txtCardNumber.setPromptText("Número guardado (termina en " +
+                            preferredMethod.getAccountNumber().substring(
+                                Math.max(0, preferredMethod.getAccountNumber().length() - 4)) + ")");
+                    }
+                }
+
+                Logger.info("Pre-loaded preferred payment method: " + preferredMethod.getType());
+            } else {
+                Logger.info("No saved payment methods found for user");
+            }
+        } catch (Exception e) {
+            Logger.error("Error loading preferred payment methods: " + e.getMessage());
+        }
+    }
+
+    /**
      * Updates visibility of payment sections based on selected method.
      */
     private void updatePaymentSectionVisibility() {
@@ -190,9 +263,6 @@ public class PaymentController implements Initializable {
         if (rbCreditCard.isSelected() || rbDebitCard.isSelected()) {
             vboxCardDetails.setVisible(true);
             vboxCardDetails.setManaged(true);
-        } else if (rbMercadoPago.isSelected()) {
-            vboxMercadoPago.setVisible(true);
-            vboxMercadoPago.setManaged(true);
         } else if (rbCash.isSelected()) {
             vboxCashDetails.setVisible(true);
             vboxCashDetails.setManaged(true);
@@ -205,14 +275,13 @@ public class PaymentController implements Initializable {
     private void hideAllPaymentSections() {
         vboxCardDetails.setVisible(false);
         vboxCardDetails.setManaged(false);
-        vboxMercadoPago.setVisible(false);
-        vboxMercadoPago.setManaged(false);
         vboxCashDetails.setVisible(false);
         vboxCashDetails.setManaged(false);
     }
 
     /**
      * Handles the process payment button.
+     * This is a SIMULATED payment - no real transaction occurs.
      */
     @FXML
     private void handleProcessPayment() {
@@ -220,12 +289,6 @@ public class PaymentController implements Initializable {
             // Validate payment method selection
             if (paymentMethodGroup.getSelectedToggle() == null) {
                 showWarning("Por favor, seleccione un método de pago");
-                return;
-            }
-
-            // If Mercado Pago is selected, open specialized window
-            if (rbMercadoPago.isSelected()) {
-                handleOpenMercadoPago();
                 return;
             }
 
@@ -237,16 +300,16 @@ public class PaymentController implements Initializable {
 
             // Show progress
             progressPayment.setVisible(true);
-            lblPaymentStatus.setText("Procesando pago...");
+            lblPaymentStatus.setText("Procesando pago simulado...");
 
-            // Process payment through service
+            // Process SIMULATED payment through service
             Payment payment = processPaymentWithMethod(paymentMethod);
 
             if (payment != null && payment.getStatus() == PaymentStatus.APPROVED) {
                 progressPayment.setVisible(false);
-                lblPaymentStatus.setText("Pago aprobado");
-                showSuccess("¡Pago procesado exitosamente!\n\nID de Pago: " + payment.getId() +
-                          "\nSu envío será procesado en breve.");
+                lblPaymentStatus.setText("Pago aprobado (simulado)");
+                showSuccess("¡Pago simulado procesado exitosamente!\n\nID de Pago: " + payment.getId() +
+                          "\nSu envío será procesado en breve.\n\n⚠️ Nota: Este fue un pago simulado para demostración.");
 
                 // Close payment window
                 closeWindow();
@@ -265,15 +328,13 @@ public class PaymentController implements Initializable {
     }
 
     /**
-     * Creates a PaymentMethod object based on user selection.
+     * Creates a PaymentMethod object based on user selection (simulated).
      */
     private PaymentMethod createPaymentMethod() {
         if (rbCreditCard.isSelected()) {
             return createCardPaymentMethod(PaymentMethodType.CREDIT_CARD);
         } else if (rbDebitCard.isSelected()) {
             return createCardPaymentMethod(PaymentMethodType.DEBIT_CARD);
-        } else if (rbMercadoPago.isSelected()) {
-            return createMercadoPagoPaymentMethod();
         } else if (rbCash.isSelected()) {
             return createCashPaymentMethod();
         }
@@ -315,26 +376,6 @@ public class PaymentController implements Initializable {
     }
 
     /**
-     * Creates a Mercado Pago payment method.
-     * TODO: Implement real Mercado Pago integration
-     */
-    private PaymentMethod createMercadoPagoPaymentMethod() {
-        // TODO: Here you would:
-        // 1. Create a Mercado Pago preference
-        // 2. Get the init_point URL
-        // 3. Open it in browser or embedded view
-        // 4. Wait for webhook callback
-        // For now, simulate MP payment
-
-        return new PaymentMethod.Builder()
-            .withId(IdGenerationUtil.generateId())
-            .withType(PaymentMethodType.DIGITAL_WALLET)
-            .withProvider(PaymentProvider.MERCADO_PAGO)
-            .withAccountNumber("MP-SIMULATED")
-            .build();
-    }
-
-    /**
      * Creates a cash payment method.
      */
     private PaymentMethod createCashPaymentMethod() {
@@ -347,52 +388,20 @@ public class PaymentController implements Initializable {
     }
 
     /**
-     * Processes payment with the given method.
+     * Processes SIMULATED payment with the given method.
      * This calls the PaymentService which handles the order saga.
      */
     private Payment processPaymentWithMethod(PaymentMethod paymentMethod) {
         // PaymentService will:
-        // 1. Create the payment record
+        // 1. Create the payment record (simulated)
         // 2. Call OrderService.confirmOrderPayment()
         // 3. OrderService will create the shipment
+        Logger.info("Processing simulated payment for order: " + order.getId());
         return paymentService.processPayment(order.getInvoiceId(), paymentMethod);
     }
 
     /**
-     * Opens Mercado Pago payment window.
-     * Launches the MercadoPagoPayment.fxml view with order details.
-     */
-    @FXML
-    private void handleOpenMercadoPago() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/MercadoPagoPayment.fxml"));
-            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
-
-            // Get controller and pass order data
-            MercadoPagoPaymentController mpController = loader.getController();
-            mpController.setOrder(order, orderDetail);
-
-            javafx.stage.Stage mpStage = new javafx.stage.Stage();
-            mpStage.setTitle("Pago con Mercado Pago - Orden #" + order.getId());
-            mpStage.setScene(scene);
-            mpStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            mpStage.setResizable(false);
-
-            // Close payment window when MP window closes
-            mpStage.setOnHidden(e -> {
-                closeWindow();
-            });
-
-            mpStage.showAndWait();
-
-        } catch (Exception e) {
-            Logger.error("Error opening Mercado Pago payment window: " + e.getMessage());
-            showError("Error al abrir ventana de Mercado Pago:\n" + e.getMessage());
-        }
-    }
-
-    /**
-     * Handles cancel button.
+     * Handles cancel button - cancels the order if possible and closes the window.
      */
     @FXML
     private void handleCancel() {
@@ -403,6 +412,21 @@ public class PaymentController implements Initializable {
 
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
+                // Cancel the order if it can be cancelled
+                if (order != null) {
+                    try {
+                        if (orderService.canCancelOrder(order.getId())) {
+                            orderService.cancelOrder(order.getId());
+                            Logger.info("Order " + order.getId() + " cancelled successfully");
+                        } else {
+                            Logger.warning("Order " + order.getId() + " cannot be cancelled in its current state");
+                        }
+                    } catch (Exception e) {
+                        Logger.error("Error cancelling order: " + e.getMessage());
+                        // Continue with closing even if cancellation fails
+                    }
+                }
+
                 closeWindow();
             }
         });

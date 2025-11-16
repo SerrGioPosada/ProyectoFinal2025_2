@@ -72,16 +72,53 @@ public class DeliverySidebarController extends BaseSidebarController {
      * </p>
      */
     private void setupButtonActions() {
-        Map<Button, String> navigationMap = Map.of(
-                btnDashboard, "DeliveryDashboard.fxml",
-                btnMyShipments, "DeliveryShipments.fxml",
-                btnRouteMap, "DeliveryRouteMap.fxml",
-                btnHistory, "DeliveryHistory.fxml",
-                btnMyVehicles, "DeliveryMyVehicles.fxml",
-                btnProfile, "DeliveryProfile.fxml"
-        );
+        // Dashboard
+        if (btnDashboard != null) {
+            btnDashboard.setOnAction(event -> {
+                setActiveButton(btnDashboard);
+                NavigationUtil.navigate(indexController, "DeliveryDashboard.fxml", DeliveryDashboardController.class);
+            });
+        }
 
-        navigationMap.forEach(this::bindNavigation);
+        // My Shipments
+        if (btnMyShipments != null) {
+            btnMyShipments.setOnAction(event -> {
+                setActiveButton(btnMyShipments);
+                NavigationUtil.navigate(indexController, "DeliveryShipments.fxml", DeliveryShipmentsController.class);
+            });
+        }
+
+        // Route Map
+        if (btnRouteMap != null) {
+            btnRouteMap.setOnAction(event -> {
+                setActiveButton(btnRouteMap);
+                NavigationUtil.navigate(indexController, "DeliveryRouteMap.fxml", DeliveryRouteMapController.class);
+            });
+        }
+
+        // History
+        if (btnHistory != null) {
+            btnHistory.setOnAction(event -> {
+                setActiveButton(btnHistory);
+                NavigationUtil.navigate(indexController, "DeliveryHistory.fxml", DeliveryHistoryController.class);
+            });
+        }
+
+        // My Vehicles
+        if (btnMyVehicles != null) {
+            btnMyVehicles.setOnAction(event -> {
+                setActiveButton(btnMyVehicles);
+                NavigationUtil.navigate(indexController, "DeliveryMyVehicles.fxml", DeliveryMyVehiclesController.class);
+            });
+        }
+
+        // Profile
+        if (btnProfile != null) {
+            btnProfile.setOnAction(event -> {
+                setActiveButton(btnProfile);
+                NavigationUtil.navigate(indexController, "DeliveryProfile.fxml", DeliveryProfileController.class);
+            });
+        }
 
         // Logout button has special behavior (doesn't navigate to a view)
         if (btnLogout != null) {
@@ -96,31 +133,6 @@ public class DeliverySidebarController extends BaseSidebarController {
         Logger.info("Logout button clicked.");
         authService.logout();
         indexController.reloadApplication();
-    }
-
-    // =================================================================================================================
-    // Generic Helper
-    // =================================================================================================================
-
-    /**
-     * Binds a button to navigate to a specific FXML view when clicked.
-     * Sets the button as active when clicked.
-     * <p>
-     * If the button reference is {@code null}, no action will be bound and a warning is logged.
-     * </p>
-     *
-     * @param button   The {@link Button} to which the navigation action will be assigned.
-     * @param viewName The name of the FXML view file to navigate to (e.g., "DeliveryDashboard.fxml").
-     */
-    private void bindNavigation(Button button, String viewName) {
-        if (button != null) {
-            button.setOnAction(event -> {
-                setActiveButton(button);
-                NavigationUtil.navigate(indexController, viewName, getClass());
-            });
-        } else {
-            Logger.warn("[DeliverySidebarController] Warning: Tried to bind navigation to a null button for view: " + viewName);
-        }
     }
 
     /**

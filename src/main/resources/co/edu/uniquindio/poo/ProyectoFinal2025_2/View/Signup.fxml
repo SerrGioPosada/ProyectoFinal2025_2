@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+
+<AnchorPane styleClass="signup-root"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.SignupController"
+            prefWidth="500" prefHeight="700">
+
+    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="login-scroll" pannable="true"
+                AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <StackPane alignment="CENTER" maxWidth="Infinity" prefWidth="Infinity" styleClass="login-background-pane">
+
+            <VBox styleClass="login-container" alignment="CENTER" spacing="20">
+
+                <!-- Logo Circle -->
+                <HBox alignment="CENTER">
+                    <StackPane styleClass="logo-circle">
+                        <Label text="SD" styleClass="logo-text"/>
+                    </StackPane>
+                </HBox>
+
+                <!-- Welcome Text -->
+                <VBox alignment="CENTER" spacing="5">
+                    <Label text="¡Regístrate!" styleClass="welcome-text"/>
+                    <Label text="Crea tu cuenta para comenzar" styleClass="welcome-text"/>
+                </VBox>
+
+                <!-- Form Fields -->
+                <VBox spacing="10" styleClass="form-container">
+
+                    <!-- Name Field -->
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblNameFloat" text="NOMBRE" styleClass="floating-label-top"/>
+                        <StackPane styleClass="input-container">
+                            <TextField fx:id="txtName" styleClass="modern-input" promptText="NOMBRE"/>
+                        </StackPane>
+                        <HBox alignment="CENTER_RIGHT">
+                            <Label fx:id="lblNameError" styleClass="validation-error-right" visible="false" managed="false"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Last Name Field -->
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblLastNameFloat" text="APELLIDO" styleClass="floating-label-top"/>
+                        <StackPane styleClass="input-container">
+                            <TextField fx:id="txtLastName" styleClass="modern-input" promptText="APELLIDO"/>
+                        </StackPane>
+                        <HBox alignment="CENTER_RIGHT">
+                            <Label fx:id="lblLastNameError" styleClass="validation-error-right" visible="false" managed="false"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Email Field -->
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblEmailFloat" text="CORREO ELECTRÓNICO" styleClass="floating-label-top"/>
+                        <StackPane styleClass="input-container">
+                            <TextField fx:id="txtEmail" styleClass="modern-input" promptText="CORREO ELECTRÓNICO"/>
+                        </StackPane>
+                        <HBox alignment="CENTER_RIGHT">
+                            <Label fx:id="lblEmailError" styleClass="validation-error-right" visible="false" managed="false"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Phone Field -->
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblPhoneFloat" text="TELÉFONO" styleClass="floating-label-top"/>
+                        <StackPane styleClass="input-container">
+                            <TextField fx:id="txtPhone" styleClass="modern-input" promptText="TELÉFONO"/>
+                        </StackPane>
+                        <HBox alignment="CENTER_RIGHT">
+                            <Label fx:id="lblPhoneError" styleClass="validation-error-right" visible="false" managed="false"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Password Field -->
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblPasswordFloat" text="CONTRASEÑA" styleClass="floating-label-top"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <VBox spacing="0" HBox.hgrow="ALWAYS">
+                                <StackPane styleClass="input-container">
+                                    <PasswordField fx:id="txtPassword" styleClass="modern-input" promptText="CONTRASEÑA"/>
+                                    <TextField fx:id="txtPasswordVisible" styleClass="modern-input" promptText="CONTRASEÑA" visible="false" managed="false"/>
+                                </StackPane>
+                                <HBox alignment="CENTER_RIGHT">
+                                    <Label fx:id="lblPasswordError" styleClass="validation-error-right" visible="false" managed="false"/>
+                                </HBox>
+                            </VBox>
+                            <ImageView fx:id="imgTogglePassword" styleClass="password-toggle-outside" fitWidth="24" fitHeight="24" preserveRatio="true" pickOnBounds="true"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Confirm Password Field -->
+                    <VBox spacing="3" minHeight="70">
+                        <Label fx:id="lblConfirmPasswordFloat" text="CONFIRMAR CONTRASEÑA" styleClass="floating-label-top"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <VBox spacing="0" HBox.hgrow="ALWAYS">
+                                <StackPane styleClass="input-container">
+                                    <PasswordField fx:id="txtConfirmPassword" styleClass="modern-input" promptText="CONFIRMAR CONTRASEÑA"/>
+                                    <TextField fx:id="txtConfirmPasswordVisible" styleClass="modern-input" promptText="CONFIRMAR CONTRASEÑA" visible="false" managed="false"/>
+                                </StackPane>
+                                <HBox alignment="CENTER_RIGHT">
+                                    <Label fx:id="lblConfirmPasswordError" styleClass="validation-error-right" visible="false" managed="false"/>
+                                </HBox>
+                            </VBox>
+                            <ImageView fx:id="imgToggleConfirmPassword" styleClass="password-toggle-outside" fitWidth="24" fitHeight="24" preserveRatio="true" pickOnBounds="true"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Spacer to prevent error label from overlapping button -->
+                    <VBox prefHeight="15"/>
+
+                    <!-- Buttons Container -->
+                    <HBox spacing="10" alignment="CENTER">
+                        <!-- Register Button -->
+                        <Button fx:id="btnRegister" text="REGISTRARSE" styleClass="signin-button" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+
+                        <!-- Cancel Button (only visible when opened from admin) -->
+                        <Button fx:id="btnCancel" text="CANCELAR" styleClass="secondary-button"
+                                visible="false" managed="false" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                onAction="#handleCancel"/>
+                    </HBox>
+
+                    <!-- Error Label General -->
+                    <Label fx:id="lblError" styleClass="error-label" visible="false" managed="false"/>
+
+                    <!-- Divider -->
+                    <HBox alignment="CENTER" spacing="10">
+                        <Separator styleClass="divider" HBox.hgrow="ALWAYS"/>
+                        <Label text="o" styleClass="divider-text"/>
+                        <Separator styleClass="divider" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+
+                    <!-- Google Sign Up -->
+                    <Label fx:id="googleSignupLabel" text="Registrarse con Google" styleClass="google-link"/>
+
+                    <!-- Already have account -->
+                    <Label fx:id="lblAlreadyRegistered" text="¿Ya tienes cuenta? Inicia sesión" styleClass="link-label"/>
+
+                </VBox>
+
+                <!-- Espaciado inferior -->
+                <VBox prefHeight="30"/>
+
+            </VBox>
+        </StackPane>
+    </ScrollPane>
+</AnchorPane>

@@ -55,6 +55,9 @@ public class TrackShipmentController implements Initializable {
     // Current shipment
     private ShipmentDTO currentShipment;
 
+    // Index controller for navigation
+    private IndexController indexController;
+
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @Override
@@ -63,6 +66,14 @@ public class TrackShipmentController implements Initializable {
         trackingContent.setManaged(false);
 
         Logger.info("TrackShipmentController initialized");
+    }
+
+    /**
+     * Sets the IndexController reference for navigation.
+     * @param indexController The IndexController instance
+     */
+    public void setIndexController(IndexController indexController) {
+        this.indexController = indexController;
     }
 
     /**
@@ -123,7 +134,7 @@ public class TrackShipmentController implements Initializable {
 
             javafx.stage.Stage stage = new javafx.stage.Stage();
             stage.setTitle("Detalles del Envío - " + currentShipment.getId());
-            javafx.scene.Scene scene = new javafx.scene.Scene(root, 900, 700);
+            javafx.scene.Scene scene = new javafx.scene.Scene(root, 650, 800);
             co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeManager.getInstance().applyThemeToScene(scene);
             stage.setScene(scene);
             stage.setResizable(true);
@@ -312,5 +323,33 @@ public class TrackShipmentController implements Initializable {
 
         deliveryPersonCard.setVisible(true);
         deliveryPersonCard.setManaged(true);
+    }
+
+    /**
+     * Handles navigation to My Shipments view.
+     */
+    @FXML
+    private void handleGoToMyShipments() {
+        if (indexController != null) {
+            co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.NavigationUtil.navigate(
+                indexController,
+                "MyShipments.fxml",
+                MyShipmentsController.class
+            );
+        }
+    }
+
+    /**
+     * Handles navigation to Create New Shipment view.
+     */
+    @FXML
+    private void handleNewShipment() {
+        if (indexController != null) {
+            co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.NavigationUtil.navigate(
+                indexController,
+                "CreateShipmentWizard.fxml",
+                CreateShipmentWizardController.class
+            );
+        }
     }
 }

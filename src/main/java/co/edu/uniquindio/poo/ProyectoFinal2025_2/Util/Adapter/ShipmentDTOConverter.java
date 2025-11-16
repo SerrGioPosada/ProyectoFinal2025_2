@@ -66,6 +66,7 @@ public class ShipmentDTOConverter {
         // Enrich with delivery person data
         if (deliveryPerson != null) {
             dto.setDeliveryPersonName(deliveryPerson.getName() + " " + deliveryPerson.getLastName());
+            dto.setDeliveryPersonEmail(deliveryPerson.getEmail());
             dto.setDeliveryPersonPhone(deliveryPerson.getPhone());
         }
 

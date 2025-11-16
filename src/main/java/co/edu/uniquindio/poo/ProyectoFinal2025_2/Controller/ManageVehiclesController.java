@@ -19,6 +19,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controller for the Vehicle Management view (ManageVehicles.fxml).
@@ -53,6 +54,13 @@ public class ManageVehiclesController {
     @FXML private TextField txtSearch;
     @FXML private ComboBox<VehicleType> filterType;
     @FXML private ComboBox<String> filterAvailability;
+    @FXML private ComboBox<String> filterDeliveryPerson;
+
+    // =================================================================================================================
+    // FXML Fields - Header
+    // =================================================================================================================
+
+    @FXML private Button btnBack;
 
     // =================================================================================================================
     // FXML Fields - Statistics
@@ -100,6 +108,9 @@ public class ManageVehiclesController {
     private ObservableList<Vehicle> vehiclesList;
     private FilteredList<Vehicle> filteredVehicles;
     private IndexController indexController;
+
+    // Navigation context
+    private String sourceView = null; // The view that navigated to this view (e.g., "ManageDeliveryPersons.fxml")
 
     // =================================================================================================================
     // Initialization
@@ -227,7 +238,24 @@ public class ManageVehiclesController {
                 }
             });
 
-            contextMenu.getItems().add(toggleAvailabilityItem);
+            // Assign Delivery Person menu item - only show if vehicle has no delivery person
+            MenuItem assignDeliveryPersonItem = new MenuItem("Asignar Repartidor");
+            assignDeliveryPersonItem.setOnAction(event -> {
+                Vehicle selected = row.getItem();
+                if (selected != null) {
+                    handleAssignDeliveryPersonToVehicle(selected);
+                }
+            });
+
+            // Bind visibility: only show if vehicle has no delivery person assigned
+            assignDeliveryPersonItem.visibleProperty().bind(
+                javafx.beans.binding.Bindings.createBooleanBinding(() -> {
+                    Vehicle vehicle = row.getItem();
+                    return vehicle != null && (vehicle.getDeliveryPersonId() == null || vehicle.getDeliveryPersonId().isEmpty());
+                }, row.itemProperty())
+            );
+
+            contextMenu.getItems().addAll(toggleAvailabilityItem, assignDeliveryPersonItem);
 
             row.contextMenuProperty().bind(
                     javafx.beans.binding.Bindings.when(row.emptyProperty())
@@ -331,6 +359,50 @@ public class ManageVehiclesController {
         });
 
         filterAvailability.setOnAction(event -> applyFilters());
+
+        // Delivery Person filter with ButtonCell
+        filterDeliveryPerson.getItems().clear();
+        filterDeliveryPerson.getItems().add(null); // "All" option
+
+        // Get all delivery persons and add their emails
+        List<DeliveryPerson> deliveryPersons = deliveryPersonRepository.getAllDeliveryPersons();
+        List<String> emails = deliveryPersons.stream()
+                .map(DeliveryPerson::getEmail)
+                .sorted()
+                .collect(Collectors.toList());
+        filterDeliveryPerson.getItems().addAll(emails);
+
+        filterDeliveryPerson.setCellFactory(lv -> new javafx.scene.control.ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setText(null);
+                } else if (item == null) {
+                    setText("Todos los Repartidores");
+                } else {
+                    setText(item);
+                }
+            }
+        });
+
+        filterDeliveryPerson.setValue(null);
+
+        filterDeliveryPerson.setButtonCell(new javafx.scene.control.ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText("Todos los Repartidores");
+                    setStyle("-fx-text-fill: #6c757d;");
+                } else {
+                    setText(item);
+                    setStyle("-fx-text-fill: #495057;");
+                }
+            }
+        });
+
+        filterDeliveryPerson.setOnAction(event -> applyFilters());
     }
 
     /**
@@ -431,8 +503,9 @@ public class ManageVehiclesController {
         filteredVehicles.setPredicate(vehicle -> {
             boolean matchesType = matchesTypeFilter(vehicle);
             boolean matchesAvailability = matchesAvailabilityFilter(vehicle);
+            boolean matchesDeliveryPerson = matchesDeliveryPersonFilter(vehicle);
             boolean matchesSearch = matchesSearchFilter(vehicle);
-            return matchesType && matchesAvailability && matchesSearch;
+            return matchesType && matchesAvailability && matchesDeliveryPerson && matchesSearch;
         });
     }
 
@@ -453,6 +526,24 @@ public class ManageVehiclesController {
         if (selected.equals("Disponible")) return vehicle.isAvailable();
         if (selected.equals("En Uso")) return !vehicle.isAvailable();
         return true;
+    }
+
+    /**
+     * Checks if a vehicle matches the delivery person filter.
+     */
+    private boolean matchesDeliveryPersonFilter(Vehicle vehicle) {
+        String selectedEmail = filterDeliveryPerson.getValue();
+        if (selectedEmail == null) return true; // "Todos" option
+
+        // Check if vehicle has an associated delivery person with the selected email
+        String deliveryPersonId = vehicle.getDeliveryPersonId();
+        if (deliveryPersonId == null || deliveryPersonId.isEmpty()) return false; // No delivery person associated
+
+        // Get the delivery person from repository and check email
+        return deliveryPersonRepository.findDeliveryPersonById(deliveryPersonId)
+                .map(DeliveryPerson::getEmail)
+                .map(email -> email.equals(selectedEmail))
+                .orElse(false);
     }
 
     /**
@@ -524,6 +615,146 @@ public class ManageVehiclesController {
         loadVehicles();
         updateStatistics();
         DialogUtil.showSuccess("Actualizado", "Datos actualizados correctamente.");
+    }
+
+    /**
+     * Handles assigning a delivery person to a vehicle.
+     * Opens a dialog to select a delivery person from the list.
+     */
+    private void handleAssignDeliveryPersonToVehicle(Vehicle vehicle) {
+        List<co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson> allDeliveryPersons =
+            deliveryPersonRepository.getAllDeliveryPersons();
+
+        if (allDeliveryPersons.isEmpty()) {
+            DialogUtil.showWarning("Sin Repartidores", "No hay repartidores disponibles para asignar.");
+            return;
+        }
+
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/AssignDeliveryPersonDialog.fxml")
+            );
+            javafx.scene.Parent root = loader.load();
+
+            AssignDeliveryPersonDialogController dialogController = loader.getController();
+            dialogController.setData(vehicle, allDeliveryPersons);
+
+            javafx.stage.Stage dialogStage = new javafx.stage.Stage();
+            dialogStage.setTitle("Asignar Repartidor");
+            dialogStage.initModality(javafx.stage.Modality.WINDOW_MODAL);
+            dialogStage.initOwner(tableVehicles.getScene().getWindow());
+
+            javafx.scene.Scene dialogScene = new javafx.scene.Scene(root);
+
+            // Load stylesheets
+            String currentTheme = co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeManager.getInstance().getCurrentTheme();
+            String mainStylesheet = getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm();
+            dialogScene.getStylesheets().add(mainStylesheet);
+
+            if ("dark".equals(currentTheme)) {
+                String darkStylesheet = getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/DarkTheme.css").toExternalForm();
+                dialogScene.getStylesheets().add(darkStylesheet);
+            }
+
+            dialogStage.setScene(dialogScene);
+            dialogStage.setResizable(false);
+            dialogStage.showAndWait();
+
+            // Check if user confirmed
+            if (dialogController.isConfirmed()) {
+                co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.DeliveryPerson selectedDeliveryPerson =
+                    dialogController.getSelectedDeliveryPerson();
+
+                // Add vehicle to delivery person's vehicle list
+                selectedDeliveryPerson.setAssignedVehicle(vehicle);
+
+                // Update vehicle's delivery person ID
+                vehicle.setDeliveryPersonId(selectedDeliveryPerson.getId());
+
+                // Save changes to repositories
+                deliveryPersonRepository.updateDeliveryPerson(selectedDeliveryPerson);
+                vehicleService.updateVehicle(vehicle);
+
+                // Refresh table
+                tableVehicles.refresh();
+                DialogUtil.showSuccess("Repartidor asignado correctamente.");
+                Logger.info("Assigned delivery person " + selectedDeliveryPerson.getEmail() + " to vehicle " + vehicle.getPlate());
+            }
+
+        } catch (Exception e) {
+            Logger.error("Failed to open Assign Delivery Person dialog: " + e.getMessage());
+            DialogUtil.showError("Error", "No se pudo abrir el diálogo.");
+        }
+    }
+
+    /**
+     * Applies a filter to show vehicles for a specific delivery person.
+     * This method is called when navigating from ManageDeliveryPersonsController.
+     *
+     * @param deliveryPersonEmail The email of the delivery person to filter by
+     * @param sourceView The view that navigated to this view (e.g., "ManageDeliveryPersons.fxml")
+     */
+    public void applyDeliveryPersonFilter(String deliveryPersonEmail, String sourceView) {
+        if (deliveryPersonEmail == null || deliveryPersonEmail.isEmpty()) {
+            Logger.warning("applyDeliveryPersonFilter called with null or empty email");
+            return;
+        }
+
+        this.sourceView = sourceView;
+        Logger.info("Applying delivery person filter for email: " + deliveryPersonEmail + " from source: " + sourceView);
+
+        // Show back button if we came from another view
+        if (sourceView != null && btnBack != null) {
+            btnBack.setVisible(true);
+            btnBack.setManaged(true);
+        }
+
+        // Switch to filters tab and apply the filter
+        javafx.application.Platform.runLater(() -> {
+            switchToFiltersTab();
+            filterDeliveryPerson.setValue(deliveryPersonEmail);
+        });
+    }
+
+    /**
+     * Handles the back button click.
+     * Returns to the view that navigated to this view (stored in sourceView).
+     */
+    @FXML
+    private void handleBack() {
+        if (sourceView == null) {
+            Logger.warning("handleBack called but sourceView is null");
+            return;
+        }
+
+        Logger.info("Navigating back to: " + sourceView);
+
+        if (indexController != null) {
+            indexController.loadView(sourceView);
+        } else {
+            Logger.error("IndexController not set, cannot navigate back");
+        }
+    }
+
+    /**
+     * Clears the contextual filter applied when navigating from another view.
+     * This method is called when navigating from the sidebar.
+     */
+    public void clearContextualFilter() {
+        this.sourceView = null;
+
+        // Hide back button
+        if (btnBack != null) {
+            btnBack.setVisible(false);
+            btnBack.setManaged(false);
+        }
+
+        // Clear delivery person filter
+        if (filterDeliveryPerson != null) {
+            filterDeliveryPerson.setValue(null);
+        }
+
+        applyFilters();
     }
 
     // =================================================================================================================

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.DeliveryMyVehiclesController"
+      spacing="15" styleClass="content-area">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header Section con título y botones principales -->
+    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="header-section">
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label text="Mis Vehículos" styleClass="page-title"/>
+            <Label text="Gestiona los vehículos asignados a ti" styleClass="info-label"
+                   style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+        </VBox>
+        <Button text="Actualizar" styleClass="btn-secondary" onAction="#handleRefresh"/>
+    </HBox>
+
+    <!-- Collapsible Tab System -->
+    <VBox fx:id="collapsibleTabSection" spacing="0" styleClass="collapsible-tab-section, tab-section-expanded"
+          VBox.vgrow="NEVER" minHeight="60">
+        <!-- Header with Collapse Button -->
+        <HBox styleClass="tab-header-with-collapse" minHeight="60" prefHeight="60" maxHeight="60">
+            <HBox styleClass="tab-nav-bar" HBox.hgrow="ALWAYS">
+                <Button fx:id="btnTabStats" text="Estadísticas" styleClass="tab-button, tab-button-active"
+                        onAction="#switchToStatsTab"/>
+                <Button fx:id="btnTabFilters" text="Filtros" styleClass="tab-button"
+                        onAction="#switchToFiltersTab"/>
+                <Button fx:id="btnTabAddVehicle" text="Añadir Vehículo" styleClass="tab-button"
+                        onAction="#switchToAddVehicleTab"/>
+            </HBox>
+            <Button fx:id="btnCollapseToggle" text="▲" styleClass="collapse-toggle-btn"
+                    onAction="#toggleCollapse"/>
+        </HBox>
+
+        <!-- Tab Content Container -->
+        <StackPane styleClass="tab-content-container">
+            <!-- Stats Tab Content -->
+            <HBox fx:id="statsTabContent" spacing="15" managed="true" visible="true">
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Total Vehículos" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblTotalVehicles" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+                </VBox>
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Vehículo Actual" style="-fx-text-fill: #28a745; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblCurrentVehicle" text="--" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
+                </VBox>
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Disponibles" style="-fx-text-fill: #17a2b8; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblAvailableVehicles" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Filters Tab Content -->
+            <VBox fx:id="filtersTabContent" spacing="10" managed="false" visible="false">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="filterType" styleClass="filter-combo" prefWidth="220" promptText="Filtrar por tipo"/>
+                    <ComboBox fx:id="filterStatus" styleClass="filter-combo" prefWidth="220" promptText="Filtrar por estado"/>
+                    <TextField fx:id="searchField" promptText="Buscar por placa..."
+                               styleClass="search-field" HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <!-- Botón limpiar filtros -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="Limpiar Filtros" styleClass="btn-secondary" onAction="#clearFilters"/>
+                </HBox>
+            </VBox>
+
+            <!-- Add Vehicle Tab Content -->
+            <VBox fx:id="addVehicleTabContent" spacing="15" managed="false" visible="false">
+                <GridPane hgap="10" vgap="10" styleClass="tab-form-grid">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                    </columnConstraints>
+
+                    <VBox spacing="5" GridPane.columnIndex="0">
+                        <Label text="Placa:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="txtPlate" promptText="ABC123" styleClass="text-field"/>
+                    </VBox>
+
+                    <VBox spacing="5" GridPane.columnIndex="1">
+                        <Label text="Capacidad (kg):" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="txtCapacity" promptText="1000" styleClass="text-field"/>
+                    </VBox>
+
+                    <VBox spacing="5" GridPane.columnIndex="2">
+                        <Label text="Tipo:" style="-fx-font-weight: bold;"/>
+                        <ComboBox fx:id="cmbType" prefWidth="200" styleClass="combo-box"/>
+                    </VBox>
+
+                    <VBox spacing="5" GridPane.columnIndex="3" alignment="CENTER_LEFT">
+                        <Label text="" style="-fx-font-weight: bold;"/>
+                        <Button fx:id="btnSaveVehicle" text="Guardar Vehículo" onAction="#handleSaveVehicle" styleClass="btn-success" minWidth="180" prefWidth="180"/>
+                    </VBox>
+                </GridPane>
+            </VBox>
+        </StackPane>
+    </VBox>
+
+    <!-- Table Section -->
+    <TableView fx:id="tblVehicles" styleClass="data-table" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colPlate" text="Placa" prefWidth="150" minWidth="120"/>
+            <TableColumn fx:id="colType" text="Tipo" prefWidth="180" minWidth="150"/>
+            <TableColumn fx:id="colCapacity" text="Capacidad (kg)" prefWidth="130" minWidth="110"/>
+            <TableColumn fx:id="colStatus" text="Estado" prefWidth="150" minWidth="120"/>
+        </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+        <placeholder>
+            <Label text="No tienes vehículos asignados" styleClass="table-placeholder"/>
+        </placeholder>
+    </TableView>
+
+    <!-- Information Section -->
+    <HBox spacing="10" styleClass="info-section" alignment="CENTER_LEFT">
+        <Label text="Haga clic derecho en un vehículo para abrir el menú contextual"
+               style="-fx-text-fill: #6c757d; -fx-font-size: 12px; -fx-font-style: italic;"/>
+    </HBox>
+
+</VBox>

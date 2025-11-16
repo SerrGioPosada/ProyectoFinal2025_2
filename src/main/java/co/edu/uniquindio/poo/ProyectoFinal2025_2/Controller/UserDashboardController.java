@@ -210,9 +210,7 @@ public class UserDashboardController implements Initializable {
      */
     private void handleNewShipment() {
         if (indexController != null) {
-            indexController.loadView("CreateShipmentWizard.fxml");
-        } else {
-            NavigationUtil.navigate(indexController, "CreateShipmentWizard.fxml", getClass());
+            NavigationUtil.navigate(indexController, "CreateShipmentWizard.fxml", CreateShipmentWizardController.class);
         }
     }
 
@@ -221,9 +219,7 @@ public class UserDashboardController implements Initializable {
      */
     private void handleMyShipments() {
         if (indexController != null) {
-            indexController.loadView("MyShipments.fxml");
-        } else {
-            NavigationUtil.navigate(indexController, "MyShipments.fxml", getClass());
+            NavigationUtil.navigate(indexController, "MyShipments.fxml", MyShipmentsController.class);
         }
     }
 
@@ -232,9 +228,7 @@ public class UserDashboardController implements Initializable {
      */
     private void handleTrackShipment() {
         if (indexController != null) {
-            indexController.loadView("TrackShipment.fxml");
-        } else {
-            NavigationUtil.navigate(indexController, "TrackShipment.fxml", getClass());
+            NavigationUtil.navigate(indexController, "TrackShipment.fxml", TrackShipmentController.class);
         }
     }
 

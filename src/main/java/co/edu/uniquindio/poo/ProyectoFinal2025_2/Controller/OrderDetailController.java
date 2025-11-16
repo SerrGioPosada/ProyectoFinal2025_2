@@ -24,10 +24,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Controller for order details view.
@@ -317,8 +317,72 @@ public class OrderDetailController implements Initializable {
 
     @FXML
     private void handlePrint() {
-        DialogUtil.showInfo("Print", "Print functionality will be implemented soon");
-        // TODO: Implement print/PDF generation
+        if (currentOrder == null) {
+            DialogUtil.showWarning("Sin Datos", "No hay orden cargada para imprimir");
+            return;
+        }
+
+        try {
+            // Generate PDF with order details
+            String fileName = "order_detail_" + currentOrder.getId() + "_" + System.currentTimeMillis();
+            String title = "Detalles de la Orden";
+            String subtitle = "ID: " + currentOrder.getId() + " | Estado: " + currentOrder.getStatus().getDisplayName();
+
+            // Prepare headers and data
+            List<String> headers = Arrays.asList("Campo", "Valor");
+            List<List<String>> rows = new ArrayList<>();
+
+            // General Information
+            rows.add(Arrays.asList("ID Orden", currentOrder.getId()));
+            rows.add(Arrays.asList("Estado", currentOrder.getStatus().getDisplayName()));
+            rows.add(Arrays.asList("Fecha Creación", currentOrder.getCreatedAt() != null ?
+                currentOrder.getCreatedAt().format(DATE_FORMATTER) : "N/A"));
+
+            // User Information
+            if (currentOrder.getUserId() != null) {
+                co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.User user =
+                    userRepository.findById(currentOrder.getUserId()).orElse(null);
+                if (user != null) {
+                    rows.add(Arrays.asList("Usuario", user.getName() + " " + user.getLastName()));
+                    rows.add(Arrays.asList("Email", user.getEmail()));
+                    rows.add(Arrays.asList("Teléfono", user.getPhone() != null ? user.getPhone() : "N/A"));
+                }
+            }
+
+            // Addresses
+            if (currentOrder.getOrigin() != null) {
+                rows.add(Arrays.asList("Dirección Origen",
+                    currentOrder.getOrigin().getStreet() + ", " +
+                    currentOrder.getOrigin().getCity() + ", " +
+                    currentOrder.getOrigin().getState()));
+            }
+            if (currentOrder.getDestination() != null) {
+                rows.add(Arrays.asList("Dirección Destino",
+                    currentOrder.getDestination().getStreet() + ", " +
+                    currentOrder.getDestination().getCity() + ", " +
+                    currentOrder.getDestination().getState()));
+            }
+
+            // IDs Relacionados
+            rows.add(Arrays.asList("ID Envío", currentOrder.getShipmentId() != null ? currentOrder.getShipmentId() : "N/A"));
+            rows.add(Arrays.asList("ID Pago", currentOrder.getPaymentId() != null ? currentOrder.getPaymentId() : "N/A"));
+            rows.add(Arrays.asList("ID Factura", currentOrder.getInvoiceId() != null ? currentOrder.getInvoiceId() : "N/A"));
+
+            // Generate PDF
+            File pdfFile = co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.PdfUtility.generatePdfReport(
+                fileName, title, subtitle, headers, rows);
+
+            if (pdfFile != null && pdfFile.exists()) {
+                DialogUtil.showSuccess("PDF Generado",
+                    "El PDF se generó exitosamente:\n" + pdfFile.getAbsolutePath());
+                Logger.info("Order detail PDF generated: " + pdfFile.getAbsolutePath());
+            } else {
+                DialogUtil.showError("Error", "No se pudo generar el PDF");
+            }
+        } catch (Exception e) {
+            Logger.error("Error generating order detail PDF: " + e.getMessage());
+            DialogUtil.showError("Error", "Error al generar PDF: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -338,9 +402,9 @@ public class OrderDetailController implements Initializable {
             controller.loadShipmentDetails(currentOrder.getShipmentId());
 
             Stage stage = new Stage();
-            stage.setTitle("Shipment Details");
+            stage.setTitle("Detalles del Envío");
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root, 650, 800));
             stage.showAndWait();
 
         } catch (Exception e) {

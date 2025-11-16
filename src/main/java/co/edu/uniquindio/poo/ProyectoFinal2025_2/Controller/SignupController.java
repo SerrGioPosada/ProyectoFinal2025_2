@@ -1,9 +1,12 @@
 package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.PersonCreationData;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.GoogleOAuthService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.UserService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.FXUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.MessageUtil;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.ValidationUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilService.IdGenerationUtil;
 import javafx.animation.FadeTransition;
@@ -40,6 +43,8 @@ public class SignupController {
     // =================================================================================================================
 
     private final UserService userService = UserService.getInstance();
+    private final AuthenticationService authService = AuthenticationService.getInstance();
+    private final GoogleOAuthService googleOAuthService = new GoogleOAuthService();
     private final BooleanProperty isPasswordVisible = new SimpleBooleanProperty(false);
     private final BooleanProperty isConfirmPasswordVisible = new SimpleBooleanProperty(false);
     @FXML
@@ -60,6 +65,8 @@ public class SignupController {
     private TextField txtConfirmPasswordVisible;
     @FXML
     private Button btnRegister;
+    @FXML
+    private Button btnCancel;
     @FXML
     private Label lblError;
     @FXML
@@ -104,6 +111,10 @@ public class SignupController {
 
     private IndexController indexController;
 
+    // Admin context properties
+    private boolean isAdminContext = false;
+    private Runnable onSuccessCallback;
+
     // =================================================================================================================
     // Initialization & Setup
     // =================================================================================================================
@@ -117,6 +128,22 @@ public class SignupController {
         setupValidationListeners();
         setupPasswordToggles();
         setupFloatingLabels();
+        initializeErrorLabels();
+    }
+
+    /**
+     * Initializes all error labels to be hidden with opacity 0.
+     */
+    private void initializeErrorLabels() {
+        Stream.of(lblNameError, lblLastNameError, lblEmailError, lblPhoneError,
+                  lblPasswordError, lblConfirmPasswordError, lblError)
+              .forEach(label -> {
+                  if (label != null) {
+                      label.setOpacity(0.0);
+                      label.setMaxHeight(0);
+                      label.setManaged(false);
+                  }
+              });
     }
 
     /**
@@ -126,6 +153,33 @@ public class SignupController {
      */
     public void setIndexController(IndexController indexController) {
         this.indexController = indexController;
+    }
+
+    /**
+     * Configures the signup form for admin context (user management).
+     * Shows the cancel button and sets up the success callback.
+     *
+     * @param onSuccessCallback Callback to execute after successful user registration
+     */
+    public void setAdminContext(Runnable onSuccessCallback) {
+        this.isAdminContext = true;
+        this.onSuccessCallback = onSuccessCallback;
+
+        // Show cancel button
+        if (btnCancel != null) {
+            btnCancel.setVisible(true);
+            btnCancel.setManaged(true);
+        }
+
+        // Hide Google signup and "already registered" options in admin context
+        if (googleSignupLabel != null) {
+            googleSignupLabel.setVisible(false);
+            googleSignupLabel.setManaged(false);
+        }
+        if (lblAlreadyRegistered != null) {
+            lblAlreadyRegistered.setVisible(false);
+            lblAlreadyRegistered.setManaged(false);
+        }
     }
 
     /**
@@ -383,26 +437,104 @@ public class SignupController {
             return;
         }
 
-        MessageUtil.showSuccess(lblError, "Registration successful! You can now log in.");
-
-        new Thread(() -> {
-            try {
-                Thread.sleep(2000);
-                Platform.runLater(this::closeWindow);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }).start();
+        // Handle success based on context
+        if (isAdminContext) {
+            // Admin context: show success message briefly and close
+            MessageUtil.showSuccess(lblError, "User registered successfully!");
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1500);
+                    Platform.runLater(() -> {
+                        closeWindow();
+                        // Execute callback to refresh the user table
+                        if (onSuccessCallback != null) {
+                            onSuccessCallback.run();
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }).start();
+        } else {
+            // Normal context: show success and close window
+            MessageUtil.showSuccess(lblError, "Registration successful! You can now log in.");
+            new Thread(() -> {
+                try {
+                    Thread.sleep(2000);
+                    Platform.runLater(this::closeWindow);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }).start();
+        }
     }
 
     /**
-     * Placeholder handler for Google sign-up.
-     * <p>
-     * Currently displays a not-implemented message.
-     * </p>
+     * Handles the cancel button click (only visible in admin context).
+     * Closes the signup window without registering.
+     */
+    @FXML
+    private void handleCancel() {
+        Logger.info("Cancel button clicked - closing signup window");
+        closeWindow();
+    }
+
+    /**
+     * Initiates the Google Sign-Up flow when the corresponding label is clicked.
+     * Uses OAuth to authenticate the user and automatically register/login.
      */
     private void handleGoogleSignup() {
-        MessageUtil.showError(lblError, "Google Sign-Up is not yet implemented.");
+        Logger.info("Initiating Google Sign-Up flow...");
+        if (googleSignupLabel != null) {
+            googleSignupLabel.setDisable(true); // Prevent multiple clicks
+        }
+        MessageUtil.showError(lblError, "Opening browser for Google Sign-Up...");
+
+        googleOAuthService.authenticate()
+                .thenAccept(userInfo -> Platform.runLater(() -> {
+                    Logger.info("Google Sign-Up successful. Processing user info...");
+                    processExternalUser(userInfo.getName(), userInfo.getEmail());
+                    if (googleSignupLabel != null) googleSignupLabel.setDisable(false);
+                }))
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> {
+                        Logger.error("Google Sign-Up flow failed.", (Exception) ex);
+                        MessageUtil.showError(lblError, "Google Sign-Up failed: " + ex.getMessage());
+                        if (googleSignupLabel != null) googleSignupLabel.setDisable(false);
+                    });
+                    return null;
+                });
+    }
+
+    /**
+     * Processes user information from an external provider (e.g., Google).
+     * If the user exists, it logs them in. If not, it creates a new user account and then logs them in.
+     *
+     * @param name  The user's name from the external provider.
+     * @param email The user's email from the external provider.
+     */
+    private void processExternalUser(String name, String email) {
+        Logger.info("Processing external user: " + email);
+
+        // Use UserService to handle OAuth user registration/retrieval
+        var user = userService.registerOAuthUser(name, email);
+
+        if (user != null) {
+            authService.setAuthenticatedUser(user);
+        } else {
+            Logger.error("Failed to register/retrieve OAuth user");
+            MessageUtil.showError(lblError, "Failed to process Google Sign-Up");
+            return;
+        }
+
+        // Close signup window and navigate to dashboard
+        closeWindow();
+        if (indexController == null) {
+            Logger.error("CRITICAL: External signup was successful, but IndexController is null. Cannot navigate.");
+            return;
+        }
+
+        Platform.runLater(() -> indexController.onLoginSuccess());
     }
 
     /**
