@@ -5,13 +5,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.DeliveryHistoryController"
-      spacing="15" styleClass="content-area">
+<ScrollPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.DeliveryHistoryController"
+            fitToWidth="true" styleClass="content-area">
+    <VBox fx:id="rootPane"
+          spacing="15" styleClass="content-area">
 
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
 
     <!-- Header Section -->
     <HBox alignment="CENTER_LEFT" spacing="15" styleClass="header-section">
@@ -24,12 +26,12 @@
     </HBox>
 
     <!-- Collapsible Tab System -->
-    <VBox fx:id="collapsibleTabSection" spacing="0" styleClass="collapsible-tab-section tab-section-expanded"
-          VBox.vgrow="NEVER" minHeight="60" maxHeight="600">
+    <VBox fx:id="collapsibleTabSection" spacing="0" styleClass="collapsible-tab-section, tab-section-expanded"
+          VBox.vgrow="NEVER" minHeight="60">
         <!-- Header with Collapse Button -->
         <HBox styleClass="tab-header-with-collapse" minHeight="60" prefHeight="60" maxHeight="60">
             <HBox styleClass="tab-nav-bar" HBox.hgrow="ALWAYS">
-                <Button fx:id="btnTabEarnings" text="Ganancias" styleClass="tab-button tab-button-active"
+                <Button fx:id="btnTabEarnings" text="Ganancias" styleClass="tab-button, tab-button-active"
                         onAction="#switchToEarningsTab"/>
                 <Button fx:id="btnTabDeliveryStats" text="Est. Entrega" styleClass="tab-button"
                         onAction="#switchToDeliveryStatsTab"/>
@@ -41,11 +43,11 @@
         </HBox>
 
         <!-- Tab Content Container -->
-        <StackPane styleClass="tab-content-container" maxHeight="540" prefHeight="540">
+        <StackPane styleClass="tab-content-container" maxHeight="180">
             <!-- Earnings Tab Content -->
             <VBox fx:id="earningsTabContent" spacing="15" managed="true" visible="true">
                 <padding>
-                    <Insets top="30" right="35" bottom="20" left="35"/>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
                 </padding>
                 <!-- Summary Statistics -->
                 <HBox spacing="15">
@@ -79,50 +81,12 @@
                         <Label fx:id="lblAverageEarnings" text="0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #6610f2;"/>
                     </VBox>
                 </HBox>
-
-                <!-- Charts Row -->
-                <HBox spacing="15" prefHeight="300">
-                    <!-- Earnings Trend Chart -->
-                    <VBox spacing="10" HBox.hgrow="ALWAYS">
-                        <Label text="Tendencia de Ganancias (Últimos 30 Días)" styleClass="chart-title"/>
-                        <LineChart fx:id="chartEarningsTrend"
-                                  legendVisible="false"
-                                  createSymbols="true"
-                                  VBox.vgrow="ALWAYS"
-                                  prefHeight="250">
-                            <xAxis>
-                                <CategoryAxis side="BOTTOM"/>
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis label="Ganancias ($)" side="LEFT"/>
-                            </yAxis>
-                        </LineChart>
-                    </VBox>
-
-                    <!-- Earnings by Weekday Chart -->
-                    <VBox spacing="10" HBox.hgrow="ALWAYS">
-                        <Label text="Ganancias por Día de la Semana" styleClass="chart-title"/>
-                        <BarChart fx:id="chartEarningsByWeekday"
-                                 legendVisible="false"
-                                 VBox.vgrow="ALWAYS"
-                                 prefHeight="250"
-                                 barGap="3"
-                                 categoryGap="10">
-                            <xAxis>
-                                <CategoryAxis side="BOTTOM"/>
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis label="Ganancias ($)" side="LEFT"/>
-                            </yAxis>
-                        </BarChart>
-                    </VBox>
-                </HBox>
             </VBox>
 
             <!-- Delivery Stats Tab Content -->
             <VBox fx:id="deliveryStatsTabContent" spacing="15" managed="false" visible="false">
                 <padding>
-                    <Insets top="30" right="35" bottom="20" left="35"/>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
                 </padding>
                 <!-- Delivery Statistics -->
                 <HBox spacing="15">
@@ -146,57 +110,41 @@
                         <Label fx:id="lblSuccessRate" text="0%" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
                     </VBox>
                 </HBox>
-
-                <!-- Deliveries by Status Chart -->
-                <VBox spacing="10" prefHeight="300">
-                    <Label text="Entregas por Estado" styleClass="chart-title"/>
-                    <PieChart fx:id="chartDeliveriesByStatus"
-                             legendVisible="true"
-                             labelsVisible="true"
-                             VBox.vgrow="ALWAYS"
-                             prefHeight="250"/>
-                </VBox>
             </VBox>
 
             <!-- Filters Tab Content -->
-            <VBox fx:id="filtersTabContent" spacing="15" managed="false" visible="false">
+            <VBox fx:id="filtersTabContent" spacing="10" managed="false" visible="false">
                 <padding>
-                    <Insets top="30" right="35" bottom="20" left="35"/>
+                    <Insets top="15" right="25" bottom="15" left="25"/>
                 </padding>
-
-                <!-- Date Range Filters -->
-                <HBox spacing="15" alignment="CENTER_LEFT">
+                <!-- Date Range and Status Filters -->
+                <HBox spacing="20" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                     <Label text="Desde:" styleClass="label-bold"/>
-                    <DatePicker fx:id="dateFrom" prefWidth="150" styleClass="date-picker"/>
+                    <DatePicker fx:id="dateFrom" prefWidth="180" styleClass="date-picker"/>
 
                     <Label text="Hasta:" styleClass="label-bold"/>
-                    <DatePicker fx:id="dateTo" prefWidth="150" styleClass="date-picker"/>
+                    <DatePicker fx:id="dateTo" prefWidth="180" styleClass="date-picker"/>
 
-                    <Button text="Aplicar" onAction="#handleApplyDateFilter" styleClass="btn-primary"/>
+                    <Label text="Estado:" styleClass="label-bold"/>
+                    <ComboBox fx:id="filterStatus" prefWidth="150" styleClass="filter-combo"/>
+
+                    <Button text="Aplicar" onAction="#handleApplyDateFilter" styleClass="btn-primary" HBox.hgrow="ALWAYS"/>
                     <Button text="Limpiar" onAction="#handleClearDateFilter" styleClass="btn-secondary"/>
                 </HBox>
 
                 <!-- Quick Filter Buttons -->
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Filtros rápidos:" styleClass="label-bold"/>
+                <HBox spacing="8" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                    <Label text="Rápido:" styleClass="label-bold"/>
                     <Button text="Hoy" onAction="#handleToday" styleClass="btn-filter-quick"/>
-                    <Button text="Esta Semana" onAction="#handleThisWeek" styleClass="btn-filter-quick"/>
-                    <Button text="Última Semana" onAction="#handleLastWeek" styleClass="btn-filter-quick"/>
-                    <Button text="Este Mes" onAction="#handleThisMonth" styleClass="btn-filter-quick"/>
-                    <Button text="Último Mes" onAction="#handleLastMonth" styleClass="btn-filter-quick"/>
-                    <Button text="Últimos 3 Meses" onAction="#handleLast3Months" styleClass="btn-filter-quick"/>
-                </HBox>
+                    <Button text="Semana" onAction="#handleThisWeek" styleClass="btn-filter-quick"/>
+                    <Button text="Mes" onAction="#handleThisMonth" styleClass="btn-filter-quick"/>
+                    <Button text="3 Meses" onAction="#handleLast3Months" styleClass="btn-filter-quick"/>
 
-                <!-- Additional Filters -->
-                <HBox spacing="15" alignment="CENTER_LEFT">
-                    <Label text="Filtrar por estado:" styleClass="label-bold"/>
-                    <ComboBox fx:id="filterStatus" prefWidth="180" styleClass="filter-combo"/>
+                    <Label text="Min:" styleClass="label-bold" style="-fx-padding: 0 0 0 15;"/>
+                    <TextField fx:id="filterMinAmount" promptText="0.00" prefWidth="80" styleClass="search-field"/>
 
-                    <Label text="Monto mínimo:" styleClass="label-bold"/>
-                    <TextField fx:id="filterMinAmount" promptText="0.00" prefWidth="100" styleClass="search-field"/>
-
-                    <Label text="Monto máximo:" styleClass="label-bold"/>
-                    <TextField fx:id="filterMaxAmount" promptText="999.99" prefWidth="100" styleClass="search-field"/>
+                    <Label text="Max:" styleClass="label-bold"/>
+                    <TextField fx:id="filterMaxAmount" promptText="999.99" prefWidth="80" styleClass="search-field"/>
                 </HBox>
             </VBox>
         </StackPane>
@@ -205,7 +153,6 @@
     <!-- History Table Section -->
     <VBox spacing="10" VBox.vgrow="ALWAYS">
         <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="Historial Detallado" styleClass="section-title" HBox.hgrow="ALWAYS"/>
             <TextField fx:id="searchField" promptText="Buscar por ID o dirección..."
                       prefWidth="300" styleClass="search-field"/>
         </HBox>
@@ -235,4 +182,55 @@
                styleClass="info-label-italic"/>
     </HBox>
 
-</VBox>
+    <!-- Charts Section -->
+    <VBox spacing="15">
+        <!-- First Row: Two Charts Side by Side -->
+        <HBox spacing="15" prefHeight="350">
+            <!-- Earnings Trend Chart -->
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Tendencia de Ganancias (Últimos 30 Días)" styleClass="chart-title"/>
+                <LineChart fx:id="chartEarningsTrend"
+                          legendVisible="false"
+                          createSymbols="true"
+                          VBox.vgrow="ALWAYS"
+                          prefHeight="320">
+                    <xAxis>
+                        <CategoryAxis side="BOTTOM"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Ganancias ($)" side="LEFT"/>
+                    </yAxis>
+                </LineChart>
+            </VBox>
+
+            <!-- Earnings by Weekday Chart -->
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Ganancias por Día de la Semana" styleClass="chart-title"/>
+                <BarChart fx:id="chartEarningsByWeekday"
+                         legendVisible="false"
+                         VBox.vgrow="ALWAYS"
+                         prefHeight="320"
+                         barGap="3"
+                         categoryGap="10">
+                    <xAxis>
+                        <CategoryAxis side="BOTTOM"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Ganancias ($)" side="LEFT"/>
+                    </yAxis>
+                </BarChart>
+            </VBox>
+        </HBox>
+
+        <!-- Second Row: One Chart Full Width -->
+        <VBox spacing="5">
+            <Label text="Entregas por Estado" styleClass="chart-title"/>
+            <PieChart fx:id="chartDeliveriesByStatus"
+                     legendVisible="true"
+                     labelsVisible="true"
+                     prefHeight="350"/>
+        </VBox>
+    </VBox>
+
+    </VBox>
+</ScrollPane>

@@ -397,10 +397,12 @@ public class DeliveryShipmentsController implements Initializable {
     }
 
     private void setActiveTab(Button activeButton) {
-        btnTabStats.getStyleClass().remove("tab-button-active");
-        btnTabFilters.getStyleClass().remove("tab-button-active");
+        btnTabStats.getStyleClass().removeAll("tab-button-active");
+        btnTabFilters.getStyleClass().removeAll("tab-button-active");
 
-        activeButton.getStyleClass().add("tab-button-active");
+        if (!activeButton.getStyleClass().contains("tab-button-active")) {
+            activeButton.getStyleClass().add("tab-button-active");
+        }
     }
 
     private void showTabContent(javafx.scene.Node contentToShow, boolean shouldExpand) {
@@ -512,6 +514,32 @@ public class DeliveryShipmentsController implements Initializable {
     }
 
     private void showShipmentDetails(ShipmentDTO shipment) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/ShipmentDetail.fxml"));
+            Parent root = loader.load();
+
+            ShipmentDetailController controller = loader.getController();
+            controller.loadShipmentDetails(shipment.getId());
+
+            Stage stage = new Stage();
+            stage.setTitle("Detalles del Envío - " + shipment.getId());
+            Scene scene = new Scene(root, 650, 800);
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+            // Refresh after closing details
+            loadShipments();
+            updateStatistics();
+
+        } catch (Exception e) {
+            Logger.error("Error opening shipment details: " + e.getMessage());
+            // Fallback: show simple dialog
+            showSimpleShipmentDetails(shipment);
+        }
+    }
+
+    private void showSimpleShipmentDetails(ShipmentDTO shipment) {
         StringBuilder details = new StringBuilder();
         details.append("===== DETALLES DEL ENVÍO =====\n\n");
         details.append("ID: ").append(shipment.getId()).append("\n");

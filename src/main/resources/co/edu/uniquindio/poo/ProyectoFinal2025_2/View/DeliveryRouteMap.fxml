@@ -59,7 +59,7 @@
         <VBox styleClass="section-container" spacing="15" VBox.vgrow="ALWAYS" prefHeight="500">
             <HBox alignment="CENTER_LEFT" spacing="10">
                 <Label text="Mapa de Ruta" styleClass="section-title" HBox.hgrow="ALWAYS"/>
-                <ComboBox fx:id="cmbMapView" prefWidth="150" styleClass="combo-box"/>
+                <ComboBox fx:id="cmbMapView" prefWidth="220" styleClass="combo-box"/>
             </HBox>
 
             <!-- Simulated Map Canvas -->

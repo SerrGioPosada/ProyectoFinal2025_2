@@ -7,22 +7,23 @@
 <AnchorPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.PaymentController"
-            prefHeight="650.0" prefWidth="700.0"
-            styleClass="root-pane">
+            prefHeight="700.0" prefWidth="750.0"
+            styleClass="root-pane"
+            stylesheets="@../Style.css">
 
     <ScrollPane fitToWidth="true" fitToHeight="true"
-                styleClass="details-scroll"
+                styleClass="scroll-base"
                 AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
                 AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
 
-        <VBox spacing="20" styleClass="details-container">
+        <VBox spacing="25" styleClass="content-area">
             <padding>
-                <Insets top="30" right="40" bottom="30" left="40"/>
+                <Insets top="35" right="45" bottom="35" left="45"/>
             </padding>
 
             <!-- Header -->
-            <VBox spacing="10" styleClass="header-section">
-                <Label text="Procesamiento de Pago" styleClass="section-title"/>
+            <VBox spacing="12" styleClass="header-section">
+                <Label text="Procesamiento de Pago" styleClass="page-title"/>
                 <HBox spacing="20">
                     <Label fx:id="lblOrderId" text="Orden #" styleClass="detail-value"/>
                     <Label fx:id="lblInvoiceId" text="Factura #" styleClass="detail-value"/>
@@ -30,16 +31,23 @@
                 <Label fx:id="lblTotalAmount" text="0 COP" styleClass="total-value"/>
             </VBox>
 
-            <Separator/>
+            <Separator styleClass="divider"/>
 
             <!-- Payment Method Selection (Simulated) -->
-            <VBox spacing="15" styleClass="detail-section">
+            <VBox spacing="15" styleClass="card-base">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
                 <Label text="Método de Pago (Simulado)" styleClass="section-title"/>
-                <Label text="⚠️ Los siguientes métodos son simulados para demostración"
-                       style="-fx-text-fill: #ff9800; -fx-font-size: 12px; -fx-font-weight: bold;"
-                       wrapText="true"/>
+                <HBox spacing="10" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #fff3e0; -fx-padding: 12; -fx-background-radius: 8;">
+                    <Label text="⚠️" style="-fx-font-size: 16px;"/>
+                    <Label text="Los siguientes métodos son simulados para demostración"
+                           style="-fx-text-fill: #e65100; -fx-font-size: 12px; -fx-font-weight: bold;"
+                           wrapText="true"/>
+                </HBox>
 
-                <VBox spacing="10">
+                <VBox spacing="12">
                     <RadioButton fx:id="rbCreditCard" text="Tarjeta de Crédito (Simulado)"
                                  styleClass="form-checkbox"/>
                     <RadioButton fx:id="rbDebitCard" text="Tarjeta de Débito (Simulado)"
@@ -49,11 +57,14 @@
                 </VBox>
             </VBox>
 
-            <Separator/>
+            <Separator styleClass="divider"/>
 
             <!-- Card Details Section -->
-            <VBox fx:id="vboxCardDetails" spacing="15" styleClass="detail-section"
+            <VBox fx:id="vboxCardDetails" spacing="15" styleClass="card-base"
                   visible="false" managed="false">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
                 <Label text="Detalles de la Tarjeta" styleClass="section-title"/>
 
                 <GridPane hgap="15" vgap="15">
@@ -106,18 +117,22 @@
             </VBox>
 
             <!-- Cash Payment Section -->
-            <VBox fx:id="vboxCashDetails" spacing="15" styleClass="detail-section"
+            <VBox fx:id="vboxCashDetails" spacing="15" styleClass="card-base"
                   visible="false" managed="false">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
                 <Label text="Pago en Efectivo" styleClass="section-title"/>
 
-                <VBox spacing="10" styleClass="warning-box">
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="warning-box">
+                    <Label text="ℹ️" style="-fx-font-size: 16px;"/>
                     <Label fx:id="lblCashInstructions"
                            text="El pago se realizará en efectivo al momento de la entrega. Tenga listo el monto exacto."
-                           styleClass="warning-item" wrapText="true"/>
-                </VBox>
+                           wrapText="true" style="-fx-text-fill: #495057;"/>
+                </HBox>
             </VBox>
 
-            <Separator/>
+            <Separator styleClass="divider"/>
 
             <!-- Payment Status -->
             <VBox spacing="10" alignment="CENTER">
@@ -128,13 +143,13 @@
             <!-- Action Buttons -->
             <HBox spacing="15" alignment="CENTER_RIGHT">
                 <padding>
-                    <Insets top="10"/>
+                    <Insets top="15" right="0" bottom="0" left="0"/>
                 </padding>
 
                 <Button text="Cancelar" onAction="#handleCancel" styleClass="btn-secondary"
-                        prefWidth="150" prefHeight="40"/>
+                        prefWidth="160" prefHeight="42"/>
                 <Button text="Procesar Pago" onAction="#handleProcessPayment"
-                        styleClass="btn-success" prefWidth="180" prefHeight="40"/>
+                        styleClass="btn-success" prefWidth="190" prefHeight="42"/>
             </HBox>
 
         </VBox>

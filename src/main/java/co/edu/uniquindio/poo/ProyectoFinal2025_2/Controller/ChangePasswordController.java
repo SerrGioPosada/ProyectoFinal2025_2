@@ -310,9 +310,11 @@ public class ChangePasswordController implements Initializable {
      */
     private void navigateBack() {
         if (indexController != null) {
-            // Check if user is admin or regular user and load appropriate profile
+            // Check person type and load appropriate profile
             if (authService.isCurrentPersonAdmin()) {
                 indexController.loadView("AdminProfile.fxml");
+            } else if (authService.isCurrentPersonDelivery()) {
+                indexController.loadView("DeliveryProfile.fxml");
             } else {
                 indexController.loadView("UserProfile.fxml");
             }

@@ -27,7 +27,7 @@
         <!-- Estado de Disponibilidad y Vehículo Asignado - Lado a Lado -->
         <HBox spacing="15">
             <!-- Estado de Disponibilidad (50%) -->
-            <VBox styleClass="dashboard-stat-card" spacing="15" HBox.hgrow="ALWAYS" prefWidth="50" alignment="TOP_CENTER">
+            <VBox styleClass="dashboard-stat-card" spacing="15" HBox.hgrow="ALWAYS" prefWidth="50" alignment="TOP_CENTER" style="-fx-padding: 25;">
                 <Label text="Estado de Disponibilidad" styleClass="section-title" style="-fx-alignment: center;"/>
 
                 <VBox spacing="8" alignment="CENTER" VBox.vgrow="ALWAYS">
@@ -42,7 +42,7 @@
             </VBox>
 
             <!-- Vehículo Asignado (50%) -->
-            <VBox styleClass="dashboard-stat-card" spacing="15" HBox.hgrow="ALWAYS" prefWidth="50" alignment="TOP_CENTER">
+            <VBox styleClass="dashboard-stat-card" spacing="15" HBox.hgrow="ALWAYS" prefWidth="50" alignment="TOP_CENTER" style="-fx-padding: 25;">
                 <Label text="Vehículo Asignado" styleClass="section-title" style="-fx-alignment: center;"/>
 
                 <VBox spacing="8" alignment="CENTER" VBox.vgrow="ALWAYS">
@@ -129,28 +129,28 @@
 
                 <!-- Ver Mis Envíos -->
                 <VBox styleClass="quick-action-card" alignment="CENTER" spacing="10" GridPane.columnIndex="0"
-                      onMouseClicked="#handleGoToShipments">
+                      onMouseClicked="#handleGoToShipments" prefHeight="140">
                     <Label text="📦" styleClass="action-card-icon"/>
                     <Label text="Mis Envíos" styleClass="action-card-text"/>
                 </VBox>
 
                 <!-- Ver Historial -->
                 <VBox styleClass="quick-action-card" alignment="CENTER" spacing="10" GridPane.columnIndex="1"
-                      onMouseClicked="#handleGoToHistory">
+                      onMouseClicked="#handleGoToHistory" prefHeight="140">
                     <Label text="📊" styleClass="action-card-icon"/>
                     <Label text="Historial" styleClass="action-card-text"/>
                 </VBox>
 
                 <!-- Mis Vehículos -->
                 <VBox styleClass="quick-action-card" alignment="CENTER" spacing="10" GridPane.columnIndex="2"
-                      onMouseClicked="#handleGoToVehicles">
+                      onMouseClicked="#handleGoToVehicles" prefHeight="140">
                     <Label text="🚚" styleClass="action-card-icon"/>
                     <Label text="Mis Vehículos" styleClass="action-card-text"/>
                 </VBox>
 
                 <!-- Mi Perfil -->
                 <VBox styleClass="quick-action-card" alignment="CENTER" spacing="10" GridPane.columnIndex="3"
-                      onMouseClicked="#handleGoToProfile">
+                      onMouseClicked="#handleGoToProfile" prefHeight="140">
                     <Label text="👤" styleClass="action-card-icon"/>
                     <Label text="Mi Perfil" styleClass="action-card-text"/>
                 </VBox>

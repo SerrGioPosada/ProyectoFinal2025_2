@@ -5,6 +5,7 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.ShipmentStatus;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.ShipmentDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ShipmentService;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ReportService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.TabStateManager;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.DistanceCalculator;
@@ -23,6 +24,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -103,6 +106,7 @@ public class DeliveryHistoryController implements Initializable {
 
     private final AuthenticationService authService;
     private final ShipmentService shipmentService;
+    private final ReportService reportService;
 
     private DeliveryPerson currentDeliveryPerson;
     private List<ShipmentDTO> completedShipments;
@@ -120,6 +124,7 @@ public class DeliveryHistoryController implements Initializable {
     public DeliveryHistoryController() {
         this.authService = AuthenticationService.getInstance();
         this.shipmentService = new ShipmentService();
+        this.reportService = ReportService.getInstance();
         this.completedShipments = new ArrayList<>();
         this.historyEntries = FXCollections.observableArrayList();
     }
@@ -215,6 +220,22 @@ public class DeliveryHistoryController implements Initializable {
     private void initializeDatePickers() {
         dateTo.setValue(LocalDate.now());
         dateFrom.setValue(LocalDate.now().minusDays(30));
+
+        // Populate status filter ComboBox
+        if (filterStatus != null) {
+            filterStatus.getItems().clear();
+            filterStatus.getItems().addAll(
+                "Todos",
+                "Entregado",
+                "Cancelado",
+                "Devuelto",
+                "En Tránsito"
+            );
+            filterStatus.setValue("Todos");
+
+            // Add listener for status filter changes
+            filterStatus.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        }
     }
 
     private void setupDynamicFilters() {
@@ -452,6 +473,14 @@ public class DeliveryHistoryController implements Initializable {
                 }
             }
 
+            // Status filter
+            if (filterStatus != null && filterStatus.getValue() != null &&
+                !filterStatus.getValue().equals("Todos")) {
+                if (!entry.getStatus().equals(filterStatus.getValue())) {
+                    return false;
+                }
+            }
+
             // Search filter
             if (searchField != null && searchField.getText() != null &&
                 !searchField.getText().trim().isEmpty()) {
@@ -487,11 +516,13 @@ public class DeliveryHistoryController implements Initializable {
     }
 
     private void setActiveTab(Button activeButton) {
-        btnTabEarnings.getStyleClass().remove("tab-button-active");
-        btnTabDeliveryStats.getStyleClass().remove("tab-button-active");
-        btnTabFilters.getStyleClass().remove("tab-button-active");
+        btnTabEarnings.getStyleClass().removeAll("tab-button-active");
+        btnTabDeliveryStats.getStyleClass().removeAll("tab-button-active");
+        btnTabFilters.getStyleClass().removeAll("tab-button-active");
 
-        activeButton.getStyleClass().add("tab-button-active");
+        if (!activeButton.getStyleClass().contains("tab-button-active")) {
+            activeButton.getStyleClass().add("tab-button-active");
+        }
     }
 
     private void showTabContent(javafx.scene.Node contentToShow, boolean shouldExpand) {
@@ -656,7 +687,29 @@ public class DeliveryHistoryController implements Initializable {
 
     @FXML
     private void handleExportToPdf() {
-        DialogUtil.showInfo("Próximamente", "La función de exportar a PDF estará disponible próximamente.");
+        try {
+            LocalDate from = dateFrom != null && dateFrom.getValue() != null ? dateFrom.getValue() : LocalDate.now().minusDays(30);
+            LocalDate to = dateTo != null && dateTo.getValue() != null ? dateTo.getValue() : LocalDate.now();
+
+            Logger.info("Generating delivery personnel report PDF for period: " + from + " to " + to);
+
+            File pdfFile = reportService.generateDeliveryPersonnelReportPDF(from, to);
+
+            if (pdfFile != null && pdfFile.exists()) {
+                DialogUtil.showSuccess("Reporte Generado", "El reporte PDF ha sido generado exitosamente.");
+
+                // Open the PDF file
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(pdfFile);
+                }
+            } else {
+                DialogUtil.showError("Error", "No se pudo generar el reporte PDF.");
+            }
+
+        } catch (Exception e) {
+            Logger.error("Failed to export to PDF: " + e.getMessage());
+            DialogUtil.showError("Error", "Error al generar el reporte: " + e.getMessage());
+        }
     }
 
     private void showDeliveryDetails(DeliveryHistoryEntry entry) {

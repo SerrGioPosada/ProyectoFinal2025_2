@@ -22,12 +22,12 @@
     </HBox>
 
     <!-- Collapsible Tab System -->
-    <VBox fx:id="collapsibleTabSection" spacing="0" styleClass="collapsible-tab-section tab-section-expanded"
-          VBox.vgrow="NEVER" minHeight="60" maxHeight="280">
+    <VBox fx:id="collapsibleTabSection" spacing="0" styleClass="collapsible-tab-section, tab-section-expanded"
+          VBox.vgrow="NEVER" minHeight="60">
         <!-- Header with Collapse Button -->
         <HBox styleClass="tab-header-with-collapse" minHeight="60" prefHeight="60" maxHeight="60">
             <HBox styleClass="tab-nav-bar" HBox.hgrow="ALWAYS">
-                <Button fx:id="btnTabStats" text="Estadísticas" styleClass="tab-button tab-button-active"
+                <Button fx:id="btnTabStats" text="Estadísticas" styleClass="tab-button, tab-button-active"
                         onAction="#switchToStatsTab"/>
                 <Button fx:id="btnTabFilters" text="Filtros" styleClass="tab-button"
                         onAction="#switchToFiltersTab"/>
@@ -37,46 +37,44 @@
         </HBox>
 
         <!-- Tab Content Container -->
-        <StackPane styleClass="tab-content-container" maxHeight="220" prefHeight="220">
+        <StackPane styleClass="tab-content-container" maxHeight="200">
             <!-- Stats Tab Content -->
-            <HBox fx:id="statsTabContent" spacing="15" managed="true" visible="true">
+            <HBox fx:id="statsTabContent" spacing="12" managed="true" visible="true">
                 <padding>
-                    <Insets top="25" right="25" bottom="15" left="25"/>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
                 </padding>
-                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                <VBox styleClass="tab-stat-card" spacing="5" alignment="CENTER" HBox.hgrow="ALWAYS">
                     <Label text="Total" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
                     <Label fx:id="lblTotal" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
                 </VBox>
-                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+
+                <VBox styleClass="tab-stat-card" spacing="5" alignment="CENTER" HBox.hgrow="ALWAYS">
                     <Label text="Pendientes" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
                     <Label fx:id="lblPending" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #ffc107;"/>
                 </VBox>
-                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+
+                <VBox styleClass="tab-stat-card" spacing="5" alignment="CENTER" HBox.hgrow="ALWAYS">
                     <Label text="En Tránsito" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
                     <Label fx:id="lblInTransit" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
                 </VBox>
-                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+
+                <VBox styleClass="tab-stat-card" spacing="5" alignment="CENTER" HBox.hgrow="ALWAYS">
                     <Label text="Entregados" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
                     <Label fx:id="lblDelivered" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
                 </VBox>
             </HBox>
 
             <!-- Filters Tab Content -->
-            <VBox fx:id="filtersTabContent" spacing="15" managed="false" visible="false">
+            <VBox fx:id="filtersTabContent" spacing="10" managed="false" visible="false">
                 <padding>
-                    <Insets top="25" right="25" bottom="15" left="25"/>
+                    <Insets top="12" right="20" bottom="12" left="20"/>
                 </padding>
-                <HBox spacing="15" alignment="CENTER_LEFT">
-                    <Label text="Filtrar por estado:" styleClass="label-bold"/>
-                    <ComboBox fx:id="filterStatus" prefWidth="200" styleClass="filter-combo"/>
-
+                <HBox spacing="20" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                    <Label text="Estado:" styleClass="label-bold"/>
+                    <ComboBox fx:id="filterStatus" prefWidth="180" styleClass="combo-box"/>
                     <Label text="Buscar:" styleClass="label-bold"/>
-                    <TextField fx:id="searchField" promptText="Buscar por ID o dirección..."
-                               prefWidth="300" styleClass="search-field" HBox.hgrow="ALWAYS"/>
-                </HBox>
-
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Button text="Limpiar Filtros" styleClass="btn-secondary" onAction="#handleClearFilters"/>
+                    <TextField fx:id="searchField" promptText="ID o dirección..."
+                               styleClass="search-field" HBox.hgrow="ALWAYS"/>
                 </HBox>
             </VBox>
         </StackPane>
@@ -84,10 +82,6 @@
 
     <!-- Shipments Table Section -->
     <VBox spacing="10" VBox.vgrow="ALWAYS">
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Label text="Envíos Asignados" styleClass="section-title" HBox.hgrow="ALWAYS"/>
-        </HBox>
-
         <TableView fx:id="shipmentsTable" VBox.vgrow="ALWAYS" styleClass="data-table" minHeight="300" prefHeight="500">
             <columns>
                 <TableColumn fx:id="colShipmentId" text="ID Envío" prefWidth="120" minWidth="100"/>

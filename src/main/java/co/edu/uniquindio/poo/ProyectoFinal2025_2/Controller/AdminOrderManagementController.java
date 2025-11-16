@@ -201,6 +201,14 @@ public class AdminOrderManagementController implements Initializable {
             MenuItem rejectOrder = new MenuItem("Rechazar Orden");
             rejectOrder.setOnAction(e -> rejectOrder(row.getItem()));
 
+            // Only show reject button if order status is NOT CANCELLED
+            rejectOrder.visibleProperty().bind(
+                javafx.beans.binding.Bindings.createBooleanBinding(() -> {
+                    Order order = row.getItem();
+                    return order != null && order.getStatus() != OrderStatus.CANCELLED;
+                }, row.itemProperty())
+            );
+
             contextMenu.getItems().addAll(viewDetails, viewHistory, approveOrder, rejectOrder);
 
             row.contextMenuProperty().bind(

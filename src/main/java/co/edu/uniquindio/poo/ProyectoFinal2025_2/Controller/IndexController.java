@@ -701,6 +701,7 @@ public class IndexController implements Initializable {
         else if (controller instanceof ManageDeliveryPersonsController manageDelivery) manageDelivery.setIndexController(this);
         else if (controller instanceof AdminProfileController adminProfile) adminProfile.setIndexController(this);
         else if (controller instanceof UserProfileController userProfile) userProfile.setIndexController(this);
+        else if (controller instanceof DeliveryProfileController deliveryProfile) deliveryProfile.setIndexController(this);
         else if (controller instanceof EditUserDataController editUserData) editUserData.setIndexController(this);
         else if (controller instanceof ChangePasswordController changePassword) changePassword.setIndexController(this);
         else if (controller instanceof ManageAddressesController manageAddresses) manageAddresses.setIndexController(this);

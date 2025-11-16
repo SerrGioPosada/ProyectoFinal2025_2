@@ -273,7 +273,7 @@ public class ShipmentManagementController implements Initializable {
             assignDeliveryItem.visibleProperty().bind(
                 javafx.beans.binding.Bindings.createBooleanBinding(() -> {
                     ShipmentDTO shipment = row.getItem();
-                    return shipment != null && "Pendiente de Asignación".equals(shipment.getStatus());
+                    return shipment != null && shipment.getStatus() == ShipmentStatus.PENDING_ASSIGNMENT;
                 }, row.itemProperty())
             );
 

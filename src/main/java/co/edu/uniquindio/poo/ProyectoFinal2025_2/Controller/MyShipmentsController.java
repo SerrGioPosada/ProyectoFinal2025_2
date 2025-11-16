@@ -2,11 +2,14 @@ package co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller;
 
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Invoice;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Shipment;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.User;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.OrderDetailDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.OrderShipmentViewDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.ShipmentDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.InvoiceRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.OrderRepository;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.ShipmentRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.AuthenticationService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.OrderService;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Services.ShipmentService;
@@ -26,6 +29,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -224,6 +228,16 @@ public class MyShipmentsController implements Initializable {
             });
             cancelItem.setStyle("-fx-text-fill: #dc3545;");
 
+            // Pagar (solo para órdenes pendientes de pago)
+            MenuItem payItem = new MenuItem("Pagar");
+            payItem.setOnAction(event -> {
+                OrderShipmentViewDTO selected = row.getItem();
+                if (selected != null) {
+                    handlePayForOrder(selected);
+                }
+            });
+            payItem.setStyle("-fx-text-fill: #28a745; -fx-font-weight: bold;");
+
             // Eliminar (solo para cancelados)
             MenuItem deleteItem = new MenuItem("Eliminar");
             deleteItem.setOnAction(event -> {
@@ -238,10 +252,13 @@ public class MyShipmentsController implements Initializable {
             row.itemProperty().addListener((obs, oldItem, newItem) -> {
                 if (newItem != null) {
                     boolean isCancelled = newItem.getStatusDisplay().toLowerCase().contains("cancelad");
+                    boolean isPendingPayment = newItem.getStatusDisplay().toLowerCase().contains("pendiente de pago");
 
                     if (newItem.getItemType() == OrderShipmentViewDTO.ItemType.ORDER) {
                         if (isCancelled) {
                             contextMenu.getItems().setAll(viewDetailsItem, new SeparatorMenuItem(), deleteItem);
+                        } else if (isPendingPayment) {
+                            contextMenu.getItems().setAll(viewDetailsItem, payItem, new SeparatorMenuItem(), cancelItem);
                         } else {
                             contextMenu.getItems().setAll(viewDetailsItem, cancelItem);
                         }
@@ -735,6 +752,86 @@ public class MyShipmentsController implements Initializable {
         } catch (Exception e) {
             Logger.error("Failed to delete: " + e.getMessage());
             DialogUtil.showError("Error", "No se pudo eliminar: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles payment for an order with pending payment status.
+     * Opens a payment processor selection dialog.
+     */
+    private void handlePayForOrder(OrderShipmentViewDTO item) {
+        if (item.getItemType() != OrderShipmentViewDTO.ItemType.ORDER) {
+            DialogUtil.showError("Error", "Solo se puede pagar una orden");
+            return;
+        }
+
+        if (!item.getStatusDisplay().toLowerCase().contains("pendiente de pago")) {
+            DialogUtil.showError("Error", "Esta orden no está pendiente de pago");
+            return;
+        }
+
+        try {
+            // Get full order object
+            Optional<Order> orderOpt = orderRepository.findById(item.getId());
+            if (!orderOpt.isPresent()) {
+                DialogUtil.showError("Error", "No se pudo encontrar la orden");
+                return;
+            }
+
+            Order order = orderOpt.get();
+
+            // Load payment processor selection dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                "/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/PaymentProcessorSelection.fxml"));
+            Parent root = loader.load();
+
+            PaymentProcessorSelectionController selectionController = loader.getController();
+
+            // Create an OrderDetailDTO from the order and shipment
+            OrderDetailDTO orderDetail = new OrderDetailDTO();
+            orderDetail.setUserId(order.getUserId());
+            orderDetail.setOrigin(order.getOrigin());
+            orderDetail.setDestination(order.getDestination());
+
+            // Get shipment details if shipment exists
+            if (order.getShipmentId() != null && !order.getShipmentId().isEmpty()) {
+                Optional<Shipment> shipmentOpt = ShipmentRepository.getInstance().findById(order.getShipmentId());
+                if (shipmentOpt.isPresent()) {
+                    Shipment shipment = shipmentOpt.get();
+                    orderDetail.setWeightKg(shipment.getWeightKg());
+                    orderDetail.setHeightCm(shipment.getHeightCm());
+                    orderDetail.setWidthCm(shipment.getWidthCm());
+                    orderDetail.setLengthCm(shipment.getLengthCm());
+                    orderDetail.setVolumeM3(shipment.getVolumeM3());
+                    orderDetail.setPriority(shipment.getPriority());
+                    orderDetail.setAdditionalServices(shipment.getAdditionalServices());
+                    orderDetail.setBaseCost(shipment.getBaseCost());
+                    orderDetail.setServicesCost(shipment.getServicesCost());
+                    orderDetail.setTotalCost(shipment.getTotalCost());
+                    orderDetail.setUserNotes(shipment.getUserNotes());
+                    orderDetail.setRequestedPickupDate(shipment.getRequestedPickupDate());
+                    orderDetail.setEstimatedDelivery(shipment.getEstimatedDate());
+                }
+            }
+
+            selectionController.setOrder(order, orderDetail);
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Seleccionar Método de Pago");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
+            dialogStage.setScene(new Scene(root));
+            dialogStage.setResizable(false);
+
+            dialogStage.showAndWait();
+
+            // Refresh after payment
+            loadAllData();
+            updateCounters();
+
+        } catch (Exception e) {
+            Logger.error("Error opening payment selection: " + e.getMessage());
+            e.printStackTrace();
+            DialogUtil.showError("Error", "No se pudo abrir la selección de pago: " + e.getMessage());
         }
     }
 

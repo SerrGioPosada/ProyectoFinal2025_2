@@ -8,48 +8,51 @@
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.PaymentProcessorSelectionController"
-            prefHeight="600.0" prefWidth="900.0"
-            styleClass="main-container"
+            prefHeight="650.0" prefWidth="950.0"
+            styleClass="root-pane"
             stylesheets="@../Style.css">
 
     <ScrollPane fitToWidth="true" fitToHeight="true"
                 AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
                 AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-                style="-fx-background-color: transparent; -fx-background: transparent;">
+                styleClass="scroll-base">
 
-    <VBox spacing="30" style="-fx-padding: 30 40 30 40;">
+    <VBox spacing="25" styleClass="content-area">
+        <padding>
+            <Insets top="35" right="45" bottom="35" left="45"/>
+        </padding>
 
         <!-- Header -->
-        <VBox spacing="10" alignment="CENTER">
-            <Text text="Seleccionar Método de Pago" styleClass="page-title"/>
+        <VBox spacing="12" alignment="CENTER" styleClass="header-section">
+            <Label text="Seleccionar Método de Pago" styleClass="page-title"/>
             <Label text="Elige cómo deseas procesar el pago de tu envío"
-                   style="-fx-text-fill: #6c757d; -fx-font-size: 14px;"/>
+                   styleClass="info-label" style="-fx-font-size: 14px;"/>
         </VBox>
 
-        <Separator/>
+        <Separator styleClass="divider"/>
 
         <!-- Order Summary -->
-        <VBox styleClass="card" spacing="10">
+        <VBox styleClass="card-base" spacing="12">
             <padding>
-                <Insets top="15" right="15" bottom="15" left="15"/>
+                <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
-            <Label text="Resumen de la Orden" styleClass="section-header"/>
+            <Label text="Resumen de la Orden" styleClass="section-title"/>
             <HBox spacing="20">
                 <Label fx:id="lblOrderId" text="Orden #" styleClass="detail-value"/>
             </HBox>
             <Label fx:id="lblTotalAmount" text="Total: $0.00 COP"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+                   styleClass="total-value"/>
         </VBox>
 
         <!-- Payment Processor Options -->
         <VBox spacing="20">
 
             <!-- Option 1: Mercado Pago (Real Payment) -->
-            <VBox styleClass="card" spacing="15" onMouseClicked="#handleSelectMercadoPago"
-                  style="-fx-cursor: hand; -fx-border-color: #e0e0e0; -fx-border-width: 2; -fx-border-radius: 8;">
+            <VBox styleClass="card-base" spacing="15" onMouseClicked="#handleSelectMercadoPago"
+                  style="-fx-cursor: hand; -fx-border-width: 2px;">
                 <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
+                    <Insets top="25" right="25" bottom="25" left="25"/>
                 </padding>
 
                 <HBox spacing="15" alignment="CENTER_LEFT">
@@ -73,10 +76,10 @@
             </VBox>
 
             <!-- Option 2: App Payment (Simulated) -->
-            <VBox styleClass="card" spacing="15" onMouseClicked="#handleSelectAppPayment"
-                  style="-fx-cursor: hand; -fx-border-color: #e0e0e0; -fx-border-width: 2; -fx-border-radius: 8;">
+            <VBox styleClass="card-base" spacing="15" onMouseClicked="#handleSelectAppPayment"
+                  style="-fx-cursor: hand; -fx-border-width: 2px;">
                 <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
+                    <Insets top="25" right="25" bottom="25" left="25"/>
                 </padding>
 
                 <HBox spacing="15" alignment="CENTER_LEFT">
@@ -103,11 +106,14 @@
 
         <!-- Navigation Buttons -->
         <HBox spacing="15" alignment="CENTER">
+            <padding>
+                <Insets top="15" right="0" bottom="0" left="0"/>
+            </padding>
             <Button text="← Volver al Resumen" onAction="#handleGoBack" styleClass="btn-secondary"
-                    prefWidth="180" prefHeight="40"/>
+                    prefWidth="200" prefHeight="42"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button text="Cancelar" onAction="#handleCancel" styleClass="btn-danger"
-                    prefWidth="120" prefHeight="40"/>
+                    prefWidth="140" prefHeight="42"/>
         </HBox>
 
     </VBox>
