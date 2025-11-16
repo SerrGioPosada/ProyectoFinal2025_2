@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.ManageAddressesController"
+      style="-fx-background-color: #f8f9fa;"
+      prefHeight="700.0" prefWidth="1000.0">
+
+    <!-- Header Section -->
+    <VBox spacing="20" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0">
+        <!-- Title and Search Bar -->
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="Gestionar Direcciones" styleClass="page-title">
+                <font>
+                    <Font name="System Bold" size="28"/>
+                </font>
+            </Label>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Search Field -->
+            <TextField fx:id="txtSearch" promptText="Buscar por etiqueta..."
+                       prefWidth="250" styleClass="search-field">
+                <padding>
+                    <Insets top="8" right="12" bottom="8" left="12"/>
+                </padding>
+            </TextField>
+
+            <!-- Add New Address Button -->
+            <Button text="+ Nueva Dirección" styleClass="btn-primary" onAction="#handleAddAddress">
+                <padding>
+                    <Insets top="10" right="20" bottom="10" left="20"/>
+                </padding>
+            </Button>
+        </HBox>
+
+        <!-- Stats Card -->
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <VBox styleClass="info-card" spacing="5" prefWidth="200">
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+                <Label text="Total Direcciones" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                <Label fx:id="lblAddressCount" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- Table Section -->
+    <VBox spacing="15" AnchorPane.topAnchor="180.0" AnchorPane.leftAnchor="30.0"
+          AnchorPane.rightAnchor="30.0" AnchorPane.bottomAnchor="100.0">
+
+        <TableView fx:id="addressesTable" VBox.vgrow="ALWAYS" styleClass="custom-table">
+            <columns>
+                <TableColumn fx:id="colLabel" text="Etiqueta" prefWidth="150" minWidth="120"/>
+                <TableColumn fx:id="colStreet" text="Dirección" prefWidth="250" minWidth="200"/>
+                <TableColumn fx:id="colCity" text="Ciudad" prefWidth="150" minWidth="120"/>
+                <TableColumn fx:id="colState" text="Departamento" prefWidth="150" minWidth="120"/>
+                <TableColumn fx:id="colPostalCode" text="Código Postal" prefWidth="120" minWidth="100"/>
+                <TableColumn fx:id="colDefault" text="Predeterminada" prefWidth="120" minWidth="100"/>
+            </columns>
+        </TableView>
+
+        <!-- Empty State Message -->
+        <VBox fx:id="emptyStateBox" alignment="CENTER" spacing="10" visible="false" managed="false"
+              style="-fx-background-color: white; -fx-padding: 40; -fx-background-radius: 8;">
+            <Label text="No tienes direcciones guardadas"
+                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6c757d;"/>
+            <Label text="Agrega una dirección frecuente para usarla en tus envíos"
+                   style="-fx-font-size: 14px; -fx-text-fill: #adb5bd;"/>
+            <Button text="Agregar Primera Dirección" styleClass="btn-primary" onAction="#handleAddAddress">
+                <padding>
+                    <Insets top="10" right="20" bottom="10" left="20"/>
+                </padding>
+            </Button>
+        </VBox>
+    </VBox>
+
+    <!-- Action Buttons (appear when address is selected) -->
+    <HBox spacing="15" alignment="CENTER_RIGHT"
+          AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="30.0">
+
+        <Button fx:id="btnEditAddress" text="Editar" styleClass="btn-secondary"
+                onAction="#handleEditAddress" disable="true">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+        </Button>
+
+        <Button fx:id="btnDeleteAddress" text="Eliminar" styleClass="btn-danger"
+                onAction="#handleDeleteAddress" disable="true">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+        </Button>
+
+        <Button text="Volver al Perfil" styleClass="btn-info" onAction="#handleBack">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+        </Button>
+    </HBox>
+
+</AnchorPane>

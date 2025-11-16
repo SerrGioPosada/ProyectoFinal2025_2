@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:id="rootContainer" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.CreateShipmentController"
+      spacing="20" styleClass="content-area" alignment="CENTER">
+
+    <padding>
+        <Insets top="20" right="40" bottom="20" left="40"/>
+    </padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="header-section">
+        <Label text="Crear Nuevo Envío" styleClass="page-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Crear Envío" styleClass="btn-primary" onAction="#handleCreateShipment"/>
+        <Button text="Cancelar" styleClass="btn-secondary" onAction="#handleCancel"/>
+    </HBox>
+
+    <!-- Scrollable Content -->
+    <ScrollPane fitToWidth="true" styleClass="details-scroll" VBox.vgrow="ALWAYS">
+        <VBox spacing="20" styleClass="details-container" alignment="CENTER">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <!-- Address Selection -->
+            <VBox spacing="10" styleClass="detail-section" alignment="CENTER" maxWidth="1200">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="Direcciones" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnToggleAddressMode" text="Usar Direcciones Frecuentes" styleClass="btn-secondary" onAction="#handleToggleAddressMode"/>
+                </HBox>
+
+                <!-- Manual Address Entry (with floating labels) - HORIZONTAL -->
+                <HBox spacing="20" styleClass="form-container" fx:id="manualAddressContainer">
+                    <!-- Origin Address Field -->
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblOriginFloat" text="DIRECCIÓN DE ORIGEN" styleClass="floating-label-light"/>
+                        <StackPane styleClass="input-container">
+                            <TextField fx:id="txtOriginAddress" styleClass="modern-input-light" promptText="DIRECCIÓN DE ORIGEN"/>
+                        </StackPane>
+                    </VBox>
+
+                    <!-- Destination Address Field -->
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblDestinationFloat" text="DIRECCIÓN DE DESTINO" styleClass="floating-label-light"/>
+                        <StackPane styleClass="input-container">
+                            <TextField fx:id="txtDestinationAddress" styleClass="modern-input-light" promptText="DIRECCIÓN DE DESTINO"/>
+                        </StackPane>
+                    </VBox>
+                </HBox>
+
+                <!-- Frequent Addresses ComboBoxes - HORIZONTAL -->
+                <HBox spacing="20" styleClass="form-container" fx:id="frequentAddressContainer" managed="false" visible="false">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Origen:" styleClass="detail-label"/>
+                        <ComboBox fx:id="cmbOrigin" styleClass="form-combo" maxWidth="Infinity" promptText="Seleccione dirección de origen"/>
+                    </VBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Destino:" styleClass="detail-label"/>
+                        <ComboBox fx:id="cmbDestination" styleClass="form-combo" maxWidth="Infinity" promptText="Seleccione dirección de destino"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <Separator/>
+
+            <!-- Package Details -->
+            <VBox spacing="10" styleClass="detail-section" alignment="CENTER" maxWidth="1200">
+                <Label text="Detalles del Paquete" styleClass="section-title"/>
+
+                <VBox spacing="15" styleClass="form-container">
+                    <!-- Row 1: Weight, Height, Width -->
+                    <HBox spacing="20" alignment="CENTER">
+                        <!-- Weight Field -->
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label fx:id="lblWeightFloat" text="PESO (KG)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtWeight" styleClass="modern-input-light" promptText="PESO (KG)"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- Height Field -->
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label fx:id="lblHeightFloat" text="ALTO (CM)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtHeight" styleClass="modern-input-light" promptText="ALTO (CM)"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- Width Field -->
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label fx:id="lblWidthFloat" text="ANCHO (CM)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtWidth" styleClass="modern-input-light" promptText="ANCHO (CM)"/>
+                            </StackPane>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Row 2: Length and Volume Display -->
+                    <HBox spacing="20" alignment="CENTER">
+                        <!-- Length Field -->
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label fx:id="lblLengthFloat" text="LARGO (CM)" styleClass="floating-label-light"/>
+                            <StackPane styleClass="input-container">
+                                <TextField fx:id="txtLength" styleClass="modern-input-light" promptText="LARGO (CM)"/>
+                            </StackPane>
+                        </VBox>
+
+                        <!-- Volume Display -->
+                        <VBox spacing="5" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
+                            <Label text="Volumen Calculado:" styleClass="floating-label-light"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10;">
+                                <Label fx:id="lblVolume" text="0.0 m&#179;" styleClass="detail-value" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Spacer for visual balance -->
+                        <Region HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <Separator/>
+
+            <!-- Services and Priority Section (Side by Side) -->
+            <HBox spacing="30" styleClass="detail-section" alignment="TOP_CENTER" maxWidth="1200">
+                <!-- Additional Services (Left) -->
+                <VBox spacing="10" styleClass="detail-section" HBox.hgrow="ALWAYS">
+                    <Label text="Servicios Adicionales" styleClass="section-title"/>
+                    <VBox spacing="15" alignment="CENTER_LEFT" styleClass="form-container">
+                        <CheckBox fx:id="chkInsurance" text="Seguro" styleClass="form-checkbox"/>
+                        <CheckBox fx:id="chkFragile" text="Frágil" styleClass="form-checkbox"/>
+                        <CheckBox fx:id="chkSignature" text="Requiere Firma" styleClass="form-checkbox"/>
+                        <CheckBox fx:id="chkPriority" text="Prioritario" styleClass="form-checkbox"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Priority and Schedule (Right) -->
+                <VBox spacing="10" styleClass="detail-section" HBox.hgrow="ALWAYS">
+                    <Label text="Prioridad y Programación" styleClass="section-title"/>
+                    <VBox spacing="15" styleClass="form-container">
+                        <!-- Priority Slider -->
+                        <VBox spacing="5">
+                            <Label text="Prioridad (1-5):" styleClass="detail-label"/>
+                            <HBox spacing="15" alignment="CENTER_LEFT">
+                                <Slider fx:id="sliderPriority" min="1" max="5" value="3" showTickLabels="true" showTickMarks="true"
+                                        majorTickUnit="1" minorTickCount="0" snapToTicks="true" prefWidth="300"
+                                        style="-fx-control-inner-background: #2196F3;" HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="lblPriorityValue" text="3" styleClass="detail-value" minWidth="30"
+                                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2196F3;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Pickup Date and Time in HBox -->
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Fecha de Recogida:" styleClass="detail-label"/>
+                                <DatePicker fx:id="dpPickupDate" styleClass="form-date" maxWidth="Infinity"/>
+                            </VBox>
+
+                            <VBox spacing="5">
+                                <Label text="Hora de Recogida:" styleClass="detail-label"/>
+                                <HBox spacing="5" alignment="CENTER_LEFT">
+                                    <Spinner fx:id="spinHour" styleClass="form-spinner" prefWidth="80" editable="true"/>
+                                    <Label text=":" styleClass="detail-label"/>
+                                    <Spinner fx:id="spinMinute" styleClass="form-spinner" prefWidth="80" editable="true"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </HBox>
+
+            <Separator/>
+
+            <!-- Notes -->
+            <VBox spacing="10" styleClass="detail-section" alignment="CENTER" maxWidth="1200">
+                <Label text="Notas" styleClass="section-title"/>
+                <TextArea fx:id="txtNotes" promptText="Ingrese instrucciones especiales o notas..."
+                          styleClass="notes-area" prefHeight="80" wrapText="true" maxWidth="Infinity"/>
+            </VBox>
+
+            <Separator/>
+
+            <!-- Cost Breakdown -->
+            <VBox spacing="10" styleClass="detail-section" alignment="CENTER" maxWidth="1200">
+                <HBox alignment="CENTER" spacing="15">
+                    <Label text="Desglose de Costos" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Calcular Cotización" styleClass="btn-secondary" onAction="#handleCalculateQuote"/>
+                    <Button text="Ver Desglose Detallado" styleClass="btn-secondary" onAction="#handleShowDetailedBreakdown"/>
+                </HBox>
+                <GridPane hgap="25" vgap="10" styleClass="detail-grid">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="180" prefWidth="200"/>
+                        <ColumnConstraints minWidth="120" prefWidth="140"/>
+                        <ColumnConstraints minWidth="180" prefWidth="200"/>
+                        <ColumnConstraints minWidth="120" prefWidth="140"/>
+                        <ColumnConstraints minWidth="180" prefWidth="200"/>
+                        <ColumnConstraints minWidth="120" prefWidth="140"/>
+                    </columnConstraints>
+
+                    <!-- Row 1: Base Cost, Distance Cost, Weight Cost -->
+                    <Label text="Costo Base:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblBaseCost" text="0" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Costo por Distancia:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblDistanceCost" text="0" styleClass="detail-value" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+                    <Label text="Costo por Peso:" styleClass="detail-label" GridPane.columnIndex="4" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblWeightCost" text="0" styleClass="detail-value" GridPane.columnIndex="5" GridPane.rowIndex="0"/>
+
+                    <!-- Row 2: Volume Cost, Services Cost, Total Cost -->
+                    <Label text="Costo por Volumen:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblVolumeCost" text="0" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                    <Label text="Costo de Servicios:" styleClass="detail-label" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblServicesCost" text="0" styleClass="detail-value" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+                    <Label text="Costo Total:" styleClass="detail-label total-label" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblTotalCost" text="0" styleClass="detail-value total-value" GridPane.columnIndex="5" GridPane.rowIndex="1"/>
+
+                    <!-- Row 3: Estimated Delivery (spans 2 columns) -->
+                    <Label text="Entrega Estimada:" styleClass="detail-label" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <Label fx:id="lblEstimatedDelivery" text="--" styleClass="detail-value" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
+                </GridPane>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+
+</VBox>

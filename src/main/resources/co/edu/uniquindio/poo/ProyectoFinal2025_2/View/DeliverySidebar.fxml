@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefWidth="176"
+            styleClass="sidebar"
+            xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.DeliverySidebarController">
+
+    <children>
+        <!-- Sidebar panel -->
+        <AnchorPane fx:id="slider"
+                    prefWidth="176.0"
+                    minWidth="176.0"
+                    maxWidth="176.0"
+                    AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.topAnchor="0.0">
+
+            <children>
+                <!-- Top buttons container - aligned to left -->
+                <VBox alignment="TOP_LEFT"
+                      spacing="5"
+                      AnchorPane.leftAnchor="8.0"
+                      AnchorPane.rightAnchor="8.0"
+                      AnchorPane.topAnchor="131.0">
+
+                    <children>
+                        <Button fx:id="btnDashboard" text="Panel de Control" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
+                        <Button fx:id="btnMyShipments" text="Mis Envíos" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
+                        <Button fx:id="btnRouteMap" text="Hoja de Ruta" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
+                        <Button fx:id="btnHistory" text="Historial y Ganancias" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
+                        <Button fx:id="btnMyVehicles" text="Mis Vehículos" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
+                        <Button fx:id="btnProfile" text="Mi Perfil" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
+                        <HBox fx:id="themeToggleContainer" alignment="CENTER_LEFT" spacing="0">
+                            <VBox.margin>
+                                <Insets left="8.0" top="5.0"/>
+                            </VBox.margin>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <!-- Bottom buttons container - aligned to left -->
+                <VBox alignment="BOTTOM_LEFT"
+                      spacing="5"
+                      AnchorPane.leftAnchor="8.0"
+                      AnchorPane.rightAnchor="8.0"
+                      AnchorPane.bottomAnchor="10.0">
+
+                    <children>
+                        <Button fx:id="btnLogout" text="Cerrar Sesión" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
+                    </children>
+                </VBox>
+
+                <!-- Delivery person profile picture - centered horizontally -->
+                <StackPane fx:id="profileImageContainer"
+                           layoutX="43.0"
+                           layoutY="20.0"
+                           prefWidth="90.0"
+                           prefHeight="90.0"
+                           styleClass="profile-image-container">
+                    <children>
+                        <ImageView fx:id="imgUserImage"
+                                   fitWidth="90.0"
+                                   fitHeight="90.0"
+                                   preserveRatio="false"
+                                   pickOnBounds="true"/>
+                    </children>
+                </StackPane>
+            </children>
+        </AnchorPane>
+    </children>
+</AnchorPane>

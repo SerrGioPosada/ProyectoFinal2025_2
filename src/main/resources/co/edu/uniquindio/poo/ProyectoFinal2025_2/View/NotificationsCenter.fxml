@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.NotificationsCenterController"
+            styleClass="scroll-base"
+            fitToWidth="true">
+
+    <VBox spacing="20" styleClass="content-area">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Header Section -->
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-section">
+            <Button text="← Volver" onAction="#handleBackButton" styleClass="btn-secondary"/>
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Label text="Centro de Notificaciones" styleClass="page-title"/>
+                <Label fx:id="lblSubtitle" text="Mantente al día con las actualizaciones importantes"
+                       styleClass="info-label"/>
+            </VBox>
+            <Button text="Marcar Todas como Leídas" onAction="#handleMarkAllAsRead"
+                    styleClass="btn-secondary"/>
+            <Button text="Actualizar" onAction="#handleRefresh" styleClass="btn-primary"/>
+        </HBox>
+
+        <!-- Notification Statistics -->
+        <GridPane hgap="15" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+                <ColumnConstraints percentWidth="25"/>
+            </columnConstraints>
+
+            <VBox styleClass="stat-card-compact" spacing="5" GridPane.columnIndex="0">
+                <Label text="Total" styleClass="stat-label-compact"/>
+                <Label fx:id="lblTotalNotifications" text="0" styleClass="stat-value-compact"/>
+            </VBox>
+
+            <VBox styleClass="stat-card-compact-warning" spacing="5" GridPane.columnIndex="1">
+                <Label text="No Leídas" styleClass="stat-label-compact"/>
+                <Label fx:id="lblUnreadNotifications" text="0" styleClass="stat-value-compact"/>
+            </VBox>
+
+            <VBox styleClass="stat-card-compact-info" spacing="5" GridPane.columnIndex="2">
+                <Label text="Hoy" styleClass="stat-label-compact"/>
+                <Label fx:id="lblTodayNotifications" text="0" styleClass="stat-value-compact"/>
+            </VBox>
+
+            <VBox styleClass="stat-card-compact-success" spacing="5" GridPane.columnIndex="3">
+                <Label text="Esta Semana" styleClass="stat-label-compact"/>
+                <Label fx:id="lblWeekNotifications" text="0" styleClass="stat-value-compact"/>
+            </VBox>
+        </GridPane>
+
+        <!-- Filter Tabs -->
+        <VBox spacing="15">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="btnTabAll" text="Todas" onAction="#handleShowAll"
+                        styleClass="tab-button-active"/>
+                <Button fx:id="btnTabUnread" text="No Leídas" onAction="#handleShowUnread"
+                        styleClass="tab-button"/>
+                <Button fx:id="btnTabNewShipments" text="Nuevos Envíos" onAction="#handleShowNewShipments"
+                        styleClass="tab-button"/>
+                <Button fx:id="btnTabUpdates" text="Actualizaciones" onAction="#handleShowUpdates"
+                        styleClass="tab-button"/>
+                <Button fx:id="btnTabAlerts" text="Alertas" onAction="#handleShowAlerts"
+                        styleClass="tab-button"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Search Field -->
+                <TextField fx:id="searchField" promptText="Buscar notificaciones..."
+                          prefWidth="250" styleClass="search-field"/>
+            </HBox>
+        </VBox>
+
+        <!-- Notifications List -->
+        <VBox fx:id="notificationsContainer" spacing="12" VBox.vgrow="ALWAYS">
+            <!-- Notifications will be dynamically added here -->
+        </VBox>
+
+        <!-- Empty State (shown when no notifications) -->
+        <VBox fx:id="emptyState" alignment="CENTER" spacing="20"
+              styleClass="empty-state" managed="false" visible="false"
+              prefHeight="400">
+            <Label text="🔔" style="-fx-font-size: 64px;"/>
+            <VBox alignment="CENTER" spacing="8">
+                <Label text="No hay notificaciones" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+                <Label text="Las notificaciones aparecerán aquí cuando las recibas"
+                       style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
+            </VBox>
+        </VBox>
+
+        <!-- Pagination Controls -->
+        <HBox spacing="15" alignment="CENTER" styleClass="pagination-controls">
+            <Button fx:id="btnPrevPage" text="← Anterior" onAction="#handlePreviousPage"
+                    styleClass="btn-outline" disable="true"/>
+            <Label fx:id="lblPageInfo" text="Página 1 de 1" styleClass="label-bold"/>
+            <Button fx:id="btnNextPage" text="Siguiente →" onAction="#handleNextPage"
+                    styleClass="btn-outline" disable="true"/>
+        </HBox>
+
+        <!-- Settings Section -->
+        <VBox styleClass="info-card" spacing="12">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="⚙️ Configuración de Notificaciones" styleClass="label-bold"
+                       HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnToggleSettings" text="▼" onAction="#toggleSettings"
+                        styleClass="btn-icon"/>
+            </HBox>
+
+            <VBox fx:id="settingsSection" spacing="15" managed="false" visible="false">
+                <Separator/>
+
+                <Label text="Recibir notificaciones para:" styleClass="label-bold"/>
+
+                <VBox spacing="10">
+                    <CheckBox fx:id="chkNewShipments" text="Nuevos envíos asignados"
+                              selected="true" styleClass="custom-checkbox"/>
+                    <CheckBox fx:id="chkStatusUpdates" text="Cambios de estado en envíos"
+                              selected="true" styleClass="custom-checkbox"/>
+                    <CheckBox fx:id="chkMessages" text="Mensajes del administrador"
+                              selected="true" styleClass="custom-checkbox"/>
+                    <CheckBox fx:id="chkSystemAlerts" text="Alertas del sistema"
+                              selected="true" styleClass="custom-checkbox"/>
+                </VBox>
+
+                <Separator/>
+
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <Label text="Eliminar notificaciones antiguas:" styleClass="label-bold"/>
+                    <ComboBox fx:id="cmbRetentionPeriod" prefWidth="200" styleClass="combo-box"/>
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button text="Guardar Configuración" onAction="#handleSaveSettings"
+                            styleClass="btn-primary"/>
+                </HBox>
+            </VBox>
+        </VBox>
+
+    </VBox>
+</ScrollPane>

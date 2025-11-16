@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.web.WebView?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.MercadoPagoPaymentController"
+            prefHeight="700.0" prefWidth="900.0"
+            styleClass="main-container"
+            stylesheets="@../Style.css">
+
+    <ScrollPane fitToWidth="true" fitToHeight="true"
+                AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                style="-fx-background-color: transparent; -fx-background: transparent;">
+
+    <VBox spacing="20" style="-fx-padding: 20;">
+
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <Text text="Pago con Mercado Pago" styleClass="page-title"/>
+        </HBox>
+
+        <Separator/>
+
+        <!-- Payment Information Container (shown initially) -->
+        <VBox fx:id="paymentInfoContainer" spacing="20" VBox.vgrow="SOMETIMES">
+
+            <!-- Order Information Card -->
+            <VBox styleClass="card" spacing="15">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <Label text="Información de la Orden" styleClass="section-header"/>
+
+                <GridPane hgap="20" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="150" prefWidth="150"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <Label text="Número de Orden:" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                           styleClass="label-bold"/>
+                    <Label fx:id="lblOrderId" text="#12345" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Monto Total:" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                           styleClass="label-bold"/>
+                    <Label fx:id="lblTotalAmount" text="0.00 COP" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+                </GridPane>
+
+                <Separator>
+                    <padding>
+                        <Insets top="10" bottom="10"/>
+                    </padding>
+                </Separator>
+
+                <Label text="Desglose de Costos:" styleClass="label-bold"/>
+                <VBox fx:id="costBreakdownContainer" spacing="8">
+                    <!-- Cost breakdown items will be added dynamically -->
+                </VBox>
+            </VBox>
+
+            <!-- Payment Information Card -->
+            <VBox styleClass="card" spacing="15">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <Label text="Procesamiento con Mercado Pago" styleClass="section-header"/>
+
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #e8f5e9; -fx-padding: 15; -fx-background-radius: 5;">
+                    <Label text="🔒" style="-fx-font-size: 24px;"/>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Pago 100% Seguro"
+                               style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #2e7d32;"/>
+                        <Label text="Tu pago será procesado de forma segura a través de Mercado Pago dentro de la aplicación"
+                               wrapText="true"
+                               style="-fx-text-fill: #2e7d32; -fx-font-size: 13px;"/>
+                    </VBox>
+                </HBox>
+
+                <Separator/>
+
+                <Label text="Métodos de Pago Disponibles:" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+
+                <VBox spacing="8">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="💳" style="-fx-font-size: 16px;"/>
+                        <Label text="Tarjetas de crédito y débito"
+                               style="-fx-text-fill: #6c757d; -fx-font-size: 13px;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="🏦" style="-fx-font-size: 16px;"/>
+                        <Label text="PSE y transferencias bancarias"
+                               style="-fx-text-fill: #6c757d; -fx-font-size: 13px;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="💰" style="-fx-font-size: 16px;"/>
+                        <Label text="Efectivo en puntos autorizados"
+                               style="-fx-text-fill: #6c757d; -fx-font-size: 13px;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="📱" style="-fx-font-size: 16px;"/>
+                        <Label text="Billeteras digitales"
+                               style="-fx-text-fill: #6c757d; -fx-font-size: 13px;"/>
+                    </HBox>
+                </VBox>
+
+                <Label text="Al hacer clic en 'Proceder al Pago', se abrirá el checkout seguro de Mercado Pago dentro de esta ventana."
+                       wrapText="true"
+                       style="-fx-text-fill: #6c757d; -fx-font-size: 12px; -fx-font-style: italic;"/>
+            </VBox>
+
+            <!-- Security Info -->
+            <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10;">
+                <Label text="🔒" style="-fx-font-size: 16px;"/>
+                <Label text="Transacción segura. Tus datos están protegidos."
+                       style="-fx-text-fill: #6c757d; -fx-font-size: 12px; -fx-font-style: italic;"/>
+            </HBox>
+
+        </VBox>
+
+        <!-- WebView Container (hidden initially, shown when checkout loads) -->
+        <WebView fx:id="webView" prefHeight="600.0" prefWidth="860.0" visible="false" managed="false"/>
+
+        <!-- Action Buttons and Progress -->
+        <HBox spacing="15" alignment="CENTER">
+            <ProgressIndicator fx:id="progressIndicator" prefWidth="30" prefHeight="30" visible="false"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Navigation buttons (shown when WebView is active) -->
+            <Button fx:id="btnGoBack" text="← Volver a Métodos de Pago" onAction="#handleGoBack"
+                    styleClass="button-secondary" prefWidth="220" prefHeight="40"
+                    visible="false" managed="false"/>
+
+            <Button fx:id="btnCancel" text="Cancelar" onAction="#handleCancel" styleClass="button-danger"
+                    prefWidth="150" prefHeight="40"/>
+
+            <!-- Proceed button (shown initially) -->
+            <Button fx:id="btnProceedPayment" text="Proceder al Pago" onAction="#handleProceedPayment"
+                    styleClass="button-primary" prefWidth="180" prefHeight="40"/>
+        </HBox>
+
+    </VBox>
+    </ScrollPane>
+</AnchorPane>

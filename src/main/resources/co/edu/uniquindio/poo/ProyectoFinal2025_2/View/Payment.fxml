@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.PaymentController"
+            prefHeight="700.0" prefWidth="750.0"
+            styleClass="root-pane"
+            stylesheets="@../Style.css">
+
+    <ScrollPane fitToWidth="true" fitToHeight="true"
+                styleClass="scroll-base"
+                AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <VBox spacing="25" styleClass="content-area">
+            <padding>
+                <Insets top="35" right="45" bottom="35" left="45"/>
+            </padding>
+
+            <!-- Header -->
+            <VBox spacing="12" styleClass="header-section">
+                <Label text="Procesamiento de Pago" styleClass="page-title"/>
+                <HBox spacing="20">
+                    <Label fx:id="lblOrderId" text="Orden #" styleClass="detail-value"/>
+                    <Label fx:id="lblInvoiceId" text="Factura #" styleClass="detail-value"/>
+                </HBox>
+                <Label fx:id="lblTotalAmount" text="0 COP" styleClass="total-value"/>
+            </VBox>
+
+            <Separator styleClass="divider"/>
+
+            <!-- Payment Method Selection (Simulated) -->
+            <VBox spacing="15" styleClass="card-base">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                <Label text="Método de Pago (Simulado)" styleClass="section-title"/>
+                <HBox spacing="10" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #fff3e0; -fx-padding: 12; -fx-background-radius: 8;">
+                    <Label text="⚠️" style="-fx-font-size: 16px;"/>
+                    <Label text="Los siguientes métodos son simulados para demostración"
+                           style="-fx-text-fill: #e65100; -fx-font-size: 12px; -fx-font-weight: bold;"
+                           wrapText="true"/>
+                </HBox>
+
+                <VBox spacing="12">
+                    <RadioButton fx:id="rbCreditCard" text="Tarjeta de Crédito (Simulado)"
+                                 styleClass="form-checkbox"/>
+                    <RadioButton fx:id="rbDebitCard" text="Tarjeta de Débito (Simulado)"
+                                 styleClass="form-checkbox"/>
+                    <RadioButton fx:id="rbCash" text="Efectivo (Contra Entrega)"
+                                 styleClass="form-checkbox"/>
+                </VBox>
+            </VBox>
+
+            <Separator styleClass="divider"/>
+
+            <!-- Card Details Section -->
+            <VBox fx:id="vboxCardDetails" spacing="15" styleClass="card-base"
+                  visible="false" managed="false">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                <Label text="Detalles de la Tarjeta" styleClass="section-title"/>
+
+                <GridPane hgap="15" vgap="15">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="150"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="150"/>
+                    </columnConstraints>
+
+                    <!-- Card Number -->
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="0">
+                        <Label text="Número de Tarjeta" styleClass="form-label"/>
+                        <TextField fx:id="txtCardNumber" promptText="1234 5678 9012 3456"
+                                   styleClass="form-field" maxWidth="Infinity"/>
+                    </VBox>
+
+                    <!-- Card Holder -->
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                        <Label text="Titular de la Tarjeta" styleClass="form-label"/>
+                        <TextField fx:id="txtCardHolder" promptText="Nombre como aparece en la tarjeta"
+                                   styleClass="form-field" maxWidth="Infinity"/>
+                    </VBox>
+
+                    <!-- Card Provider -->
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                        <Label text="Emisor de la Tarjeta" styleClass="form-label"/>
+                        <ComboBox fx:id="cmbCardProvider" styleClass="form-combo"
+                                  maxWidth="Infinity" promptText="Seleccionar emisor"/>
+                    </VBox>
+
+                    <!-- Expiry Date -->
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                        <Label text="Mes de Vencimiento" styleClass="form-label"/>
+                        <TextField fx:id="txtExpiryMonth" promptText="MM"
+                                   styleClass="form-field"/>
+                    </VBox>
+
+                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <Label text="Año de Vencimiento" styleClass="form-label"/>
+                        <TextField fx:id="txtExpiryYear" promptText="AAAA"
+                                   styleClass="form-field"/>
+                    </VBox>
+
+                    <!-- CVV -->
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                        <Label text="CVV" styleClass="form-label"/>
+                        <TextField fx:id="txtCVV" promptText="123"
+                                   styleClass="form-field"/>
+                    </VBox>
+                </GridPane>
+            </VBox>
+
+            <!-- Cash Payment Section -->
+            <VBox fx:id="vboxCashDetails" spacing="15" styleClass="card-base"
+                  visible="false" managed="false">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                <Label text="Pago en Efectivo" styleClass="section-title"/>
+
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="warning-box">
+                    <Label text="ℹ️" style="-fx-font-size: 16px;"/>
+                    <Label fx:id="lblCashInstructions"
+                           text="El pago se realizará en efectivo al momento de la entrega. Tenga listo el monto exacto."
+                           wrapText="true" style="-fx-text-fill: #495057;"/>
+                </HBox>
+            </VBox>
+
+            <Separator styleClass="divider"/>
+
+            <!-- Payment Status -->
+            <VBox spacing="10" alignment="CENTER">
+                <ProgressIndicator fx:id="progressPayment" visible="false" prefWidth="60" prefHeight="60"/>
+                <Label fx:id="lblPaymentStatus" text="" styleClass="detail-value"/>
+            </VBox>
+
+            <!-- Action Buttons -->
+            <HBox spacing="15" alignment="CENTER_RIGHT">
+                <padding>
+                    <Insets top="15" right="0" bottom="0" left="0"/>
+                </padding>
+
+                <Button text="Cancelar" onAction="#handleCancel" styleClass="btn-secondary"
+                        prefWidth="160" prefHeight="42"/>
+                <Button text="Procesar Pago" onAction="#handleProcessPayment"
+                        styleClass="btn-success" prefWidth="190" prefHeight="42"/>
+            </HBox>
+
+        </VBox>
+    </ScrollPane>
+
+</AnchorPane>

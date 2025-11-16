@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.ShipmentManagementController"
+      spacing="15" styleClass="content-area">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header Section con título y botones principales -->
+    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="header-section">
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label text="Gestión de Envíos" styleClass="page-title"/>
+            <Label text="Administra todos los envíos del sistema" styleClass="info-label"
+                   style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+        </VBox>
+        <Button fx:id="btnBack" text="← Regresar" styleClass="btn-secondary" onAction="#handleBack" visible="false" managed="false"/>
+        <Button text="Auto-Asignar" styleClass="btn-primary" onAction="#handleAutoAssign"/>
+        <Button text="Exportar" styleClass="btn-secondary" onAction="#handleExport"/>
+        <Button text="Actualizar" styleClass="btn-secondary" onAction="#handleRefresh"/>
+    </HBox>
+
+    <!-- Collapsible Tab System -->
+    <VBox fx:id="collapsibleTabSection" spacing="0" styleClass="collapsible-tab-section, tab-section-expanded"
+          VBox.vgrow="NEVER" minHeight="60">
+        <!-- Header with Collapse Button -->
+        <HBox styleClass="tab-header-with-collapse" minHeight="60" prefHeight="60" maxHeight="60">
+            <HBox styleClass="tab-nav-bar" HBox.hgrow="ALWAYS">
+                <Button fx:id="btnTabStats" text="Estadísticas" styleClass="tab-button, tab-button-active"
+                        onAction="#switchToStatsTab"/>
+                <Button fx:id="btnTabFilters" text="Filtros" styleClass="tab-button"
+                        onAction="#switchToFiltersTab"/>
+            </HBox>
+            <Button fx:id="btnCollapseToggle" text="▲" styleClass="collapse-toggle-btn"
+                    onAction="#toggleCollapse"/>
+        </HBox>
+
+        <!-- Tab Content Container -->
+        <StackPane styleClass="tab-content-container">
+            <!-- Stats Tab Content -->
+            <HBox fx:id="statsTabContent" spacing="15" managed="true" visible="true">
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Total de Envíos" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblTotalShipments" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+                </VBox>
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Pendientes" style="-fx-text-fill: #ffc107; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblPending" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #ffc107;"/>
+                </VBox>
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="En Ruta" style="-fx-text-fill: #17a2b8; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblInRoute" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
+                </VBox>
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Entregados" style="-fx-text-fill: #28a745; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblDelivered" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
+                </VBox>
+                <VBox styleClass="tab-stat-card" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="Incidentes" style="-fx-text-fill: #dc3545; -fx-font-size: 12px;"/>
+                    <Label fx:id="lblIncidents" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #dc3545;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Filters Tab Content -->
+            <VBox fx:id="filtersTabContent" spacing="15" managed="false" visible="false">
+                <padding>
+                    <Insets top="20" right="35" bottom="20" left="35"/>
+                </padding>
+                <!-- Primera fila de filtros -->
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="filterStatus" styleClass="filter-combo" prefWidth="220"/>
+                    <ComboBox fx:id="filterZone" styleClass="filter-combo" prefWidth="180"/>
+                    <ComboBox fx:id="filterUser" styleClass="filter-combo" prefWidth="220"/>
+                    <ComboBox fx:id="filterDeliveryPerson" styleClass="filter-combo" prefWidth="220"/>
+                </HBox>
+
+                <!-- Segunda fila de filtros -->
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <DatePicker fx:id="filterDateFrom" promptText="Desde" styleClass="filter-date" prefWidth="150"/>
+                    <DatePicker fx:id="filterDateTo" promptText="Hasta" styleClass="filter-date" prefWidth="150"/>
+                    <TextField fx:id="txtSearchIds" promptText="Buscar por ID Envío / Orden..."
+                               styleClass="search-field" prefWidth="250"/>
+                    <TextField fx:id="searchField" promptText="Buscar por dirección..."
+                               styleClass="search-field" HBox.hgrow="ALWAYS"/>
+                    <CheckBox fx:id="chkDelayed" text="Solo Retrasados" styleClass="form-checkbox"/>
+                    <CheckBox fx:id="chkIncidents" text="Con Incidentes" styleClass="form-checkbox"/>
+                </HBox>
+
+                <!-- Botón limpiar filtros -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="Limpiar Filtros" styleClass="btn-secondary" onAction="#handleClearFilter"/>
+                </HBox>
+            </VBox>
+        </StackPane>
+    </VBox>
+
+    <!-- Table Section -->
+    <TableView fx:id="shipmentsTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID Envío" prefWidth="100" minWidth="80"/>
+            <TableColumn fx:id="colOrderId" text="ID Orden" prefWidth="100" minWidth="80"/>
+            <TableColumn fx:id="colUser" text="Usuario" prefWidth="150" minWidth="120"/>
+            <TableColumn fx:id="colRoute" text="Ruta" prefWidth="280" minWidth="200"/>
+            <TableColumn fx:id="colWeight" text="Peso (kg)" prefWidth="100" minWidth="80"/>
+            <TableColumn fx:id="colStatus" text="Estado" prefWidth="150" minWidth="120"/>
+            <TableColumn fx:id="colDeliveryPerson" text="Repartidor" prefWidth="150" minWidth="120"/>
+            <TableColumn fx:id="colCreationDate" text="Creado" prefWidth="150" minWidth="130"/>
+            <TableColumn fx:id="colEstimatedDate" text="Estimado" prefWidth="150" minWidth="130"/>
+            <TableColumn fx:id="colCost" text="Costo" prefWidth="100" minWidth="80"/>
+            <TableColumn fx:id="colPriority" text="Prioridad" prefWidth="100" minWidth="90"/>
+        </columns>
+        <placeholder>
+            <Label text="No se encontraron envíos" styleClass="table-placeholder"/>
+        </placeholder>
+    </TableView>
+
+    <!-- Information Section -->
+    <HBox spacing="10" styleClass="info-section" alignment="CENTER_LEFT">
+        <Label text="Haga clic derecho en un envío para ver opciones (Ver Detalles, Cambiar Estado, Registrar Incidente, Eliminar)"
+               style="-fx-text-fill: #6c757d; -fx-font-size: 12px; -fx-font-style: italic;"/>
+    </HBox>
+
+</VBox>

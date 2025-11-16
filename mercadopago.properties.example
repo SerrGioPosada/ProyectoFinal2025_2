@@ -1,0 +1,35 @@
+# Mercado Pago Configuration Template
+#
+# INSTRUCTIONS:
+# 1. Copy this file and rename it to: mercadopago.properties
+# 2. Replace the placeholder values with your actual Mercado Pago credentials
+# 3. NEVER commit mercadopago.properties to Git (it's in .gitignore)
+#
+# How to get your credentials:
+# 1. Go to: https://www.mercadopago.com.co/developers
+# 2. Login with your Mercado Pago account
+# 3. Create an application or select an existing one
+# 4. Copy your credentials from the "Credenciales" section
+#
+# For development/testing, use TEST credentials:
+#   - These start with "TEST-"
+#   - They allow you to simulate payments without real money
+#
+# For production, use PRODUCTION credentials:
+#   - These start with "APP-"
+#   - They process real payments with real money
+#   - Only use these when you're ready to go live!
+
+# Your Mercado Pago Access Token
+# Test example: TEST-1234567890abcdef-123456-1234567890abcdef1234567890abcdef-123456789
+# Prod example: APP-1234567890abcdef-123456-1234567890abcdef1234567890abcdef-123456789
+mercadopago.access.token=YOUR_ACCESS_TOKEN_HERE
+
+# Your Mercado Pago Public Key
+# Test example: TEST-1234567890abcdef-123456-1234567890abcdef1234567890abcdef-123456789
+# Prod example: APP-1234567890abcdef-123456-1234567890abcdef1234567890abcdef-123456789
+mercadopago.public.key=YOUR_PUBLIC_KEY_HERE
+
+# Environment: 'sandbox' for testing or 'production' for live payments
+# IMPORTANT: Use 'sandbox' during development!
+mercadopago.environment=sandbox

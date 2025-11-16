@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<ScrollPane fitToWidth="true" styleClass="about-scroll" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <content>
+        <VBox alignment="TOP_CENTER" spacing="50" styleClass="about-container">
+            <padding>
+                <Insets top="60" right="100" bottom="60" left="100"/>
+            </padding>
+
+            <!-- Header -->
+            <VBox alignment="CENTER" spacing="15" styleClass="about-header">
+                <Label text="Quiénes Somos" styleClass="about-title"/>
+                <Label text="Conectando distancias, entregando confianza" styleClass="about-tagline"/>
+            </VBox>
+
+            <!-- Mission Section -->
+            <VBox alignment="TOP_LEFT" spacing="15" styleClass="about-section">
+                <Label text="🎯 Nuestra Misión" styleClass="section-title"/>
+                <Label text="En SameDay nos dedicamos a revolucionar la industria logística proporcionando soluciones tecnológicas innovadoras que simplifican la gestión de envíos. Nuestro compromiso es ofrecer un servicio excepcional que conecte a empresas y personas de manera eficiente y confiable."
+                       styleClass="section-text" wrapText="true"/>
+            </VBox>
+
+            <!-- Vision Section -->
+            <VBox alignment="TOP_LEFT" spacing="15" styleClass="about-section">
+                <Label text="🔮 Nuestra Visión" styleClass="section-title"/>
+                <Label text="Aspiramos a ser la plataforma líder en gestión logística a nivel nacional, reconocida por nuestra innovación tecnológica, excelencia en el servicio y compromiso con la sostenibilidad. Buscamos transformar cada envío en una experiencia extraordinaria."
+                       styleClass="section-text" wrapText="true"/>
+            </VBox>
+
+            <!-- Values Grid -->
+            <VBox alignment="TOP_LEFT" spacing="20" styleClass="values-section">
+                <Label text="💎 Nuestros Valores" styleClass="section-title"/>
+
+                <GridPane hgap="25" vgap="25">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="33.33"/>
+                        <ColumnConstraints percentWidth="33.33"/>
+                        <ColumnConstraints percentWidth="33.33"/>
+                    </columnConstraints>
+
+                    <!-- Value 1 -->
+                    <VBox alignment="TOP_CENTER" spacing="10" styleClass="value-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <padding>
+                            <Insets top="25" right="20" bottom="25" left="20"/>
+                        </padding>
+                        <Label text="🤝" styleClass="value-icon"/>
+                        <Label text="Confianza" styleClass="value-title"/>
+                        <Label text="Construimos relaciones sólidas basadas en la transparencia y el cumplimiento"
+                               styleClass="value-text" wrapText="true" textAlignment="CENTER"/>
+                    </VBox>
+
+                    <!-- Value 2 -->
+                    <VBox alignment="TOP_CENTER" spacing="10" styleClass="value-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <padding>
+                            <Insets top="25" right="20" bottom="25" left="20"/>
+                        </padding>
+                        <Label text="⚡" styleClass="value-icon"/>
+                        <Label text="Innovación" styleClass="value-title"/>
+                        <Label text="Adoptamos las últimas tecnologías para mejorar continuamente nuestros servicios"
+                               styleClass="value-text" wrapText="true" textAlignment="CENTER"/>
+                    </VBox>
+
+                    <!-- Value 3 -->
+                    <VBox alignment="TOP_CENTER" spacing="10" styleClass="value-card" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                        <padding>
+                            <Insets top="25" right="20" bottom="25" left="20"/>
+                        </padding>
+                        <Label text="🌟" styleClass="value-icon"/>
+                        <Label text="Excelencia" styleClass="value-title"/>
+                        <Label text="Nos esforzamos por superar las expectativas en cada entrega que realizamos"
+                               styleClass="value-text" wrapText="true" textAlignment="CENTER"/>
+                    </VBox>
+
+                    <!-- Value 4 -->
+                    <VBox alignment="TOP_CENTER" spacing="10" styleClass="value-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <padding>
+                            <Insets top="25" right="20" bottom="25" left="20"/>
+                        </padding>
+                        <Label text="♻️" styleClass="value-icon"/>
+                        <Label text="Sostenibilidad" styleClass="value-title"/>
+                        <Label text="Comprometidos con prácticas ecológicas que cuidan nuestro planeta"
+                               styleClass="value-text" wrapText="true" textAlignment="CENTER"/>
+                    </VBox>
+
+                    <!-- Value 5 -->
+                    <VBox alignment="TOP_CENTER" spacing="10" styleClass="value-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <padding>
+                            <Insets top="25" right="20" bottom="25" left="20"/>
+                        </padding>
+                        <Label text="👥" styleClass="value-icon"/>
+                        <Label text="Trabajo en Equipo" styleClass="value-title"/>
+                        <Label text="La colaboración y el respeto mutuo son la base de nuestro éxito"
+                               styleClass="value-text" wrapText="true" textAlignment="CENTER"/>
+                    </VBox>
+
+                    <!-- Value 6 -->
+                    <VBox alignment="TOP_CENTER" spacing="10" styleClass="value-card" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                        <padding>
+                            <Insets top="25" right="20" bottom="25" left="20"/>
+                        </padding>
+                        <Label text="❤️" styleClass="value-icon"/>
+                        <Label text="Pasión" styleClass="value-title"/>
+                        <Label text="Amamos lo que hacemos y eso se refleja en cada aspecto de nuestro servicio"
+                               styleClass="value-text" wrapText="true" textAlignment="CENTER"/>
+                    </VBox>
+                </GridPane>
+            </VBox>
+
+            <!-- Team Section -->
+            <VBox alignment="TOP_CENTER" spacing="20" styleClass="team-section">
+                <Label text="👨‍💼 Nuestro Equipo" styleClass="section-title"/>
+                <Label text="Contamos con un equipo de profesionales altamente calificados y apasionados por la logística. Cada miembro aporta su experiencia y dedicación para garantizar que tu experiencia con SameDay sea excepcional."
+                       styleClass="section-text" wrapText="true" textAlignment="CENTER" maxWidth="800"/>
+            </VBox>
+
+        </VBox>
+    </content>
+</ScrollPane>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.ManagePaymentMethodsController"
+      spacing="20" styleClass="content-area">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="header-section">
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label text="Métodos de Pago" styleClass="page-title"/>
+            <Label text="Administra tus métodos de pago guardados" styleClass="info-label"
+                   style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+        </VBox>
+
+        <!-- Add New Payment Method Button -->
+        <Button text="+ Agregar Método" styleClass="btn-primary" onAction="#handleAddPaymentMethod"/>
+    </HBox>
+
+    <!-- Stats Section -->
+    <HBox spacing="20" alignment="CENTER_LEFT" styleClass="stats-container">
+        <VBox styleClass="info-card" spacing="5" prefWidth="200" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+            <Label text="Total Métodos" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+            <Label fx:id="lblMethodCount" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+        </VBox>
+    </HBox>
+
+    <!-- Payment Methods List -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll-pane">
+        <VBox fx:id="paymentMethodsContainer" spacing="15">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+        </VBox>
+    </ScrollPane>
+
+    <!-- Empty State Message -->
+    <VBox fx:id="emptyStateBox" alignment="CENTER" spacing="15" visible="false" managed="false"
+          styleClass="empty-state-box">
+        <padding>
+            <Insets top="40" right="40" bottom="40" left="40"/>
+        </padding>
+        <Label text="No tienes métodos de pago guardados"
+               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #6c757d;"/>
+        <Label text="Agrega un método de pago para facilitar tus transacciones"
+               style="-fx-font-size: 14px; -fx-text-fill: #adb5bd;"/>
+        <Button text="Agregar Primer Método" styleClass="btn-primary" onAction="#handleAddPaymentMethod">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+        </Button>
+    </VBox>
+
+</VBox>

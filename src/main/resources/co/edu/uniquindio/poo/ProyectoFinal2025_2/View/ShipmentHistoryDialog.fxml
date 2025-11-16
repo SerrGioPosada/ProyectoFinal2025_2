@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.ShipmentHistoryDialogController"
+      spacing="15" styleClass="dialog-content"
+      prefWidth="600" prefHeight="500">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="dialog-header">
+        <Label text="📋 Historial Completo" styleClass="dialog-title"
+               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- Shipment Info -->
+    <HBox spacing="30" styleClass="info-section"
+          style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-background-radius: 6;">
+        <VBox spacing="5">
+            <Label text="ID del Envío:" styleClass="info-label"
+                   style="-fx-font-weight: bold; -fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+            <Label fx:id="lblShipmentId" text="--" styleClass="info-value"
+                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+        </VBox>
+        <VBox spacing="5">
+            <Label text="Estado Actual:" styleClass="info-label"
+                   style="-fx-font-weight: bold; -fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
+            <Label fx:id="lblCurrentStatus" text="--" styleClass="info-value"
+                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+        </VBox>
+    </HBox>
+
+    <Separator/>
+
+    <!-- Timeline Container -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: transparent;">
+        <VBox fx:id="timelineContainer" spacing="8"
+              style="-fx-background-color: white; -fx-padding: 10;"/>
+    </ScrollPane>
+
+    <!-- Footer -->
+    <HBox spacing="10" alignment="CENTER_RIGHT" styleClass="dialog-footer">
+        <Button text="Volver" styleClass="btn-secondary" onAction="#handleClose"
+                prefWidth="120" prefHeight="36"
+                style="-fx-font-size: 13px;"/>
+    </HBox>
+
+</VBox>

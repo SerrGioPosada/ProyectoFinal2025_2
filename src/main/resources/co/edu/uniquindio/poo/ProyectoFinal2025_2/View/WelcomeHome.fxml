@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<ScrollPane fitToWidth="true" styleClass="welcome-scroll" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.WelcomeHomeController">
+    <content>
+        <VBox alignment="TOP_CENTER" spacing="40" styleClass="welcome-container">
+            <padding>
+                <Insets top="60" right="80" bottom="60" left="80"/>
+            </padding>
+
+            <!-- Hero Section -->
+            <VBox alignment="CENTER" spacing="20" styleClass="hero-section">
+                <Label text="🚚" styleClass="hero-icon"/>
+                <Label text="Bienvenido a SameDay" styleClass="hero-title"/>
+                <Label text="Tu solución integral para gestión de envíos y logística" styleClass="hero-subtitle" wrapText="true" textAlignment="CENTER"/>
+
+                <HBox alignment="CENTER" spacing="15" styleClass="hero-cta">
+                    <VBox.margin>
+                        <Insets top="20"/>
+                    </VBox.margin>
+                    <Button fx:id="btnLogin" text="Iniciar Sesión" styleClass="cta-button, cta-primary" onAction="#handleLogin"/>
+                    <Button fx:id="btnSignup" text="Registrarse" styleClass="cta-button, cta-secondary" onAction="#handleSignup"/>
+                </HBox>
+            </VBox>
+
+            <!-- Features Grid -->
+            <GridPane hgap="30" vgap="30" styleClass="features-grid">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="50"/>
+                    <ColumnConstraints percentWidth="50"/>
+                </columnConstraints>
+
+                <!-- Feature 1 -->
+                <VBox alignment="TOP_LEFT" spacing="12" styleClass="feature-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <padding>
+                        <Insets top="30" right="25" bottom="30" left="25"/>
+                    </padding>
+                    <Label text="📦" styleClass="feature-icon"/>
+                    <Label text="Gestión Inteligente" styleClass="feature-title"/>
+                    <Label text="Administra todos tus envíos desde una única plataforma intuitiva y potente"
+                           styleClass="feature-description" wrapText="true"/>
+                </VBox>
+
+                <!-- Feature 2 -->
+                <VBox alignment="TOP_LEFT" spacing="12" styleClass="feature-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <padding>
+                        <Insets top="30" right="25" bottom="30" left="25"/>
+                    </padding>
+                    <Label text="🔍" styleClass="feature-icon"/>
+                    <Label text="Rastreo en Tiempo Real" styleClass="feature-title"/>
+                    <Label text="Monitorea el estado de tus paquetes en cada etapa del proceso de entrega"
+                           styleClass="feature-description" wrapText="true"/>
+                </VBox>
+
+                <!-- Feature 3 -->
+                <VBox alignment="TOP_LEFT" spacing="12" styleClass="feature-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <padding>
+                        <Insets top="30" right="25" bottom="30" left="25"/>
+                    </padding>
+                    <Label text="💳" styleClass="feature-icon"/>
+                    <Label text="Pagos Seguros" styleClass="feature-title"/>
+                    <Label text="Procesa transacciones con total seguridad usando los métodos de pago más confiables"
+                           styleClass="feature-description" wrapText="true"/>
+                </VBox>
+
+                <!-- Feature 4 -->
+                <VBox alignment="TOP_LEFT" spacing="12" styleClass="feature-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <padding>
+                        <Insets top="30" right="25" bottom="30" left="25"/>
+                    </padding>
+                    <Label text="📊" styleClass="feature-icon"/>
+                    <Label text="Reportes Detallados" styleClass="feature-title"/>
+                    <Label text="Accede a estadísticas y análisis completos para optimizar tu logística"
+                           styleClass="feature-description" wrapText="true"/>
+                </VBox>
+            </GridPane>
+
+            <!-- Stats Section -->
+            <HBox alignment="CENTER" spacing="60" styleClass="stats-section">
+                <VBox alignment="CENTER" spacing="8">
+                    <Label text="10,000+" styleClass="stat-number"/>
+                    <Label text="Envíos Completados" styleClass="stat-label"/>
+                </VBox>
+                <VBox alignment="CENTER" spacing="8">
+                    <Label text="500+" styleClass="stat-number"/>
+                    <Label text="Clientes Satisfechos" styleClass="stat-label"/>
+                </VBox>
+                <VBox alignment="CENTER" spacing="8">
+                    <Label text="24/7" styleClass="stat-number"/>
+                    <Label text="Soporte Disponible" styleClass="stat-label"/>
+                </VBox>
+            </HBox>
+
+        </VBox>
+    </content>
+</ScrollPane>

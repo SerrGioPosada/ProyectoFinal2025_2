@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="co.edu.uniquindio.poo.ProyectoFinal2025_2.Controller.CustomReportDialogController"
+      spacing="20" styleClass="dialog-container" prefWidth="520" prefHeight="600">
+
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <!-- Header -->
+    <VBox spacing="8" alignment="CENTER">
+        <Label text="📊 Generar Reporte Personalizado" styleClass="dialog-title"
+               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+        <Label text="Seleccione los parámetros para generar su reporte" styleClass="dialog-subtitle"
+               style="-fx-font-size: 13px; -fx-text-fill: #6c757d;"/>
+    </VBox>
+
+    <Separator/>
+
+    <!-- Scrollable Content -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: transparent;">
+        <VBox spacing="18" style="-fx-padding: 5 10 5 0;">
+
+        <!-- Report Type Selection -->
+        <VBox spacing="8">
+            <Label text="Tipo de Reporte:"
+                   style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #495057;"/>
+            <ComboBox fx:id="cmbReportType" maxWidth="Infinity" prefHeight="40"
+                      promptText="Seleccionar tipo de reporte..."
+                      style="-fx-font-size: 13px;"/>
+        </VBox>
+
+        <!-- Format Selection -->
+        <VBox spacing="8">
+            <Label text="Formato de Salida:"
+                   style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #495057;"/>
+            <HBox spacing="15">
+                <RadioButton fx:id="rbPDF" text="PDF" selected="true"
+                             style="-fx-font-size: 13px;">
+                    <toggleGroup>
+                        <ToggleGroup fx:id="formatGroup"/>
+                    </toggleGroup>
+                </RadioButton>
+                <RadioButton fx:id="rbCSV" text="CSV" toggleGroup="$formatGroup"
+                             style="-fx-font-size: 13px;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Date Range -->
+        <VBox spacing="8">
+            <Label text="Rango de Fechas:"
+                   style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #495057;"/>
+            <HBox spacing="15">
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="Desde:" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
+                    <DatePicker fx:id="dateFrom" maxWidth="Infinity" prefHeight="36"
+                                style="-fx-font-size: 13px;"/>
+                </VBox>
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="Hasta:" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;"/>
+                    <DatePicker fx:id="dateTo" maxWidth="Infinity" prefHeight="36"
+                                style="-fx-font-size: 13px;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+
+        <!-- Quick Date Presets -->
+        <VBox spacing="8">
+            <Label text="Accesos Rápidos:"
+                   style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #495057;"/>
+            <HBox spacing="10">
+                <Button text="Última semana" onAction="#setLastWeek" styleClass="btn-secondary"
+                        style="-fx-font-size: 12px; -fx-padding: 6 12;"/>
+                <Button text="Último mes" onAction="#setLastMonth" styleClass="btn-secondary"
+                        style="-fx-font-size: 12px; -fx-padding: 6 12;"/>
+                <Button text="Últimos 3 meses" onAction="#setLast3Months" styleClass="btn-secondary"
+                        style="-fx-font-size: 12px; -fx-padding: 6 12;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Info message -->
+        <HBox spacing="8" alignment="CENTER_LEFT" styleClass="info-box"
+              style="-fx-background-color: #e7f3ff; -fx-padding: 12; -fx-background-radius: 6;">
+            <Label text="ℹ" style="-fx-font-size: 16px; -fx-text-fill: #0066cc;"/>
+            <Label text="El reporte se generará y guardará en la carpeta 'reportes'"
+                   wrapText="true" style="-fx-font-size: 11px; -fx-text-fill: #0066cc;" HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        </VBox>
+    </ScrollPane>
+
+    <!-- Buttons -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancelar" onAction="#handleCancel" styleClass="btn-secondary"
+                prefWidth="110" prefHeight="36"
+                style="-fx-font-size: 13px;"/>
+        <Button text="Generar" onAction="#handleGenerate" styleClass="btn-primary"
+                prefWidth="110" prefHeight="36"
+                style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+    </HBox>
+</VBox>
