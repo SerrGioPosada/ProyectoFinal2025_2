@@ -52,31 +52,31 @@
                     <!-- Total Earnings -->
                     <VBox styleClass="tab-stat-card" spacing="8" alignment="CENTER" HBox.hgrow="ALWAYS">
                         <Label text="Ganancias Totales" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
-                        <Label fx:id="lblTotalEarnings" text="$0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
+                        <Label fx:id="lblTotalEarnings" text="0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #032d4d;"/>
                     </VBox>
 
                     <!-- This Month -->
                     <VBox styleClass="tab-stat-card" spacing="8" alignment="CENTER" HBox.hgrow="ALWAYS">
                         <Label text="Este Mes" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
-                        <Label fx:id="lblMonthEarnings" text="$0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
+                        <Label fx:id="lblMonthEarnings" text="0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #28a745;"/>
                     </VBox>
 
                     <!-- This Week -->
                     <VBox styleClass="tab-stat-card" spacing="8" alignment="CENTER" HBox.hgrow="ALWAYS">
                         <Label text="Esta Semana" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
-                        <Label fx:id="lblWeekEarnings" text="$0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
+                        <Label fx:id="lblWeekEarnings" text="0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #17a2b8;"/>
                     </VBox>
 
                     <!-- Today -->
                     <VBox styleClass="tab-stat-card" spacing="8" alignment="CENTER" HBox.hgrow="ALWAYS">
                         <Label text="Hoy" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
-                        <Label fx:id="lblTodayEarnings" text="$0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffc107;"/>
+                        <Label fx:id="lblTodayEarnings" text="0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffc107;"/>
                     </VBox>
 
                     <!-- Average per Delivery -->
                     <VBox styleClass="tab-stat-card" spacing="8" alignment="CENTER" HBox.hgrow="ALWAYS">
                         <Label text="Promedio/Entrega" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;"/>
-                        <Label fx:id="lblAverageEarnings" text="$0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #6610f2;"/>
+                        <Label fx:id="lblAverageEarnings" text="0.00" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #6610f2;"/>
                     </VBox>
                 </HBox>
 
