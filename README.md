@@ -151,8 +151,8 @@ Los datos se almacenan en archivos JSON en el directorio `data/`:
 ## 👥 Usuario por Defecto
 
 **Administrador:**
-- Email: `admin@uq.edu.co`
-- Contraseña: `admin123`
+- Email: `admin@sistema.com`
+- Contraseña: `Admin123!`
 
 ## 📚 Documentación
 
