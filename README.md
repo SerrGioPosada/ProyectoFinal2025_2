@@ -159,8 +159,10 @@ Los datos se almacenan en archivos JSON en el directorio `data/`:
 - **[Pensamiento Computacional](https://docs.google.com/document/d/1VCakIe6wl78RwUaXCmq1-bJTf_DDvGoO-xC6zd-FCLg/edit?usp=sharing)** - Análisis del problema y diseño de la solución
 - **[Diagrama de Clases](https://lucid.app/lucidchart/88013a27-c698-4c9a-94f7-c0c10046051b/edit?viewport_loc=1763%2C-574%2C4243%2C2317%2C0_0&invitationId=inv_aac7c7c6-d037-455a-a121-0b79140aebaa)** - Arquitectura completa del sistema
 
-## 🤝 Contribución
-
+## 🤝 Contribución y Autores
+Sergio Posada Garcia
+Michael Joel Alvarez
+Sebastian Matheus
 Este es un proyecto académico de la Universidad del Quindío.
 
 ---

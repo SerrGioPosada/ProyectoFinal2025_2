@@ -106,6 +106,27 @@ public class MyShipmentsController implements Initializable {
     }
 
     /**
+     * Public method to filter by order ID - used when navigating from payment.
+     * @param orderId The order ID to filter by
+     */
+    public void filterByOrderId(String orderId) {
+        if (orderId == null || orderId.trim().isEmpty()) {
+            Logger.warning("Cannot filter by null or empty order ID");
+            return;
+        }
+
+        Logger.info("Filtering MyShipments by order ID: " + orderId);
+
+        // Switch to filters tab and expand it
+        setActiveTab(btnTabFilters);
+        showTabContent(filtersTabContent, "filters", true);
+
+        // Set the search field and apply filter
+        searchField.setText(orderId);
+        handleFilter();
+    }
+
+    /**
      * Sets up table columns with cell value factories.
      */
     private void setupTable() {
@@ -252,7 +273,9 @@ public class MyShipmentsController implements Initializable {
             row.itemProperty().addListener((obs, oldItem, newItem) -> {
                 if (newItem != null) {
                     boolean isCancelled = newItem.getStatusDisplay().toLowerCase().contains("cancelad");
-                    boolean isPendingPayment = newItem.getStatusDisplay().toLowerCase().contains("pendiente de pago");
+                    // Check for both "pendiente de pago" and "esperando pago" (AWAITING_PAYMENT state)
+                    boolean isPendingPayment = newItem.getStatusDisplay().toLowerCase().contains("pendiente de pago") ||
+                                              newItem.getStatusDisplay().toLowerCase().contains("esperando pago");
 
                     if (newItem.getItemType() == OrderShipmentViewDTO.ItemType.ORDER) {
                         if (isCancelled) {
@@ -765,7 +788,9 @@ public class MyShipmentsController implements Initializable {
             return;
         }
 
-        if (!item.getStatusDisplay().toLowerCase().contains("pendiente de pago")) {
+        // Check for both "pendiente de pago" and "esperando pago" (AWAITING_PAYMENT state)
+        String statusLower = item.getStatusDisplay().toLowerCase();
+        if (!statusLower.contains("pendiente de pago") && !statusLower.contains("esperando pago")) {
             DialogUtil.showError("Error", "Esta orden no está pendiente de pago");
             return;
         }
@@ -815,6 +840,7 @@ public class MyShipmentsController implements Initializable {
             }
 
             selectionController.setOrder(order, orderDetail);
+            selectionController.configureForModal();
 
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Seleccionar Método de Pago");

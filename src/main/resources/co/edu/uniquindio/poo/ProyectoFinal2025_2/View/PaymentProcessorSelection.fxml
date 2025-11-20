@@ -100,10 +100,10 @@
             <padding>
                 <Insets top="15" right="0" bottom="0" left="0"/>
             </padding>
-            <Button text="← Volver al Resumen" onAction="#handleGoBack" styleClass="btn-secondary"
+            <Button fx:id="btnGoBack" text="← Volver al Resumen" onAction="#handleGoBack" styleClass="btn-secondary"
                     prefWidth="200" prefHeight="42"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="Cancelar" onAction="#handleCancel" styleClass="btn-danger"
+            <Button fx:id="btnCancel" text="Cancelar" onAction="#handleCancel" styleClass="btn-danger"
                     prefWidth="140" prefHeight="42"/>
         </HBox>
 

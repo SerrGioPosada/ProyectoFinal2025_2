@@ -22,6 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -42,17 +43,21 @@ public class PaymentController implements Initializable {
     @FXML private Label lblTotalAmount;
 
     // Payment Method Selection (Simulated)
+    @FXML private RadioButton rbSavedPayment;
     @FXML private RadioButton rbCreditCard;
     @FXML private RadioButton rbDebitCard;
     @FXML private RadioButton rbCash;
     @FXML private ToggleGroup paymentMethodGroup;
 
+    // Saved Payment Method Details
+    @FXML private VBox vboxSavedPaymentDetails;
+    @FXML private Label lblSavedPaymentInfo;
+
     // Credit/Debit Card Details (for traditional payment)
     @FXML private VBox vboxCardDetails;
     @FXML private TextField txtCardNumber;
     @FXML private TextField txtCardHolder;
-    @FXML private TextField txtExpiryMonth;
-    @FXML private TextField txtExpiryYear;
+    @FXML private TextField txtExpiry;  // Combined MM/YY field
     @FXML private TextField txtCVV;
     @FXML private ComboBox<PaymentProvider> cmbCardProvider;
 
@@ -74,6 +79,7 @@ public class PaymentController implements Initializable {
     private Order order;
     private OrderDetailDTO orderDetail;
     private User currentUser;
+    private IndexController indexController;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -90,6 +96,13 @@ public class PaymentController implements Initializable {
         loadUserPreferredPaymentMethods();
 
         Logger.info("PaymentController initialized");
+    }
+
+    /**
+     * Sets the IndexController reference for navigation.
+     */
+    public void setIndexController(IndexController indexController) {
+        this.indexController = indexController;
     }
 
     /**
@@ -120,6 +133,7 @@ public class PaymentController implements Initializable {
      */
     private void setupPaymentMethodListeners() {
         paymentMethodGroup = new ToggleGroup();
+        rbSavedPayment.setToggleGroup(paymentMethodGroup);
         rbCreditCard.setToggleGroup(paymentMethodGroup);
         rbDebitCard.setToggleGroup(paymentMethodGroup);
         rbCash.setToggleGroup(paymentMethodGroup);
@@ -147,13 +161,32 @@ public class PaymentController implements Initializable {
      * Sets up card field validation.
      */
     private void setupCardValidation() {
-        // Card number - only digits, max 16
+        // Card number - only digits with automatic spacing every 4 digits, max 19 digits
         txtCardNumber.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.matches("\\d*")) {
-                txtCardNumber.setText(oldVal);
+            // Remove all non-digit characters to get raw input
+            String digitsOnly = newVal.replaceAll("[^\\d]", "");
+
+            // Limit to 19 digits (max for some card types)
+            if (digitsOnly.length() > 19) {
+                digitsOnly = digitsOnly.substring(0, 19);
             }
-            if (newVal.length() > 16) {
-                txtCardNumber.setText(newVal.substring(0, 16));
+
+            // Format with spaces every 4 digits
+            StringBuilder formatted = new StringBuilder();
+            for (int i = 0; i < digitsOnly.length(); i++) {
+                if (i > 0 && i % 4 == 0) {
+                    formatted.append(" ");
+                }
+                formatted.append(digitsOnly.charAt(i));
+            }
+
+            String formattedText = formatted.toString();
+
+            // Only update if the text has changed to avoid infinite loop
+            if (!newVal.equals(formattedText)) {
+                txtCardNumber.setText(formattedText);
+                // Position cursor at the end
+                txtCardNumber.positionCaret(formattedText.length());
             }
         });
 
@@ -167,34 +200,41 @@ public class PaymentController implements Initializable {
             }
         });
 
-        // Expiry month - only digits, max 2
-        txtExpiryMonth.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.matches("\\d*")) {
-                txtExpiryMonth.setText(oldVal);
-            }
-            if (newVal.length() > 2) {
-                txtExpiryMonth.setText(newVal.substring(0, 2));
-            }
-        });
+        // Expiry date (MM/YY) - auto-format with slash
+        txtExpiry.textProperty().addListener((obs, oldVal, newVal) -> {
+            // Remove any non-digit characters except slash
+            String digitsOnly = newVal.replaceAll("[^\\d]", "");
 
-        // Expiry year - only digits, max 4
-        txtExpiryYear.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.matches("\\d*")) {
-                txtExpiryYear.setText(oldVal);
+            // Limit to 4 digits (MMYY)
+            if (digitsOnly.length() > 4) {
+                digitsOnly = digitsOnly.substring(0, 4);
             }
-            if (newVal.length() > 4) {
-                txtExpiryYear.setText(newVal.substring(0, 4));
+
+            // Format as MM/YY
+            StringBuilder formatted = new StringBuilder();
+            for (int i = 0; i < digitsOnly.length(); i++) {
+                if (i == 2) {
+                    formatted.append("/");
+                }
+                formatted.append(digitsOnly.charAt(i));
+            }
+
+            String formattedText = formatted.toString();
+            if (!newVal.equals(formattedText)) {
+                txtExpiry.setText(formattedText);
+                txtExpiry.positionCaret(formattedText.length());
             }
         });
     }
 
     /**
      * Loads user's preferred/saved payment methods.
-     * Pre-fills card information if user has saved payment methods.
+     * Shows information message if user has saved methods.
      */
     private void loadUserPreferredPaymentMethods() {
         if (currentUser == null) {
             Logger.warning("No user logged in - cannot load preferred payment methods");
+            rbSavedPayment.setDisable(true);
             return;
         }
 
@@ -204,54 +244,45 @@ public class PaymentController implements Initializable {
             if (savedMethods != null && !savedMethods.isEmpty()) {
                 Logger.info("Found " + savedMethods.size() + " saved payment methods for user");
 
-                // Get the first saved method (you could add logic to get the default/preferred one)
-                PaymentMethod preferredMethod = savedMethods.get(0);
+                // Enable saved payment option
+                rbSavedPayment.setDisable(false);
 
-                // Pre-select the appropriate radio button based on type
-                switch (preferredMethod.getType()) {
-                    case CREDIT_CARD:
-                        rbCreditCard.setSelected(true);
-                        break;
-                    case DEBIT_CARD:
-                        rbDebitCard.setSelected(true);
-                        break;
-                    case CASH:
-                        rbCash.setSelected(true);
-                        break;
-                    case DIGITAL_WALLET:
-                    case PAYPAL:
-                        // Digital wallets not supported in simulated payment
-                        Logger.warning("Digital wallet payment method not supported in simulated mode");
-                        break;
-                    default:
-                        Logger.warning("Unsupported payment method type: " + preferredMethod.getType());
-                        break;
-                }
+                // Update label with saved payment info
+                PaymentMethod savedMethod = savedMethods.get(0); // Use first saved method
+                String methodInfo = String.format("%s - %s",
+                    savedMethod.getProvider().toString().replace("_", " "),
+                    savedMethod.getAccountNumber());
+                lblSavedPaymentInfo.setText(methodInfo);
 
-                // Pre-fill card information if it's a card method
-                if (preferredMethod.getType() == PaymentMethodType.CREDIT_CARD ||
-                    preferredMethod.getType() == PaymentMethodType.DEBIT_CARD) {
-
-                    if (preferredMethod.getProvider() != null) {
-                        cmbCardProvider.setValue(preferredMethod.getProvider());
-                    }
-
-                    // Show masked account number
-                    if (preferredMethod.getAccountNumber() != null) {
-                        txtCardNumber.setText(preferredMethod.getAccountNumber());
-                        txtCardNumber.setPromptText("Número guardado (termina en " +
-                            preferredMethod.getAccountNumber().substring(
-                                Math.max(0, preferredMethod.getAccountNumber().length() - 4)) + ")");
-                    }
-                }
-
-                Logger.info("Pre-loaded preferred payment method: " + preferredMethod.getType());
+                Logger.info("Saved payment methods available: " + methodInfo);
             } else {
                 Logger.info("No saved payment methods found for user");
+                rbSavedPayment.setDisable(true);
             }
         } catch (Exception e) {
             Logger.error("Error loading preferred payment methods: " + e.getMessage());
+            rbSavedPayment.setDisable(true);
         }
+    }
+
+    /**
+     * Gets a saved payment method for the current user.
+     * Returns null if no saved methods exist.
+     */
+    private PaymentMethod getSavedPaymentMethod() {
+        if (currentUser == null) {
+            return null;
+        }
+
+        var savedMethods = paymentMethodService.getPaymentMethodsByUserId(currentUser.getId());
+
+        if (savedMethods != null && !savedMethods.isEmpty()) {
+            // For now, return the first saved method
+            // In a more complete implementation, you could show a selection dialog
+            return savedMethods.get(0);
+        }
+
+        return null;
     }
 
     /**
@@ -260,7 +291,10 @@ public class PaymentController implements Initializable {
     private void updatePaymentSectionVisibility() {
         hideAllPaymentSections();
 
-        if (rbCreditCard.isSelected() || rbDebitCard.isSelected()) {
+        if (rbSavedPayment.isSelected()) {
+            vboxSavedPaymentDetails.setVisible(true);
+            vboxSavedPaymentDetails.setManaged(true);
+        } else if (rbCreditCard.isSelected() || rbDebitCard.isSelected()) {
             vboxCardDetails.setVisible(true);
             vboxCardDetails.setManaged(true);
         } else if (rbCash.isSelected()) {
@@ -273,6 +307,8 @@ public class PaymentController implements Initializable {
      * Hides all payment method sections.
      */
     private void hideAllPaymentSections() {
+        vboxSavedPaymentDetails.setVisible(false);
+        vboxSavedPaymentDetails.setManaged(false);
         vboxCardDetails.setVisible(false);
         vboxCardDetails.setManaged(false);
         vboxCashDetails.setVisible(false);
@@ -290,6 +326,19 @@ public class PaymentController implements Initializable {
             if (paymentMethodGroup.getSelectedToggle() == null) {
                 showWarning("Por favor, seleccione un método de pago");
                 return;
+            }
+
+            // Check if user selected saved payment method
+            if (rbSavedPayment.isSelected()) {
+                PaymentMethod savedMethod = getSavedPaymentMethod();
+                if (savedMethod != null) {
+                    // Process payment with saved method
+                    processPaymentWithSavedMethod(savedMethod);
+                    return;
+                } else {
+                    showError("No se encontró el método de pago guardado");
+                    return;
+                }
             }
 
             // Create payment method based on selection
@@ -311,8 +360,8 @@ public class PaymentController implements Initializable {
                 showSuccess("¡Pago simulado procesado exitosamente!\n\nID de Pago: " + payment.getId() +
                           "\nSu envío será procesado en breve.\n\n⚠️ Nota: Este fue un pago simulado para demostración.");
 
-                // Close payment window
-                closeWindow();
+                // Navigate to MyShipments and filter by order ID
+                navigateToMyShipmentsWithFilter();
             } else {
                 progressPayment.setVisible(false);
                 lblPaymentStatus.setText("Pago rechazado");
@@ -348,8 +397,7 @@ public class PaymentController implements Initializable {
         // Validate card fields
         if (txtCardNumber.getText().trim().isEmpty() ||
             txtCardHolder.getText().trim().isEmpty() ||
-            txtExpiryMonth.getText().trim().isEmpty() ||
-            txtExpiryYear.getText().trim().isEmpty() ||
+            txtExpiry.getText().trim().isEmpty() ||
             txtCVV.getText().trim().isEmpty() ||
             cmbCardProvider.getValue() == null) {
 
@@ -357,14 +405,35 @@ public class PaymentController implements Initializable {
             return null;
         }
 
-        // Validate card number length
-        if (txtCardNumber.getText().length() < 13) {
-            showWarning("Número de tarjeta inválido");
+        // Validate expiry date format (MM/YY)
+        String expiry = txtExpiry.getText().trim();
+        if (!expiry.matches("\\d{2}/\\d{2}")) {
+            showWarning("Formato de fecha de vencimiento inválido.\nUse MM/AA (ejemplo: 12/25)");
+            return null;
+        }
+
+        // Validate month (01-12)
+        int month = Integer.parseInt(expiry.substring(0, 2));
+        if (month < 1 || month > 12) {
+            showWarning("Mes inválido. Debe estar entre 01 y 12");
+            return null;
+        }
+
+        // Get card number without spaces
+        String cardNumber = txtCardNumber.getText().replaceAll("\\s", "");
+
+        // Validate card number length (13-19 digits depending on card type)
+        PaymentProvider provider = cmbCardProvider.getValue();
+        int minLength = getMinCardLength(provider);
+        int maxLength = getMaxCardLength(provider);
+
+        if (cardNumber.length() < minLength || cardNumber.length() > maxLength) {
+            showWarning(String.format("Número de tarjeta inválido.\n%s requiere entre %d y %d dígitos.",
+                provider.name(), minLength, maxLength));
             return null;
         }
 
         // Mask card number for security (show only last 4 digits)
-        String cardNumber = txtCardNumber.getText();
         String maskedNumber = "**** **** **** " + cardNumber.substring(cardNumber.length() - 4);
 
         return new PaymentMethod.Builder()
@@ -388,6 +457,32 @@ public class PaymentController implements Initializable {
     }
 
     /**
+     * Gets the minimum card number length for a given provider.
+     * @param provider The payment provider
+     * @return Minimum number of digits
+     */
+    private int getMinCardLength(PaymentProvider provider) {
+        return switch (provider) {
+            case AMERICAN_EXPRESS -> 15; // Amex uses 15 digits
+            case VISA, MASTERCARD -> 16; // Visa and Mastercard use 16 digits
+            default -> 13; // Other cards minimum 13 digits
+        };
+    }
+
+    /**
+     * Gets the maximum card number length for a given provider.
+     * @param provider The payment provider
+     * @return Maximum number of digits
+     */
+    private int getMaxCardLength(PaymentProvider provider) {
+        return switch (provider) {
+            case AMERICAN_EXPRESS -> 15; // Amex uses exactly 15 digits
+            case VISA, MASTERCARD -> 16; // Visa and Mastercard use exactly 16 digits
+            default -> 19; // Some cards can have up to 19 digits
+        };
+    }
+
+    /**
      * Processes SIMULATED payment with the given method.
      * This calls the PaymentService which handles the order saga.
      */
@@ -401,43 +496,159 @@ public class PaymentController implements Initializable {
     }
 
     /**
-     * Handles cancel button - cancels the order if possible and closes the window.
+     * Processes payment using a saved payment method.
+     */
+    private void processPaymentWithSavedMethod(PaymentMethod savedMethod) {
+        try {
+            // Show progress
+            progressPayment.setVisible(true);
+            lblPaymentStatus.setText("Procesando pago con método guardado...");
+
+            // Process payment
+            Payment payment = processPaymentWithMethod(savedMethod);
+
+            if (payment != null && payment.getStatus() == PaymentStatus.APPROVED) {
+                progressPayment.setVisible(false);
+                lblPaymentStatus.setText("Pago aprobado (método guardado)");
+                showSuccess(String.format(
+                    "¡Pago procesado exitosamente!\n\n" +
+                    "ID de Pago: %s\n" +
+                    "Método: %s\n" +
+                    "Su envío será procesado en breve.\n\n" +
+                    "⚠️ Nota: Este fue un pago simulado para demostración.",
+                    payment.getId(),
+                    savedMethod.getProvider().toString().replace("_", " ")
+                ));
+
+                // Navigate to MyShipments and filter by order ID
+                navigateToMyShipmentsWithFilter();
+            } else {
+                progressPayment.setVisible(false);
+                lblPaymentStatus.setText("Pago rechazado");
+                showError("El pago fue rechazado. Por favor, intente nuevamente.");
+            }
+        } catch (Exception e) {
+            progressPayment.setVisible(false);
+            lblPaymentStatus.setText("Error en el pago");
+            Logger.error("Error processing payment with saved method: " + e.getMessage());
+            showError("Error al procesar el pago: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles cancel button - cancels the order and returns to wizard step 1.
      */
     @FXML
     private void handleCancel() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Cancelar Pago");
         confirm.setHeaderText("¿Cancelar el pago?");
-        confirm.setContentText("Si cancela, la orden no será procesada.\n¿Desea continuar?");
+        confirm.setContentText("Si cancela, la orden será cancelada y volverá al inicio.\n¿Desea continuar?");
 
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 // Cancel the order if it can be cancelled
                 if (order != null) {
                     try {
+                        Logger.info("Attempting to cancel order: " + order.getId() + " with status: " + order.getStatus());
                         if (orderService.canCancelOrder(order.getId())) {
                             orderService.cancelOrder(order.getId());
                             Logger.info("Order " + order.getId() + " cancelled successfully");
                         } else {
-                            Logger.warning("Order " + order.getId() + " cannot be cancelled in its current state");
+                            Logger.warning("Order " + order.getId() + " cannot be cancelled - current status: " + order.getStatus());
                         }
                     } catch (Exception e) {
                         Logger.error("Error cancelling order: " + e.getMessage());
-                        // Continue with closing even if cancellation fails
+                        e.printStackTrace();
+                        // Continue with navigation even if cancellation fails
                     }
                 }
 
-                closeWindow();
+                // Navigate back to wizard at step 1
+                returnToWizardStep1();
             }
         });
     }
 
     /**
-     * Closes the payment window.
+     * Navigates to MyShipments view and filters by the current order ID.
+     * If opened in a modal window (indexController is null), closes the modal instead.
      */
+    private void navigateToMyShipmentsWithFilter() {
+        if (indexController == null) {
+            Logger.info("IndexController not set - assuming modal window context, closing modal");
+            // This means we're in a modal window (opened from MyShipments)
+            // Just close the modal - MyShipments will refresh automatically
+            try {
+                Stage stage = (Stage) lblOrderId.getScene().getWindow();
+                stage.close();
+                Logger.info("Modal window closed successfully");
+            } catch (Exception e) {
+                Logger.error("Could not close modal window: " + e.getMessage());
+            }
+            return;
+        }
+
+        if (order == null) {
+            Logger.warning("Order is null, navigating to MyShipments without filter");
+            indexController.loadView("MyShipments.fxml");
+            return;
+        }
+
+        try {
+            Logger.info("Navigating to MyShipments with filter for order: " + order.getId());
+
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/MyShipments.fxml")
+            );
+
+            indexController.getContentArea().getChildren().clear();
+            indexController.getContentArea().getChildren().add(loader.load());
+
+            MyShipmentsController controller = loader.getController();
+            controller.filterByOrderId(order.getId());
+
+            Logger.info("Successfully navigated to MyShipments with order filter: " + order.getId());
+        } catch (Exception e) {
+            Logger.error("Error navigating to MyShipments: " + e.getMessage());
+            e.printStackTrace();
+            // Fallback to simple navigation
+            indexController.loadView("MyShipments.fxml");
+        }
+    }
+
+    /**
+     * Returns to wizard at step 1, clearing all data.
+     */
+    private void returnToWizardStep1() {
+        if (indexController != null) {
+            // Simply reload the wizard view - it will start fresh at step 1
+            indexController.loadView("CreateShipmentWizard.fxml");
+            Logger.info("Navigated back to wizard step 1");
+        } else {
+            Logger.warning("IndexController not set, cannot navigate to wizard");
+            // Fallback: try to close window if running as popup
+            try {
+                Stage stage = (Stage) lblOrderId.getScene().getWindow();
+                stage.close();
+            } catch (Exception e) {
+                Logger.error("Could not close window or navigate: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Closes the payment window (deprecated - kept for compatibility).
+     * @deprecated Use returnToWizardStep1() instead
+     */
+    @Deprecated
     private void closeWindow() {
-        Stage stage = (Stage) lblOrderId.getScene().getWindow();
-        stage.close();
+        try {
+            Stage stage = (Stage) lblOrderId.getScene().getWindow();
+            stage.close();
+        } catch (Exception e) {
+            Logger.warning("Could not close window: " + e.getMessage());
+        }
     }
 
     /**

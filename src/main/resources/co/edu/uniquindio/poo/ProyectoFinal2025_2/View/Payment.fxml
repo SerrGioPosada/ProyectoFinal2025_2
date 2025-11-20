@@ -47,6 +47,8 @@
                 </HBox>
 
                 <VBox spacing="12">
+                    <RadioButton fx:id="rbSavedPayment" text="Método de Pago Guardado"
+                                 styleClass="form-checkbox"/>
                     <RadioButton fx:id="rbCreditCard" text="Tarjeta de Crédito (Simulado)"
                                  styleClass="form-checkbox"/>
                     <RadioButton fx:id="rbDebitCard" text="Tarjeta de Débito (Simulado)"
@@ -58,6 +60,23 @@
 
             <Separator styleClass="divider"/>
 
+            <!-- Saved Payment Method Section -->
+            <VBox fx:id="vboxSavedPaymentDetails" spacing="15" styleClass="card-base"
+                  visible="false" managed="false">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                <Label text="Método de Pago Guardado" styleClass="section-title"/>
+
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="info-badge">
+                    <Label text="💳" styleClass="badge-icon"/>
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblSavedPaymentInfo" text="No hay métodos de pago guardados"
+                               styleClass="info-label" wrapText="true"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
             <!-- Card Details Section -->
             <VBox fx:id="vboxCardDetails" spacing="15" styleClass="card-base"
                   visible="false" managed="false">
@@ -68,46 +87,40 @@
 
                 <GridPane hgap="15" vgap="15">
                     <columnConstraints>
-                        <ColumnConstraints hgrow="ALWAYS" minWidth="150"/>
-                        <ColumnConstraints hgrow="ALWAYS" minWidth="150"/>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="60"/>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="40"/>
                     </columnConstraints>
 
                     <!-- Card Number -->
-                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="0">
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
                         <Label text="Número de Tarjeta" styleClass="form-label"/>
                         <TextField fx:id="txtCardNumber" promptText="1234 5678 9012 3456"
                                    styleClass="form-field" maxWidth="Infinity"/>
                     </VBox>
 
-                    <!-- Card Holder -->
-                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
-                        <Label text="Titular de la Tarjeta" styleClass="form-label"/>
-                        <TextField fx:id="txtCardHolder" promptText="Nombre como aparece en la tarjeta"
+                    <!-- Card Holder (moved to the right side) -->
+                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="Titular" styleClass="form-label"/>
+                        <TextField fx:id="txtCardHolder" promptText="Nombre del titular"
                                    styleClass="form-field" maxWidth="Infinity"/>
                     </VBox>
 
                     <!-- Card Provider -->
-                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
                         <Label text="Emisor de la Tarjeta" styleClass="form-label"/>
                         <ComboBox fx:id="cmbCardProvider" styleClass="form-combo"
                                   maxWidth="Infinity" promptText="Seleccionar emisor"/>
                     </VBox>
 
-                    <!-- Expiry Date -->
-                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                        <Label text="Mes de Vencimiento" styleClass="form-label"/>
-                        <TextField fx:id="txtExpiryMonth" promptText="MM"
+                    <!-- Expiry Date (Combined MM/YY) -->
+                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                        <Label text="Fecha de Vencimiento" styleClass="form-label"/>
+                        <TextField fx:id="txtExpiry" promptText="MM/AA"
                                    styleClass="form-field"/>
                     </VBox>
 
-                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                        <Label text="Año de Vencimiento" styleClass="form-label"/>
-                        <TextField fx:id="txtExpiryYear" promptText="AAAA"
-                                   styleClass="form-field"/>
-                    </VBox>
-
-                    <!-- CVV -->
-                    <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                    <!-- CVV (moved next to expiry date) -->
+                    <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
                         <Label text="CVV" styleClass="form-label"/>
                         <TextField fx:id="txtCVV" promptText="123"
                                    styleClass="form-field"/>

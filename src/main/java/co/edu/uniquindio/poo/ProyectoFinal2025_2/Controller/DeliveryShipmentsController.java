@@ -524,8 +524,10 @@ public class DeliveryShipmentsController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle("Detalles del Envío - " + shipment.getId());
             Scene scene = new Scene(root, 650, 800);
+            co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.ThemeManager.getInstance().applyThemeToScene(scene);
             stage.setScene(scene);
             stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(true);
             stage.showAndWait();
 
             // Refresh after closing details

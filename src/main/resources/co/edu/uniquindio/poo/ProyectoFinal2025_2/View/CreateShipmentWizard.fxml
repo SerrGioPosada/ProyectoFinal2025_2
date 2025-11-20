@@ -343,7 +343,7 @@
                                     <Label text="Seguro de Envío" styleClass="form-label" style="-fx-font-weight: bold;"/>
                                     <Label text="Protege tu paquete contra pérdidas o daños (5%)" styleClass="form-label-small"/>
                                 </VBox>
-                                <Label fx:id="lblInsuranceCost" text="0" styleClass="detail-value" style="-fx-font-size: 14px;"/>
+                                <Label fx:id="lblInsuranceCost" text="0" styleClass="detail-value" wrapText="true" style="-fx-font-size: 14px; -fx-min-width: 120px; -fx-pref-width: 120px; -fx-max-width: 120px; -fx-alignment: center-right;"/>
                             </HBox>
 
                             <!-- Frágil -->
@@ -382,7 +382,7 @@
                                     <Label text="Entrega Prioritaria" styleClass="form-label" style="-fx-font-weight: bold;"/>
                                     <Label text="Entrega más rápida (15% adicional)" styleClass="form-label-small"/>
                                 </VBox>
-                                <Label fx:id="lblPriorityCost" text="0" styleClass="detail-value" style="-fx-font-size: 14px;"/>
+                                <Label fx:id="lblPriorityCost" text="0" styleClass="detail-value" wrapText="true" style="-fx-font-size: 14px; -fx-min-width: 120px; -fx-pref-width: 120px; -fx-max-width: 120px; -fx-alignment: center-right;"/>
                             </HBox>
                         </VBox>
 

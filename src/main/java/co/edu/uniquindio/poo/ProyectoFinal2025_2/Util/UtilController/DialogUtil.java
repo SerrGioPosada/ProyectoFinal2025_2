@@ -63,6 +63,16 @@ public final class DialogUtil {
         alert.setHeaderText(header);
         alert.setContentText(message);
 
+        // Apply custom styling
+        try {
+            alert.getDialogPane().getStylesheets().add(
+                DialogUtil.class.getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm()
+            );
+            alert.getDialogPane().getStyleClass().add("custom-dialog");
+        } catch (Exception e) {
+            // Fail silently if CSS cannot be loaded
+        }
+
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
     }
@@ -77,6 +87,16 @@ public final class DialogUtil {
         ButtonType cancel = new ButtonType("Cancel", ButtonType.CANCEL.getButtonData());
         alert.getButtonTypes().setAll(confirm, cancel);
 
+        // Apply custom styling
+        try {
+            alert.getDialogPane().getStylesheets().add(
+                DialogUtil.class.getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm()
+            );
+            alert.getDialogPane().getStyleClass().add("custom-dialog");
+        } catch (Exception e) {
+            // Fail silently if CSS cannot be loaded
+        }
+
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == confirm;
     }
@@ -86,6 +106,17 @@ public final class DialogUtil {
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(message);
+
+        // Apply custom styling
+        try {
+            alert.getDialogPane().getStylesheets().add(
+                DialogUtil.class.getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm()
+            );
+            alert.getDialogPane().getStyleClass().add("custom-dialog");
+        } catch (Exception e) {
+            // Fail silently if CSS cannot be loaded
+        }
+
         alert.showAndWait();
     }
 

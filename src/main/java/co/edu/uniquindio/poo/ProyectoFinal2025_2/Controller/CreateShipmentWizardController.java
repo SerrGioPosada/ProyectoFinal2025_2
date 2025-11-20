@@ -200,6 +200,7 @@ public class CreateShipmentWizardController implements Initializable {
         setupServiceCostUpdates();
         setupVehicleSelector();
         setupSavedAddresses();
+        setupNotesTextArea();
         updateStepIndicators();
         updateNavigationButtons();
 
@@ -313,6 +314,44 @@ public class CreateShipmentWizardController implements Initializable {
             txtOriginLongitude.setText(String.valueOf(address.getLongitude()));
         } else {
             txtOriginLongitude.setText("");
+        }
+    }
+
+    /**
+     * Sets up the notes TextArea to be auto-expanding with a maximum height.
+     * The TextArea grows as the user types, up to a maximum of 150px, then shows scrollbar.
+     */
+    private void setupNotesTextArea() {
+        if (txtNotes != null) {
+            // Set initial height
+            txtNotes.setPrefHeight(70);
+            txtNotes.setMinHeight(70);
+            txtNotes.setMaxHeight(150);
+
+            // Add listener to auto-expand
+            txtNotes.textProperty().addListener((obs, oldVal, newVal) -> {
+                // Calculate required height based on content
+                // Approximate: each line is ~20px, add padding
+                String text = newVal != null ? newVal : "";
+                int lineCount = text.split("\n").length;
+
+                // Add extra line for wrapping text
+                if (text.length() > 0) {
+                    // Rough estimate: 50 characters per line at current width
+                    int estimatedWrappedLines = (int) Math.ceil(text.length() / 50.0);
+                    lineCount = Math.max(lineCount, estimatedWrappedLines);
+                }
+
+                // Calculate height: base padding (10) + lines * line height (20)
+                double calculatedHeight = 10 + (lineCount * 20);
+
+                // Clamp between min and max
+                double newHeight = Math.max(70, Math.min(150, calculatedHeight));
+
+                txtNotes.setPrefHeight(newHeight);
+            });
+
+            Logger.info("Notes TextArea auto-expansion configured");
         }
     }
 
@@ -796,7 +835,7 @@ public class CreateShipmentWizardController implements Initializable {
     }
 
     /**
-     * Handles the Confirm button click.
+     * Handles the Confirm button click - shows payment options dialog.
      */
     @FXML
     private void handleConfirm() {
@@ -805,12 +844,96 @@ public class CreateShipmentWizardController implements Initializable {
             return;
         }
 
+        // Show dialog with payment options
+        Alert paymentOptions = new Alert(Alert.AlertType.CONFIRMATION);
+        paymentOptions.setTitle("Opciones de Pago");
+        paymentOptions.setHeaderText("¿Cómo desea proceder con el pago?");
+        paymentOptions.setContentText("Seleccione una opción:");
+
+        // Apply custom styling to the dialog
+        DialogPane dialogPane = paymentOptions.getDialogPane();
+        dialogPane.getStylesheets().add(
+            getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm()
+        );
+        dialogPane.getStyleClass().add("custom-dialog");
+
+        ButtonType btnPayNow = new ButtonType("Continuar con el Pago");
+        ButtonType btnPayLater = new ButtonType("Pagar Después");
+        ButtonType btnCancel = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        paymentOptions.getButtonTypes().setAll(btnPayNow, btnPayLater, btnCancel);
+
+        // Style the buttons
+        dialogPane.lookupButton(btnPayNow).getStyleClass().addAll("btn-primary");
+        dialogPane.lookupButton(btnPayLater).getStyleClass().addAll("btn-secondary");
+        dialogPane.lookupButton(btnCancel).getStyleClass().addAll("btn-danger");
+
+        paymentOptions.showAndWait().ifPresent(response -> {
+            if (response == btnPayNow) {
+                handlePayNow();
+            } else if (response == btnPayLater) {
+                handlePayLater();
+            }
+            // If cancel, do nothing
+        });
+    }
+
+    /**
+     * Handles "Continuar con el Pago" - creates order and opens payment window.
+     */
+    private void handlePayNow() {
         try {
             openCheckoutWindow();
         } catch (Exception e) {
             Logger.error("Error opening checkout: " + e.getMessage());
             e.printStackTrace();
             DialogUtil.showError("Error", "Error al proceder al checkout: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles "Pagar Después" - creates order in AWAITING_PAYMENT status and shows in MyShipments.
+     */
+    private void handlePayLater() {
+        try {
+            var currentPerson = authService.getCurrentPerson();
+            if (currentPerson == null || !(currentPerson instanceof User)) {
+                DialogUtil.showError("Error", "Usuario no autenticado");
+                return;
+            }
+
+            User currentUser = (User) currentPerson;
+
+            // Build addresses
+            Address origin = buildOriginAddress();
+            Address destination = buildDestinationAddress();
+
+            // Build OrderDetailDTO (same as openCheckoutWindow)
+            OrderDetailDTO orderDetail = buildOrderDetail(currentUser, origin, destination);
+
+            // Create the order in AWAITING_PAYMENT status
+            Order createdOrder = orderService.initiateOrderCreation(
+                orderDetail.getUserId(),
+                orderDetail.getOrigin(),
+                orderDetail.getDestination()
+            );
+
+            Logger.info("Order created with ID: " + createdOrder.getId() + " in AWAITING_PAYMENT status");
+
+            // Show success message
+            DialogUtil.showSuccess("Orden Creada",
+                "Su orden ha sido creada exitosamente.\n\n" +
+                "ID de Orden: " + createdOrder.getId() + "\n" +
+                "Estado: Pendiente de Pago\n\n" +
+                "Puede completar el pago desde 'Mis Envíos'.");
+
+            // Navigate to MyShipments and filter by this order
+            navigateToMyShipmentsWithOrder(createdOrder.getId());
+
+        } catch (Exception e) {
+            Logger.error("Error creating order for pay later: " + e.getMessage());
+            e.printStackTrace();
+            DialogUtil.showError("Error", "Error al crear la orden: " + e.getMessage());
         }
     }
 
@@ -1175,6 +1298,65 @@ public class CreateShipmentWizardController implements Initializable {
     /**
      * Opens the checkout window with the order details.
      */
+    /**
+     * Builds OrderDetailDTO from current wizard data.
+     */
+    private OrderDetailDTO buildOrderDetail(User currentUser, Address origin, Address destination) {
+        OrderDetailDTO orderDetail = new OrderDetailDTO();
+        orderDetail.setUserId(currentUser.getId());
+        orderDetail.setOrigin(origin);
+        orderDetail.setDestination(destination);
+
+        // Package details
+        double height = parseDouble(txtHeight.getText());
+        double width = parseDouble(txtWidth.getText());
+        double length = parseDouble(txtLength.getText());
+        orderDetail.setWeightKg(parseDouble(txtWeight.getText()));
+        orderDetail.setHeightCm(height);
+        orderDetail.setWidthCm(width);
+        orderDetail.setLengthCm(length);
+        orderDetail.setVolumeM3((height * width * length) / 1000000.0);
+
+        // Shipment details
+        orderDetail.setPriority(3);
+        orderDetail.setUserNotes(txtNotes.getText());
+        orderDetail.setRequestedPickupDate(getPickupDateTime());
+        orderDetail.setEstimatedDelivery(currentQuote.getEstimatedDelivery());
+
+        // Services
+        List<AdditionalService> services = new ArrayList<>();
+        double subtotal = currentQuote.getBaseCost() + currentQuote.getWeightCost() +
+                        currentQuote.getVolumeCost() + currentQuote.getDistanceCost();
+
+        if (chkInsurance.isSelected()) {
+            services.add(new AdditionalService(ServiceType.INSURANCE, subtotal));
+        }
+        if (chkFragile.isSelected()) {
+            services.add(new AdditionalService(ServiceType.FRAGILE, subtotal));
+        }
+        if (chkSignature.isSelected()) {
+            services.add(new AdditionalService(ServiceType.SIGNATURE_REQUIRED, subtotal));
+        }
+        if (chkPriority.isSelected()) {
+            services.add(new AdditionalService(ServiceType.PRIORITY, subtotal));
+        }
+        orderDetail.setAdditionalServices(services);
+
+        // Cost breakdown
+        orderDetail.setBaseCost(currentQuote.getBaseCost());
+        orderDetail.setDistanceCost(currentQuote.getDistanceCost());
+        orderDetail.setWeightCost(currentQuote.getWeightCost());
+        orderDetail.setVolumeCost(currentQuote.getVolumeCost());
+        orderDetail.setServicesCost(currentQuote.getServicesCost());
+        orderDetail.setPriorityCost(currentQuote.getPriorityCost());
+        orderDetail.setTotalCost(currentQuote.getTotalCost());
+
+        // Distance
+        orderDetail.setDistanceKm(DistanceCalculator.calculateDistance(origin, destination));
+
+        return orderDetail;
+    }
+
     private void openCheckoutWindow() {
         try {
             var currentPerson = authService.getCurrentPerson();
@@ -1189,58 +1371,8 @@ public class CreateShipmentWizardController implements Initializable {
             Address origin = buildOriginAddress();
             Address destination = buildDestinationAddress();
 
-            // Build OrderDetailDTO
-            OrderDetailDTO orderDetail = new OrderDetailDTO();
-            orderDetail.setUserId(currentUser.getId());
-            orderDetail.setOrigin(origin);
-            orderDetail.setDestination(destination);
-
-            // Package details
-            double height = parseDouble(txtHeight.getText());
-            double width = parseDouble(txtWidth.getText());
-            double length = parseDouble(txtLength.getText());
-            orderDetail.setWeightKg(parseDouble(txtWeight.getText()));
-            orderDetail.setHeightCm(height);
-            orderDetail.setWidthCm(width);
-            orderDetail.setLengthCm(length);
-            orderDetail.setVolumeM3((height * width * length) / 1000000.0);
-
-            // Shipment details
-            orderDetail.setPriority(3);
-            orderDetail.setUserNotes(txtNotes.getText());
-            orderDetail.setRequestedPickupDate(getPickupDateTime());
-            orderDetail.setEstimatedDelivery(currentQuote.getEstimatedDelivery());
-
-            // Services
-            List<AdditionalService> services = new ArrayList<>();
-            double subtotal = currentQuote.getBaseCost() + currentQuote.getWeightCost() +
-                            currentQuote.getVolumeCost() + currentQuote.getDistanceCost();
-
-            if (chkInsurance.isSelected()) {
-                services.add(new AdditionalService(ServiceType.INSURANCE, subtotal));
-            }
-            if (chkFragile.isSelected()) {
-                services.add(new AdditionalService(ServiceType.FRAGILE, subtotal));
-            }
-            if (chkSignature.isSelected()) {
-                services.add(new AdditionalService(ServiceType.SIGNATURE_REQUIRED, subtotal));
-            }
-            if (chkPriority.isSelected()) {
-                services.add(new AdditionalService(ServiceType.PRIORITY, subtotal));
-            }
-            orderDetail.setAdditionalServices(services);
-
-            // Cost breakdown
-            orderDetail.setBaseCost(currentQuote.getBaseCost());
-            orderDetail.setDistanceCost(currentQuote.getDistanceCost());
-            orderDetail.setWeightCost(currentQuote.getWeightCost());
-            orderDetail.setVolumeCost(currentQuote.getVolumeCost());
-            orderDetail.setServicesCost(currentQuote.getServicesCost());
-            orderDetail.setPriorityCost(currentQuote.getPriorityCost());
-            orderDetail.setTotalCost(currentQuote.getTotalCost());
-
-            // Distance
-            orderDetail.setDistanceKm(DistanceCalculator.calculateDistance(origin, destination));
+            // Build OrderDetailDTO using new method
+            OrderDetailDTO orderDetail = buildOrderDetail(currentUser, origin, destination);
 
             // Create the order directly (skip Checkout popup as per user request)
             Order createdOrder = orderService.initiateOrderCreation(
@@ -1308,6 +1440,37 @@ public class CreateShipmentWizardController implements Initializable {
         updateStepIndicators();
         updateNavigationButtons();
         Logger.info("Returned to wizard last step (review)");
+    }
+
+    /**
+     * Navigates to MyShipments and filters by the given order ID.
+     */
+    private void navigateToMyShipmentsWithOrder(String orderId) {
+        if (indexController == null) {
+            Logger.warning("IndexController not set, cannot navigate to MyShipments");
+            return;
+        }
+
+        try {
+            Logger.info("Navigating to MyShipments with filter for order: " + orderId);
+
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/View/MyShipments.fxml")
+            );
+
+            indexController.getContentArea().getChildren().clear();
+            indexController.getContentArea().getChildren().add(loader.load());
+
+            MyShipmentsController controller = loader.getController();
+            controller.filterByOrderId(orderId);
+
+            Logger.info("Successfully navigated to MyShipments with order filter: " + orderId);
+        } catch (Exception e) {
+            Logger.error("Error navigating to MyShipments: " + e.getMessage());
+            e.printStackTrace();
+            // Fallback to simple navigation
+            indexController.loadView("MyShipments.fxml");
+        }
     }
 
     /**

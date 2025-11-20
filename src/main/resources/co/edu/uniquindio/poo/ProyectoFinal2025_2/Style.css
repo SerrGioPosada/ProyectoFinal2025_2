@@ -2414,6 +2414,14 @@ DatePicker .arrow-button {
     -fx-scale-y: 1.02;
 }
 
+.sidebar-button:pressed {
+    -fx-background-color: #e0e0e0;
+    -fx-text-fill: #08344C;
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+    -fx-translate-y: 0;
+}
+
 /* Primary button improvements */
 .btn-primary:hover {
     -fx-scale-x: 1.03;
