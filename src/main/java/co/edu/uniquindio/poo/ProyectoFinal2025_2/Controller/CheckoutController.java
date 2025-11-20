@@ -177,14 +177,10 @@ public class CheckoutController implements Initializable {
     @FXML
     private void handleProceedToPayment() {
         try {
-            // Create the order
-            createdOrder = orderService.initiateOrderCreation(
-                orderDetail.getUserId(),
-                orderDetail.getOrigin(),
-                orderDetail.getDestination()
-            );
+            // Create the order with detailed cost breakdown
+            createdOrder = orderService.initiateOrderCreationWithDetails(orderDetail);
 
-            Logger.info("Order created with ID: " + createdOrder.getId());
+            Logger.info("Order created with ID: " + createdOrder.getId() + " with total cost: $" + orderDetail.getTotalCost());
 
             // Open payment window
             openPaymentWindow();

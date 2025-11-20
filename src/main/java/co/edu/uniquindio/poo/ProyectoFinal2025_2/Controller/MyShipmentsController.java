@@ -17,6 +17,7 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.Adapter.OrderShipmentConve
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.DialogUtil;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilController.TabStateManager;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.Logger;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.PdfUtility;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -866,23 +867,90 @@ public class MyShipmentsController implements Initializable {
     // ===========================
 
     private void viewOrderDetails(OrderShipmentViewDTO orderDto) {
-        StringBuilder details = new StringBuilder();
-        details.append("ID: ").append(orderDto.getId()).append("\n");
-        details.append("Tipo: Orden\n");
-        details.append("Ruta: ").append(orderDto.getRoute()).append("\n");
-        details.append("Estado: ").append(orderDto.getStatusDisplay()).append("\n");
-        details.append("Fecha: ").append(orderDto.getDateFormatted()).append("\n");
-        if (orderDto.getShipmentId() != null) {
-            details.append("ID Envío: ").append(orderDto.getShipmentId()).append("\n");
-        }
-        if (orderDto.getPaymentId() != null) {
-            details.append("ID Pago: ").append(orderDto.getPaymentId()).append("\n");
-        }
-        if (orderDto.getInvoiceId() != null) {
-            details.append("ID Factura: ").append(orderDto.getInvoiceId());
+        // Get full order object to show more details
+        Optional<Order> orderOpt = orderRepository.findById(orderDto.getId());
+        if (!orderOpt.isPresent()) {
+            DialogUtil.showError("Error", "No se pudo encontrar la orden");
+            return;
         }
 
-        DialogUtil.showInfo("Detalles de la Orden", details.toString());
+        Order order = orderOpt.get();
+
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Detalles de la Orden");
+        dialog.setHeaderText("Orden #" + order.getId());
+
+        // Apply stylesheet
+        dialog.getDialogPane().getStylesheets().add(
+            getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm()
+        );
+        dialog.getDialogPane().getStyleClass().add("dialog-pane");
+
+        ButtonType downloadPdfButton = new ButtonType("Descargar PDF", javafx.scene.control.ButtonBar.ButtonData.LEFT);
+        ButtonType closeButton = new ButtonType("Cerrar", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(downloadPdfButton, closeButton);
+
+        // Style the buttons
+        javafx.scene.control.Button pdfBtn = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(downloadPdfButton);
+        if (pdfBtn != null) {
+            pdfBtn.getStyleClass().add("btn-primary");
+        }
+
+        javafx.scene.control.Button closeBtn = (javafx.scene.control.Button) dialog.getDialogPane().lookupButton(closeButton);
+        if (closeBtn != null) {
+            closeBtn.getStyleClass().add("btn-secondary");
+        }
+
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setPadding(new javafx.geometry.Insets(20));
+        grid.setStyle("-fx-background-color: white;");
+
+        int row = 0;
+
+        addOrderDetailRow(grid, row++, "ID Orden:", order.getId());
+        addOrderDetailRow(grid, row++, "Tipo:", "Orden");
+        addOrderDetailRow(grid, row++, "Estado:", orderDto.getStatusDisplay());
+        addOrderDetailRow(grid, row++, "Origen:", order.getOrigin().getCity() + ", " + order.getOrigin().getStreet());
+        addOrderDetailRow(grid, row++, "Destino:", order.getDestination().getCity() + ", " + order.getDestination().getStreet());
+        addOrderDetailRow(grid, row++, "Fecha Creación:", orderDto.getDateFormatted());
+        addOrderDetailRow(grid, row++, "Costo Total:", String.format("$%.2f", order.getTotalCost()));
+
+        if (order.getShipmentId() != null && !order.getShipmentId().isEmpty()) {
+            addOrderDetailRow(grid, row++, "ID Envío:", order.getShipmentId());
+        }
+        if (order.getPaymentId() != null && !order.getPaymentId().isEmpty()) {
+            addOrderDetailRow(grid, row++, "ID Pago:", order.getPaymentId());
+        }
+        if (order.getInvoiceId() != null && !order.getInvoiceId().isEmpty()) {
+            addOrderDetailRow(grid, row++, "ID Factura:", order.getInvoiceId());
+        }
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().setMinWidth(550);
+        dialog.getDialogPane().setMinHeight(400);
+
+        // Handle PDF download button
+        if (pdfBtn != null) {
+            pdfBtn.setOnAction(event -> {
+                event.consume(); // Prevent dialog from closing
+                handleDownloadOrderPDF(order);
+            });
+        }
+
+        dialog.showAndWait();
+    }
+
+    private void addOrderDetailRow(javafx.scene.layout.GridPane grid, int row, String label, String value) {
+        javafx.scene.control.Label lblLabel = new javafx.scene.control.Label(label);
+        lblLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #032d4d; -fx-font-size: 14px;");
+
+        javafx.scene.control.Label lblValue = new javafx.scene.control.Label(value);
+        lblValue.setStyle("-fx-text-fill: #6c757d; -fx-font-size: 14px;");
+
+        grid.add(lblLabel, 0, row);
+        grid.add(lblValue, 1, row);
     }
 
     private void viewShipmentDetails(String shipmentId) {
@@ -905,6 +973,47 @@ public class MyShipmentsController implements Initializable {
         } catch (IOException e) {
             Logger.error("Failed to load ShipmentDetail view: " + e.getMessage());
             DialogUtil.showError("Error", "No se pudo abrir los detalles del envío");
+        }
+    }
+
+    /**
+     * Handles downloading the order PDF (invoice).
+     */
+    private void handleDownloadOrderPDF(Order order) {
+        try {
+            // Check if order has an invoice
+            if (order.getInvoiceId() == null || order.getInvoiceId().isEmpty()) {
+                DialogUtil.showError("Error", "Esta orden no tiene una factura asociada");
+                return;
+            }
+
+            // Get the invoice
+            Optional<Invoice> invoiceOpt = invoiceRepository.findById(order.getInvoiceId());
+            if (!invoiceOpt.isPresent()) {
+                DialogUtil.showError("Error", "No se pudo encontrar la factura");
+                return;
+            }
+
+            Invoice invoice = invoiceOpt.get();
+
+            // Get current user
+            User currentUser = (User) authService.getCurrentPerson();
+            if (currentUser == null) {
+                DialogUtil.showError("Error", "No se pudo obtener el usuario actual");
+                return;
+            }
+
+            // Generate PDF
+            java.io.File pdfFile = PdfUtility.generateInvoicePDF(invoice, currentUser);
+
+            // Show success message with file location
+            DialogUtil.showInfo("PDF Generado",
+                "La factura se guardó exitosamente en:\n" + pdfFile.getAbsolutePath());
+
+            Logger.info("Generated PDF invoice for order: " + order.getId());
+        } catch (IOException e) {
+            Logger.error("Error generating PDF: " + e.getMessage());
+            DialogUtil.showError("Error", "Error al generar el PDF: " + e.getMessage());
         }
     }
 

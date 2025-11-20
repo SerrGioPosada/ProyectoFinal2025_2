@@ -52,6 +52,7 @@ public class PaymentController implements Initializable {
     // Saved Payment Method Details
     @FXML private VBox vboxSavedPaymentDetails;
     @FXML private Label lblSavedPaymentInfo;
+    @FXML private Button btnSelectPaymentMethod;
 
     // Credit/Debit Card Details (for traditional payment)
     @FXML private VBox vboxCardDetails;
@@ -80,6 +81,7 @@ public class PaymentController implements Initializable {
     private OrderDetailDTO orderDetail;
     private User currentUser;
     private IndexController indexController;
+    private PaymentMethod selectedPaymentMethod; // Selected payment method when user has multiple
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -248,10 +250,20 @@ public class PaymentController implements Initializable {
                 rbSavedPayment.setDisable(false);
 
                 // Update label with saved payment info
-                PaymentMethod savedMethod = savedMethods.get(0); // Use first saved method
-                String methodInfo = String.format("%s - %s",
-                    savedMethod.getProvider().toString().replace("_", " "),
-                    savedMethod.getAccountNumber());
+                String methodInfo;
+                if (savedMethods.size() == 1) {
+                    PaymentMethod savedMethod = savedMethods.get(0);
+                    selectedPaymentMethod = savedMethod; // Auto-select if only one
+                    methodInfo = String.format("%s - %s",
+                        savedMethod.getProvider().toString().replace("_", " "),
+                        savedMethod.getAccountNumber());
+                    btnSelectPaymentMethod.setVisible(false);
+                    btnSelectPaymentMethod.setManaged(false);
+                } else {
+                    methodInfo = savedMethods.size() + " métodos guardados";
+                    btnSelectPaymentMethod.setVisible(true);
+                    btnSelectPaymentMethod.setManaged(true);
+                }
                 lblSavedPaymentInfo.setText(methodInfo);
 
                 Logger.info("Saved payment methods available: " + methodInfo);
@@ -266,23 +278,50 @@ public class PaymentController implements Initializable {
     }
 
     /**
-     * Gets a saved payment method for the current user.
-     * Returns null if no saved methods exist.
+     * Handles the selection button click - opens dialog to select payment method.
      */
-    private PaymentMethod getSavedPaymentMethod() {
+    @FXML
+    private void handleSelectPaymentMethod() {
         if (currentUser == null) {
-            return null;
+            return;
         }
 
         var savedMethods = paymentMethodService.getPaymentMethodsByUserId(currentUser.getId());
 
-        if (savedMethods != null && !savedMethods.isEmpty()) {
-            // For now, return the first saved method
-            // In a more complete implementation, you could show a selection dialog
-            return savedMethods.get(0);
+        if (savedMethods == null || savedMethods.isEmpty()) {
+            showWarning("No hay métodos de pago guardados");
+            return;
         }
 
-        return null;
+        // Show selection dialog
+        PaymentMethod defaultSelection = selectedPaymentMethod != null ? selectedPaymentMethod : savedMethods.get(0);
+        ChoiceDialog<PaymentMethod> dialog = new ChoiceDialog<>(defaultSelection, savedMethods);
+        dialog.setTitle("Seleccionar Método de Pago");
+        dialog.setHeaderText("Selecciona el método que deseas usar");
+        dialog.setContentText("Métodos de pago disponibles:");
+
+        // Apply stylesheet
+        dialog.getDialogPane().getStylesheets().add(
+            getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm()
+        );
+        dialog.getDialogPane().getStyleClass().add("dialog-pane");
+
+        Optional<PaymentMethod> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            selectedPaymentMethod = result.get();
+            // Update label to show selected method
+            String methodInfo = selectedPaymentMethod.toString();
+            lblSavedPaymentInfo.setText(methodInfo);
+            Logger.info("User selected payment method: " + methodInfo);
+        }
+    }
+
+    /**
+     * Gets the saved payment method that was selected by the user.
+     * Returns null if no method was selected.
+     */
+    private PaymentMethod getSavedPaymentMethod() {
+        return selectedPaymentMethod;
     }
 
     /**

@@ -38,7 +38,7 @@ public final class OrderShipmentConverterUtil {
         dto.setStatusColor(getOrderStatusColor(order.getStatus()));
 
         dto.setCreatedDate(order.getCreatedAt());
-        dto.setCost(0.0); // Orders don't have cost directly, it's in the shipment
+        dto.setCost(order.getTotalCost());
 
         // Order-specific fields
         dto.setShipmentId(order.getShipmentId());

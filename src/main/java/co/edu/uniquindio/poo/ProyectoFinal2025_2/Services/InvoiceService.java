@@ -93,4 +93,69 @@ public class InvoiceService {
 
         return newInvoice;
     }
+
+    /**
+     * Creates a new invoice for a given order with detailed cost breakdown from OrderDetailDTO.
+     * <p>This method uses actual costs calculated during the quote process, ensuring
+     * consistency between what the user saw in the quote and what they pay.</p>
+     *
+     * @param order The order for which to create an invoice.
+     * @param orderDetail The order details with cost breakdown.
+     * @return The newly created, immutable Invoice object.
+     */
+    public Invoice createInvoiceForOrderWithDetails(Order order, co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.OrderDetailDTO orderDetail) {
+        List<LineItem> lineItems = new ArrayList<>();
+
+        // Use actual costs from OrderDetailDTO
+        if (orderDetail.getBaseCost() > 0) {
+            lineItems.add(new LineItem("Base Shipping Cost", orderDetail.getBaseCost()));
+        }
+
+        if (orderDetail.getDistanceCost() > 0) {
+            lineItems.add(new LineItem(
+                String.format("Distance Cost (%.2f km)", orderDetail.getDistanceKm()),
+                orderDetail.getDistanceCost()
+            ));
+        }
+
+        if (orderDetail.getWeightCost() > 0) {
+            lineItems.add(new LineItem(
+                String.format("Weight Cost (%.2f kg)", orderDetail.getWeightKg()),
+                orderDetail.getWeightCost()
+            ));
+        }
+
+        if (orderDetail.getVolumeCost() > 0) {
+            lineItems.add(new LineItem(
+                String.format("Volume Cost (%.4f m³)", orderDetail.getVolumeM3()),
+                orderDetail.getVolumeCost()
+            ));
+        }
+
+        if (orderDetail.getServicesCost() > 0) {
+            lineItems.add(new LineItem("Additional Services", orderDetail.getServicesCost()));
+        }
+
+        if (orderDetail.getPriorityCost() > 0) {
+            lineItems.add(new LineItem("Priority Shipping", orderDetail.getPriorityCost()));
+        }
+
+        // Use the total from OrderDetailDTO to ensure consistency
+        double totalAmount = orderDetail.getTotalCost();
+
+        // Create the immutable invoice object
+        Invoice newInvoice = new Invoice.Builder()
+                .withId(IdGenerationUtil.generateId())
+                .withOrderId(order.getId())
+                .withInvoiceNumber(IdGenerationUtil.generateInvoiceNumber())
+                .withIssuedAt(LocalDateTime.now())
+                .withTotalAmount(totalAmount)
+                .withLineItems(lineItems)
+                .build();
+
+        // Persist the new invoice
+        invoiceRepository.addInvoice(newInvoice);
+
+        return newInvoice;
+    }
 }

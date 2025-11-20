@@ -4,7 +4,6 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.PaymentMethodType;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.PaymentProvider;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
  * Represents a payment method that a user can register.
@@ -13,7 +12,6 @@ import lombok.ToString;
  */
 @Getter
 @Setter
-@ToString
 public class PaymentMethod {
 
     private String id;                       // Unique identifier for the payment method
@@ -103,5 +101,16 @@ public class PaymentMethod {
         public PaymentMethod build() {
             return new PaymentMethod(this);
         }
+    }
+
+    /**
+     * Returns a user-friendly string representation of the payment method.
+     * Used for display in selection dialogs.
+     */
+    @Override
+    public String toString() {
+        String providerName = provider != null ? provider.toString().replace("_", " ") : "N/A";
+        String typeName = type != null ? type.toString().replace("_", " ") : "N/A";
+        return String.format("%s - %s (%s)", providerName, accountNumber != null ? accountNumber : "N/A", typeName);
     }
 }

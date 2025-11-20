@@ -911,14 +911,10 @@ public class CreateShipmentWizardController implements Initializable {
             // Build OrderDetailDTO (same as openCheckoutWindow)
             OrderDetailDTO orderDetail = buildOrderDetail(currentUser, origin, destination);
 
-            // Create the order in AWAITING_PAYMENT status
-            Order createdOrder = orderService.initiateOrderCreation(
-                orderDetail.getUserId(),
-                orderDetail.getOrigin(),
-                orderDetail.getDestination()
-            );
+            // Create the order in AWAITING_PAYMENT status with detailed cost breakdown
+            Order createdOrder = orderService.initiateOrderCreationWithDetails(orderDetail);
 
-            Logger.info("Order created with ID: " + createdOrder.getId() + " in AWAITING_PAYMENT status");
+            Logger.info("Order created with ID: " + createdOrder.getId() + " in AWAITING_PAYMENT status with total cost: $" + orderDetail.getTotalCost());
 
             // Show success message
             DialogUtil.showSuccess("Orden Creada",
@@ -1374,14 +1370,10 @@ public class CreateShipmentWizardController implements Initializable {
             // Build OrderDetailDTO using new method
             OrderDetailDTO orderDetail = buildOrderDetail(currentUser, origin, destination);
 
-            // Create the order directly (skip Checkout popup as per user request)
-            Order createdOrder = orderService.initiateOrderCreation(
-                orderDetail.getUserId(),
-                orderDetail.getOrigin(),
-                orderDetail.getDestination()
-            );
+            // Create the order directly (skip Checkout popup as per user request) with detailed cost breakdown
+            Order createdOrder = orderService.initiateOrderCreationWithDetails(orderDetail);
 
-            Logger.info("Order created with ID: " + createdOrder.getId());
+            Logger.info("Order created with ID: " + createdOrder.getId() + " with total cost: $" + orderDetail.getTotalCost());
 
             // Open payment window directly
             // The wizard will close after payment is completed or cancelled

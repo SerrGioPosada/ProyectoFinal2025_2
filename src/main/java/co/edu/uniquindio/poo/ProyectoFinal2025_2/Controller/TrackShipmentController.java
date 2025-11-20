@@ -49,6 +49,10 @@ public class TrackShipmentController implements Initializable {
     @FXML private Label lblDeliveryPersonPhone;
     @FXML private Label lblDeliveryPersonZone;
 
+    // Action Buttons
+    @FXML private Button btnRefresh;
+    @FXML private Button btnViewDetails;
+
     // Service
     private final ShipmentService shipmentService = new ShipmentService();
 
@@ -177,6 +181,10 @@ public class TrackShipmentController implements Initializable {
 
         trackingContent.setVisible(true);
         trackingContent.setManaged(true);
+
+        // Enable action buttons now that shipment is tracked
+        btnRefresh.setDisable(false);
+        btnViewDetails.setDisable(false);
 
         Logger.info("Loaded tracking for shipment: " + shipmentId);
     }

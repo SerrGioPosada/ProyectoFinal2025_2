@@ -52,7 +52,6 @@
             <TableColumn fx:id="colStatus" text="Estado" prefWidth="120" minWidth="100"/>
             <TableColumn fx:id="colPaymentMethod" text="Método" prefWidth="150" minWidth="130"/>
             <TableColumn fx:id="colAccountNumber" text="Cuenta" prefWidth="150" minWidth="130"/>
-            <TableColumn fx:id="colActions" text="Acciones" prefWidth="120" minWidth="100"/>
         </columns>
         <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>

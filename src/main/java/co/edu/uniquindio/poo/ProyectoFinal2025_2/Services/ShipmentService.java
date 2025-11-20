@@ -158,9 +158,12 @@ public class ShipmentService {
                 .withDestination(order.getDestination())
                 .withCreatedAt(LocalDateTime.now())
                 .withStatus(ShipmentStatus.PENDING_ASSIGNMENT)
+                .withTotalCost(order.getTotalCost())
                 .build();
 
         shipmentRepository.addShipment(newShipment);
+
+        Logger.info("Shipment created for order " + order.getId() + " with total cost: $" + order.getTotalCost());
 
         return newShipment.getId();
     }

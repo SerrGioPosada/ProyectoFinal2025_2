@@ -26,6 +26,9 @@ public class Order {
     private LocalDateTime createdAt;
     private OrderStatus status;
 
+    // Cost information
+    private double totalCost;
+
     // IDs for related aggregates
     private String shipmentId;
     private String paymentId;
@@ -49,6 +52,7 @@ public class Order {
         this.destination = builder.destination;
         this.createdAt = builder.createdAt;
         this.status = builder.status;
+        this.totalCost = builder.totalCost;
         this.shipmentId = builder.shipmentId;
         this.paymentId = builder.paymentId;
         this.invoiceId = builder.invoiceId;
@@ -69,6 +73,7 @@ public class Order {
         private Address destination;
         private LocalDateTime createdAt;
         private OrderStatus status;
+        private double totalCost;
         private String shipmentId;
         private String paymentId;
         private String invoiceId;
@@ -101,6 +106,11 @@ public class Order {
 
         public Builder withStatus(OrderStatus status) {
             this.status = status;
+            return this;
+        }
+
+        public Builder withTotalCost(double totalCost) {
+            this.totalCost = totalCost;
             return this;
         }
 

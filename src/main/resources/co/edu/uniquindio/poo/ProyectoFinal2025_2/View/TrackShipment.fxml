@@ -124,8 +124,8 @@
 
     <!-- Action Buttons -->
     <HBox spacing="10" styleClass="action-section" alignment="CENTER_LEFT">
-        <Button text="Actualizar" styleClass="btn-primary" onAction="#handleRefresh"/>
-        <Button text="Ver Detalles Completos" styleClass="btn-secondary" onAction="#handleViewDetails"/>
+        <Button fx:id="btnRefresh" text="Actualizar" styleClass="btn-primary" onAction="#handleRefresh" disable="true"/>
+        <Button fx:id="btnViewDetails" text="Ver Detalles Completos" styleClass="btn-secondary" onAction="#handleViewDetails" disable="true"/>
     </HBox>
 
 </VBox>

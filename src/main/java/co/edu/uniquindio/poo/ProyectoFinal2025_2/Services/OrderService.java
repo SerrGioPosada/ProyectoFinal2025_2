@@ -101,6 +101,38 @@ public class OrderService {
         return newOrder;
     }
 
+    /**
+     * Initiates the creation of a new order with detailed cost breakdown.
+     * <p>This version uses OrderDetailDTO to ensure invoice costs match the quote.</p>
+     *
+     * @param orderDetail The order details with cost breakdown.
+     * @return The newly created Order, ready for payment.
+     */
+    public Order initiateOrderCreationWithDetails(co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.OrderDetailDTO orderDetail) {
+
+        // 1. Create the Order in its initial state using the manual builder
+        Order newOrder = new Order.Builder()
+                .withId(IdGenerationUtil.generateId())
+                .withUserId(orderDetail.getUserId())
+                .withOrigin(orderDetail.getOrigin())
+                .withDestination(orderDetail.getDestination())
+                .withCreatedAt(LocalDateTime.now())
+                .withStatus(OrderStatus.AWAITING_PAYMENT)
+                .withTotalCost(orderDetail.getTotalCost())
+                .build();
+
+        orderRepository.addOrder(newOrder);
+
+        // 2. Call the InvoiceService to create the associated invoice with detailed costs
+        Invoice invoice = invoiceService.createInvoiceForOrderWithDetails(newOrder, orderDetail);
+
+        // 3. Update the order with the new invoiceId
+        newOrder.setInvoiceId(invoice.getId());
+        orderRepository.update(newOrder);
+
+        return newOrder;
+    }
+
     // ===========================
     // Payment Confirmation
     // ===========================
@@ -126,13 +158,13 @@ public class OrderService {
             );
         }
 
-        // 1. Update the order state to PAID
+        // 1. Update the order state to PENDING_APPROVAL (after successful payment)
         order.setPaymentId(paymentId);
-        order.setStatus(OrderStatus.PAID);
+        order.setStatus(OrderStatus.PENDING_APPROVAL);
         orderRepository.update(order);
 
-        // 2. Order is now PAID and ready for admin to assign delivery person
-        // Shipment will be created when delivery person is assigned, not here
+        // 2. Order is now PENDING_APPROVAL and ready for admin to approve and create shipment
+        // Shipment will be created when admin approves the order
     }
 
     // ===========================

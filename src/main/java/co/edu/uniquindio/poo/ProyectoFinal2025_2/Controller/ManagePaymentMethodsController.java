@@ -210,31 +210,30 @@ public class ManagePaymentMethodsController implements Initializable {
         ButtonType cancelButtonType = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, cancelButtonType);
 
-        // Style the dialog pane
-        dialog.getDialogPane().setStyle(
-            "-fx-background-color: white;" +
-            "-fx-padding: 20;" +
-            "-fx-font-family: 'Segoe UI';"
+        // Apply stylesheet
+        dialog.getDialogPane().getStylesheets().add(
+            getClass().getResource("/co/edu/uniquindio/poo/ProyectoFinal2025_2/Style.css").toExternalForm()
         );
+        dialog.getDialogPane().getStyleClass().add("dialog-pane");
 
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(15);
         grid.setPadding(new Insets(20, 20, 10, 20));
-        grid.setStyle("-fx-background-color: white;");
 
         // Style labels
         Label lblType = new Label("Tipo:");
-        lblType.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        lblType.getStyleClass().add("form-label");
         Label lblProvider = new Label("Proveedor:");
-        lblProvider.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        lblProvider.getStyleClass().add("form-label");
         Label lblNumber = new Label("Número:");
-        lblNumber.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        lblNumber.getStyleClass().add("form-label");
 
         ComboBox<PaymentMethodType> cmbType = new ComboBox<>();
         cmbType.getItems().addAll(PaymentMethodType.values());
         cmbType.setPromptText("Seleccione tipo");
         cmbType.setPrefWidth(250);
+        cmbType.getStyleClass().add("form-combo");
 
         // Configure cell factory for PaymentMethodType with Spanish labels
         cmbType.setCellFactory(lv -> new ListCell<PaymentMethodType>() {
@@ -265,6 +264,7 @@ public class ManagePaymentMethodsController implements Initializable {
         cmbProvider.getItems().addAll(PaymentProvider.values());
         cmbProvider.setPromptText("Seleccione proveedor");
         cmbProvider.setPrefWidth(250);
+        cmbProvider.getStyleClass().add("form-combo");
 
         // Configure cell factory for PaymentProvider with Spanish labels
         cmbProvider.setCellFactory(lv -> new ListCell<PaymentProvider>() {
@@ -294,7 +294,7 @@ public class ManagePaymentMethodsController implements Initializable {
         TextField txtAccountNumber = new TextField();
         txtAccountNumber.setPromptText("Número de cuenta/tarjeta");
         txtAccountNumber.setPrefWidth(250);
-        txtAccountNumber.setStyle("-fx-font-size: 14px; -fx-padding: 8;");
+        txtAccountNumber.getStyleClass().add("form-field");
 
         if (existingMethod != null) {
             cmbType.setValue(existingMethod.getType());
@@ -327,6 +327,17 @@ public class ManagePaymentMethodsController implements Initializable {
             }
             return null;
         });
+
+        // Style buttons
+        Button saveBtn = (Button) dialog.getDialogPane().lookupButton(saveButtonType);
+        if (saveBtn != null) {
+            saveBtn.getStyleClass().add("btn-primary");
+        }
+
+        Button cancelBtn = (Button) dialog.getDialogPane().lookupButton(cancelButtonType);
+        if (cancelBtn != null) {
+            cancelBtn.getStyleClass().add("btn-secondary");
+        }
 
         return dialog;
     }

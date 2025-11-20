@@ -48,7 +48,7 @@
 
                 <VBox spacing="12">
                     <RadioButton fx:id="rbSavedPayment" text="Método de Pago Guardado"
-                                 styleClass="form-checkbox"/>
+                                 styleClass="form-checkbox" disable="true"/>
                     <RadioButton fx:id="rbCreditCard" text="Tarjeta de Crédito (Simulado)"
                                  styleClass="form-checkbox"/>
                     <RadioButton fx:id="rbDebitCard" text="Tarjeta de Débito (Simulado)"
@@ -75,6 +75,14 @@
                                styleClass="info-label" wrapText="true"/>
                     </VBox>
                 </HBox>
+
+                <Button fx:id="btnSelectPaymentMethod" text="Seleccionar Método de Pago"
+                        styleClass="btn-secondary" onAction="#handleSelectPaymentMethod"
+                        visible="false" managed="false">
+                    <graphic>
+                        <Label text="💳" style="-fx-text-fill: white;"/>
+                    </graphic>
+                </Button>
             </VBox>
 
             <!-- Card Details Section -->
