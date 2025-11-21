@@ -2,6 +2,8 @@ package co.edu.uniquindio.poo.ProyectoFinal2025_2.Model;
 
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.ShipmentStatus;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.VehicleType;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.State.ShipmentState;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.State.ShipmentStateFactory;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -55,6 +57,9 @@ public class Shipment {
     private String internalNotes;
     private boolean active;
     private List<StatusChange> statusHistory;
+
+    // State Pattern - transient so it doesn't serialize
+    private transient ShipmentState shipmentState;
 
     /**
      * Default constructor.
@@ -326,5 +331,81 @@ public class Shipment {
      */
     public double calculateVolume() {
         return (heightCm * widthCm * lengthCm) / 1000000.0;
+    }
+
+    // ======================================
+    //      STATE PATTERN METHODS
+    // ======================================
+
+    /**
+     * Initializes the state object if null (lazy initialization).
+     * Called after deserialization or when state is needed.
+     */
+    private void initializeStateIfNeeded() {
+        if (this.shipmentState == null && this.status != null) {
+            this.shipmentState = ShipmentStateFactory.createState(this.status);
+        }
+    }
+
+    /**
+     * Gets the current state object.
+     * @return The current ShipmentState
+     */
+    public ShipmentState getShipmentState() {
+        initializeStateIfNeeded();
+        return this.shipmentState;
+    }
+
+    /**
+     * Advances the shipment to the next state.
+     * @throws IllegalStateException if the transition is not allowed
+     */
+    public void advanceToNextState() {
+        initializeStateIfNeeded();
+        if (shipmentState.canTransitionToNext()) {
+            shipmentState.next(this);
+        } else {
+            throw new IllegalStateException("No se puede avanzar desde el estado actual: " + status);
+        }
+    }
+
+    /**
+     * Cancels the shipment.
+     * @throws IllegalStateException if cancellation is not allowed
+     */
+    public void cancelShipment() {
+        initializeStateIfNeeded();
+        if (shipmentState.canCancel()) {
+            shipmentState.cancel(this);
+        } else {
+            throw new IllegalStateException("No se puede cancelar desde el estado actual: " + status);
+        }
+    }
+
+    /**
+     * Checks if the shipment can transition to the next state.
+     * @return true if transition is allowed
+     */
+    public boolean canAdvanceToNextState() {
+        initializeStateIfNeeded();
+        return shipmentState.canTransitionToNext();
+    }
+
+    /**
+     * Checks if the shipment can be cancelled.
+     * @return true if cancellation is allowed
+     */
+    public boolean canBeCancelled() {
+        initializeStateIfNeeded();
+        return shipmentState.canCancel();
+    }
+
+    /**
+     * Gets a human-readable description of the current status.
+     * @return The status description
+     */
+    public String getStatusDescription() {
+        initializeStateIfNeeded();
+        return shipmentState.getStatusDescription();
     }
 }

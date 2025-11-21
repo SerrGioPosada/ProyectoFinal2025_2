@@ -197,20 +197,19 @@ public class ReportIncidentDialogController implements Initializable {
                     currentDeliveryPerson.getId()
             );
 
-            // Set incident on the shipment
+            // Set incident on the shipment (don't change status automatically)
             currentShipment.setIncident(incident);
 
-            // Update shipment status to indicate incident (use RETURNED status for incidents)
-            shipmentService.changeStatus(currentShipment.getId(), ShipmentStatus.RETURNED,
-                    "Incidencia reportada: " + incidentType.getDescription(),
-                    currentDeliveryPerson.getId());
+            // Save the shipment with the incident
+            shipmentService.updateShipmentEntity(currentShipment);
 
             Logger.info("Incident reported successfully: " + incidentId);
 
             // Show success message
             DialogUtil.showSuccess("Incidencia Reportada",
                     "La incidencia ha sido registrada exitosamente.\n" +
-                            "ID de Incidencia: " + incidentId);
+                            "ID de Incidencia: " + incidentId + "\n\n" +
+                            "El cliente será notificado del incidente.");
 
             incidentReported = true;
 

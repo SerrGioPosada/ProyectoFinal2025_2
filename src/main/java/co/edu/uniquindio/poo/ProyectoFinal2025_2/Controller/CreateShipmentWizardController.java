@@ -279,6 +279,14 @@ public class CreateShipmentWizardController implements Initializable {
                 // Add listener for origin address selection
                 cmbOriginSavedAddresses.valueProperty().addListener((obs, oldVal, newVal) -> {
                     if (newVal != null) {
+                        // Check if same as destination
+                        Address destination = cmbDestinationSavedAddresses.getValue();
+                        if (destination != null && isSameAddress(newVal, destination)) {
+                            DialogUtil.showWarning("Dirección Inválida",
+                                "El origen y destino no pueden ser la misma dirección. Por favor, seleccione una dirección diferente.");
+                            cmbOriginSavedAddresses.setValue(oldVal);
+                            return;
+                        }
                         fillOriginAddressFields(newVal);
                     }
                 });
@@ -286,6 +294,14 @@ public class CreateShipmentWizardController implements Initializable {
                 // Add listener for destination address selection
                 cmbDestinationSavedAddresses.valueProperty().addListener((obs, oldVal, newVal) -> {
                     if (newVal != null) {
+                        // Check if same as origin
+                        Address origin = cmbOriginSavedAddresses.getValue();
+                        if (origin != null && isSameAddress(newVal, origin)) {
+                            DialogUtil.showWarning("Dirección Inválida",
+                                "El destino y origen no pueden ser la misma dirección. Por favor, seleccione una dirección diferente.");
+                            cmbDestinationSavedAddresses.setValue(oldVal);
+                            return;
+                        }
                         fillDestinationAddressFields(newVal);
                     }
                 });
@@ -377,6 +393,24 @@ public class CreateShipmentWizardController implements Initializable {
         } else {
             txtDestinationLongitude.setText("");
         }
+    }
+
+    /**
+     * Checks if two addresses are the same by comparing their key fields.
+     */
+    private boolean isSameAddress(Address addr1, Address addr2) {
+        if (addr1 == null || addr2 == null) return false;
+        if (addr1 == addr2) return true;
+
+        // Compare key fields: street, city, state, zip code
+        boolean sameStreet = (addr1.getStreet() != null && addr1.getStreet().equalsIgnoreCase(addr2.getStreet()));
+        boolean sameCity = (addr1.getCity() != null && addr1.getCity().equalsIgnoreCase(addr2.getCity()));
+        boolean sameState = (addr1.getState() == null && addr2.getState() == null) ||
+                           (addr1.getState() != null && addr1.getState().equalsIgnoreCase(addr2.getState()));
+        boolean sameZip = (addr1.getZipCode() == null && addr2.getZipCode() == null) ||
+                         (addr1.getZipCode() != null && addr1.getZipCode().equalsIgnoreCase(addr2.getZipCode()));
+
+        return sameStreet && sameCity && sameState && sameZip;
     }
 
     /**
@@ -1157,14 +1191,52 @@ public class CreateShipmentWizardController implements Initializable {
             isValid = false;
         }
 
+        // Validate that origin and destination are different
+        if (isValid) {
+            Address origin = buildOriginAddress();
+            Address destination = buildDestinationAddress();
+
+            if (isSameAddress(origin, destination)) {
+                DialogUtil.showWarning("Dirección Inválida",
+                    "El origen y destino no pueden ser la misma dirección. Por favor, ingrese una dirección de destino diferente.");
+                isValid = false;
+            }
+        }
+
         return isValid;
     }
 
     /**
-     * Validates step 4 (additional services).
+     * Validates step 4 (additional services and vehicle selection).
      */
     private boolean validateStep4() {
-        // All fields are optional in step 4
+        // Validate vehicle selection
+        VehicleType selected = cmbVehicleType.getValue();
+        if (selected == null) {
+            DialogUtil.showWarning("Vehículo Requerido",
+                    "Por favor selecciona un tipo de vehículo para el envío.");
+            return false;
+        }
+
+        // Validate vehicle compatibility with package
+        try {
+            double weight = parseDouble(txtWeight.getText());
+            double volume = calculateVolume();
+            boolean isPriority = chkPriority.isSelected();
+            boolean isFragile = chkFragile.isSelected();
+
+            String error = VehicleSelector.getComprehensiveValidation(selected, weight, volume, isPriority, isFragile);
+
+            if (error != null) {
+                DialogUtil.showWarning("Vehículo Incompatible",
+                        error + "\n\nPor favor selecciona un vehículo compatible con tu envío.");
+                return false;
+            }
+
+        } catch (Exception e) {
+            Logger.error("Error validating vehicle selection: " + e.getMessage());
+        }
+
         return true;
     }
 

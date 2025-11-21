@@ -36,6 +36,7 @@ public class ShipmentService {
     private final AddressRepository addressRepository;
     private final TariffService tariffService;
     private final VehicleService vehicleService;
+    private final InvoiceService invoiceService;
 
     // Observer Pattern: List of observers for shipment events
     private final List<ShipmentObserver> observers = new ArrayList<>();
@@ -62,6 +63,7 @@ public class ShipmentService {
         this.addressRepository = addressRepository;
         this.tariffService = tariffService;
         this.vehicleService = VehicleService.getInstance();
+        this.invoiceService = new InvoiceService();
     }
 
     /**
@@ -163,6 +165,9 @@ public class ShipmentService {
 
         shipmentRepository.addShipment(newShipment);
 
+        // Register NotificationObserver for this user (Observer Pattern)
+        registerObserver(new NotificationObserver(order.getUserId()));
+
         Logger.info("Shipment created for order " + order.getId() + " with total cost: $" + order.getTotalCost());
 
         return newShipment.getId();
@@ -234,8 +239,8 @@ public class ShipmentService {
                 .withWidthCm(dto.getWidthCm())
                 .withLengthCm(dto.getLengthCm())
                 .withVolumeM3(volume)
-                .withBaseCost(quote.getBaseCost() + quote.getWeightCost() + quote.getVolumeCost() + quote.getDistanceCost())
-                .withServicesCost(quote.getServicesCost() + quote.getPriorityCost())
+                .withBaseCost(quote.getBaseCost())
+                .withServicesCost(quote.getServicesCost())
                 .withTotalCost(quote.getTotalCost())
                 .withPriority(dto.getPriority())
                 .withUserNotes(dto.getUserNotes())
@@ -253,6 +258,9 @@ public class ShipmentService {
         }
 
         shipmentRepository.addShipment(shipment);
+
+        // Register NotificationObserver for this shipment (Observer Pattern)
+        registerObserver(new NotificationObserver(dto.getUserId()));
 
         Logger.info("Shipment created: " + shipment.getId() + " for user: " + dto.getUserId());
 
@@ -438,9 +446,6 @@ public class ShipmentService {
             throw new IllegalArgumentException("Debe proporcionar direcciones (objetos o IDs)");
         }
 
-        // Calculate distance
-        double distance = DistanceCalculator.calculateDistance(origin, destination);
-
         // Calculate volume
         double volume = (quote.getHeightCm() * quote.getWidthCm() * quote.getLengthCm()) / 1000000.0;
 
@@ -470,62 +475,40 @@ public class ShipmentService {
             }
         }
 
-        // Use TariffService with Decorator pattern to get cost breakdown
-        var breakdown = tariffService.getCostBreakdown(
-            distance,
+        // REFACTORED: Use InvoiceService to calculate costs (centralizes all cost logic)
+        QuoteResultDTO result = invoiceService.calculateShipmentCost(
+            origin,
+            destination,
             quote.getWeightKg(),
             volume,
             quote.getPriority(),
             quote.getAdditionalServices()
         );
 
-        // Extract costs from breakdown
-        double baseCost = 0.0;
-        double weightCost = 0.0;
-        double volumeCost = 0.0;
-        double distanceCost = 0.0;
-        double servicesCost = 0.0;
-        double priorityCost = 0.0;
-
-        for (var item : breakdown) {
-            String desc = item.getDescription();
-            double amount = item.getAmount();
-
-            if (desc.equals("Costo Base")) {
-                baseCost = amount;
-            } else if (desc.contains("Distancia")) {
-                distanceCost = amount;
-            } else if (desc.contains("Peso")) {
-                weightCost = amount;
-            } else if (desc.contains("Volumen")) {
-                volumeCost = amount;
-            } else if (desc.contains("Prioridad")) {
-                priorityCost = amount;
-            } else {
-                // All other decorators are services (Insurance, Fragile, Signature)
-                servicesCost += amount;
-            }
+        // Override estimated delivery if requested pickup date is provided
+        if (quote.getRequestedPickupDate() != null) {
+            LocalDateTime estimatedDelivery = calculateEstimatedDelivery(
+                result.getDistanceKm(),
+                quote.getPriority(),
+                quote.getRequestedPickupDate()
+            );
+            result = new QuoteResultDTO(
+                result.getBaseCost(),
+                result.getWeightCost(),
+                result.getVolumeCost(),
+                result.getDistanceCost(),
+                result.getServicesCost(),
+                result.getPriorityCost(),
+                result.getTotalCost(),
+                result.getDistanceKm(),
+                estimatedDelivery
+            );
         }
 
-        // Calculate total using TariffService
-        double totalCost = tariffService.calculateTotalCost(
-            distance,
-            quote.getWeightKg(),
-            volume,
-            quote.getPriority(),
-            quote.getAdditionalServices()
-        );
-
-        // Calculate estimated delivery
-        LocalDateTime estimatedDelivery = calculateEstimatedDelivery(distance, quote.getPriority(),
-                quote.getRequestedPickupDate());
-
-        Logger.info("Quote calculated using Decorator pattern - Total: $" + totalCost + ", Vehicle: " + vehicleType);
-
-        // Create result with vehicle type
-        QuoteResultDTO result = new QuoteResultDTO(baseCost, weightCost, volumeCost, distanceCost,
-                servicesCost, priorityCost, totalCost, distance, estimatedDelivery);
+        // Set vehicle type
         result.setRecommendedVehicleType(vehicleType);
+
+        Logger.info("Quote calculated via InvoiceService - Total: $" + result.getTotalCost() + ", Vehicle: " + vehicleType);
 
         return result;
     }
@@ -836,5 +819,19 @@ public class ShipmentService {
 
         return new ShipmentStatsDTO(total, pending, inTransit, outForDelivery, delivered,
             cancelled, returned, incidents, avgDeliveryTime, successRate, totalRevenue);
+    }
+
+    /**
+     * Updates a shipment entity directly in the repository.
+     * Used when the entity has already been modified and just needs persistence.
+     *
+     * @param shipment The shipment entity to update
+     */
+    public void updateShipmentEntity(Shipment shipment) {
+        if (shipment == null || shipment.getId() == null) {
+            throw new IllegalArgumentException("Invalid shipment for update");
+        }
+        shipmentRepository.update(shipment);
+        Logger.info("Shipment entity updated: " + shipment.getId());
     }
 }

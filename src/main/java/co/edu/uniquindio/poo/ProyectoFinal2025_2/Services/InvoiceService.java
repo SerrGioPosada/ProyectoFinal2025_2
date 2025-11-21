@@ -4,9 +4,13 @@ import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Invoice;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.LineItem;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Order;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Tariff;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Address;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.QuoteDTO;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.dto.QuoteResultDTO;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.InvoiceRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Repositories.TariffRepository;
 import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilService.IdGenerationUtil;
+import co.edu.uniquindio.poo.ProyectoFinal2025_2.Util.UtilModel.DistanceCalculator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -157,5 +161,94 @@ public class InvoiceService {
         invoiceRepository.addInvoice(newInvoice);
 
         return newInvoice;
+    }
+
+    /**
+     * Calculates the cost breakdown for a shipment quote.
+     * This method centralizes all cost calculation logic using the Tariff and Decorator pattern.
+     *
+     * @param origin Origin address
+     * @param destination Destination address
+     * @param weightKg Package weight in kilograms
+     * @param volume Package volume in cubic meters
+     * @param priority Priority level (0-5)
+     * @param additionalServices List of additional services
+     * @return QuoteResultDTO with detailed cost breakdown
+     */
+    public QuoteResultDTO calculateShipmentCost(
+            Address origin,
+            Address destination,
+            double weightKg,
+            double volume,
+            int priority,
+            List<co.edu.uniquindio.poo.ProyectoFinal2025_2.Model.Enums.ServiceType> additionalServices) {
+
+        // Calculate distance
+        double distance = DistanceCalculator.calculateDistance(origin, destination);
+
+        // Use TariffService with Decorator pattern to get cost breakdown
+        var breakdown = tariffService.getCostBreakdown(
+            distance,
+            weightKg,
+            volume,
+            priority,
+            additionalServices
+        );
+
+        // Extract costs from breakdown
+        double baseCost = 0.0;
+        double weightCost = 0.0;
+        double volumeCost = 0.0;
+        double distanceCost = 0.0;
+        double servicesCost = 0.0;
+        double priorityCost = 0.0;
+
+        for (var item : breakdown) {
+            String desc = item.getDescription();
+            double amount = item.getAmount();
+
+            if (desc.equals("Costo Base")) {
+                baseCost = amount;
+            } else if (desc.contains("Distancia")) {
+                distanceCost = amount;
+            } else if (desc.contains("Peso")) {
+                weightCost = amount;
+            } else if (desc.contains("Volumen")) {
+                volumeCost = amount;
+            } else if (desc.contains("Prioridad")) {
+                priorityCost = amount;
+            } else {
+                // All other decorators are services (Insurance, Fragile, Signature)
+                servicesCost += amount;
+            }
+        }
+
+        // Calculate total using TariffService
+        double totalCost = tariffService.calculateTotalCost(
+            distance,
+            weightKg,
+            volume,
+            priority,
+            additionalServices
+        );
+
+        // Calculate estimated delivery (simplified version, can be moved to a utility)
+        int deliveryHours = 24 + (int) Math.ceil(DistanceCalculator.estimateTravelTime(distance));
+        if (priority > 3) {
+            deliveryHours -= (priority - 3) * 4;
+        }
+        LocalDateTime estimatedDelivery = LocalDateTime.now().plusHours(deliveryHours);
+
+        return new QuoteResultDTO(
+            baseCost,
+            weightCost,
+            volumeCost,
+            distanceCost,
+            servicesCost,
+            priorityCost,
+            totalCost,
+            distance,
+            estimatedDelivery
+        );
     }
 }
